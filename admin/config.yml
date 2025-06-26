@@ -1,0 +1,33 @@
+backend:
+  name: github
+  repo: dodochiang/Portfolio
+  branch: main
+  auth_type: oauth
+  base_url: https://atelier3rd.netlify.app
+  auth_endpoint: api/auth
+
+media_folder: images/uploads
+public_folder: /images/uploads
+
+collections:
+  - name: "projects"
+    label: "Projects"
+    folder: "projects"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Title (EN)", name: "title_en", widget: "string" }
+      - { label: "Title (ZH)", name: "title_zh", widget: "string" }
+      - { label: "Year", name: "year", widget: "number" }
+      - { label: "Location (EN)", name: "location_en", widget: "string" }
+      - { label: "Location (ZH)", name: "location_zh", widget: "string" }
+      - { label: "Category", name: "category", widget: "select", options: ["Housing", "Exhibition", "Public Building"] }
+      - { label: "Description (EN)", name: "description_en", widget: "markdown" }
+      - { label: "Description (ZH)", name: "description_zh", widget: "markdown" }
+      - label: "Images"
+        name: "images"
+        widget: "list"
+        fields:
+          - { label: "Image", name: "image", widget: "image" }
+          - { label: "Caption (EN)", name: "caption_en", widget: "string" }
+          - { label: "Caption (ZH)", name: "caption_zh", widget: "string" }
