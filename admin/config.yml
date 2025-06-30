@@ -1,22 +1,80 @@
 backend:
+  branch: main
   name: github
   repo: dodochiang/atelier3rd
-  branch: main
-
-media_folder: "uploads"
-public_folder: "/uploads"
-
 collections:
-  - name: "projects"
-    label: "Projects"
-    folder: "projects"
-    create: true
-    slug: "{{slug}}"
-    fields:
-      - { label: "Project Name (EN)", name: "title_en", widget: "string" }
-      - { label: "Project Name (ZH)", name: "title_zh", widget: "string" }
-      - { label: "Year", name: "year", widget: "number" }
-      - { label: "Description (EN)", name: "body_en", widget: "markdown" }
-      - { label: "Description (ZH)", name: "body_zh", widget: "markdown" }
-      - { label: "Thumbnail", name: "thumbnail", widget: "image" }
-      - { label: "Gallery", name: "gallery", widget: "list", field: {label: "Image", name: "image", widget: "image"} }
+- create: true
+  fields:
+  - label: 作品名稱（英文）
+    name: title_en
+    widget: string
+  - label: 作品名稱（中文）
+    name: title_zh
+    widget: string
+  - label: 年份
+    name: year
+    widget: number
+  - label: 城市
+    name: city
+    widget: string
+  - label: 國家
+    name: country
+    widget: string
+  - label: 地點簡述
+    name: location
+    widget: text
+  - label: 設計團隊
+    name: design_team
+    widget: list
+  - label: 用途
+    name: program
+    widget: list
+  - label: 業主
+    name: client
+    widget: string
+  - label: 基地面積（㎡）
+    name: site_area
+    widget: number
+  - label: 建築面積（㎡）
+    name: building_area
+    widget: number
+  - label: 樓地板面積（㎡）
+    name: floor_area
+    widget: number
+  - label: 層數
+    name: floors
+    widget: string
+  - label: 建材
+    name: materials
+    widget: list
+  - label: 設計時間
+    name: design_period
+    widget: string
+  - label: 施工時間
+    name: construction_period
+    widget: string
+  - label: 攝影
+    name: photographers
+    widget: list
+  - label: 簡介（英文）
+    name: body_en
+    widget: markdown
+  - label: 簡介（中文）
+    name: body_zh
+    widget: markdown
+  - label: 代表圖
+    name: thumbnail
+    widget: image
+  - field:
+      label: 圖片
+      name: image
+      widget: image
+    label: 圖庫
+    name: gallery
+    widget: list
+  folder: projects
+  label: 作品集
+  name: projects
+  slug: '{{slug}}'
+media_folder: "static/uploads"
+public_folder: "/uploads"
