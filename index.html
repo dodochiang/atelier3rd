@@ -21,44 +21,29 @@
   </div>
   <div id="project-grid" class="grid"></div>
 
-  <script>
-    const projects = [/* ← JS 內會透過 script 匯入所有 front matter 資料 */];
+  <script type="module">
+  async function fetchProjects() {
+    const projectListEl = document.getElementById("project-list");
+    const response = await fetch("/projects/");
+    const text = await response.text();
 
-    let currentLang = 'en';
+    // 簡單用來抓出連結的方式（需 directory listing 功能支援）
+    const links = [...text.matchAll(/href="(.*?\.md)"/g)].map((m) => m[1]);
 
-    function renderProjects() {
-      const container = document.getElementById('project-grid');
-      container.innerHTML = '';
-      projects.forEach(p => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <a href="/projects/${p.slug}.html">
-            <img class="thumb" src="${p.thumbnail}" alt="${p.title_en}" />
-            <h3>${currentLang === 'zh' ? p.title_zh : p.title_en}</h3>
-            <p>${p.year}</p>
-          </a>
-        `;
-        container.appendChild(card);
-      });
-    }
-
-    function switchLang(lang) {
-      currentLang = lang;
-      renderProjects();
-    }
-
-    function sortProjects(criteria) {
-      if (criteria === 'year') {
-        projects.sort((a, b) => b.year - a.year);
-      } else {
-        projects.sort((a, b) => a.title_en.localeCompare(b.title_en));
+    for (const link of links) {
+      const res = await fetch(`/projects/${link}`);
+      const md = await res.text();
+      const match = md.match(/thumbnail:\s*["']?(.*?)["']?\s*\n.*title_en:\s*["']?(.*?)["']?/s);
+      if (match) {
+        const [_, thumbnail, title] = match;
+        const div = document.createElement("div");
+        div.innerHTML = `<a href="/projects/${link.replace(".md", "")}"><img src="${thumbnail}" alt="${title}" width="200"><br>${title}</a>`;
+        projectListEl.appendChild(div);
       }
-      renderProjects();
     }
+  }
 
-    // 初始化渲染
-    renderProjects();
-  </script>
+  fetchProjects();
+</script>
 </body>
 </html>
