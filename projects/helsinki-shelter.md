@@ -8,6 +8,15 @@ gallery:
   - image: "/uploads/helsinki-shelter-2.jpg"
   - image: "/uploads/helsinki-shelter-3.jpg"
   - image: "/uploads/helsinki-shelter-4.jpg"
+  - image: "/uploads/helsinki-shelter-5.jpg"
+  - image: "/uploads/helsinki-shelter-6.jpg"
+  - image: "/uploads/helsinki-shelter-7.jpg"
+  - image: "/uploads/helsinki-shelter-8.jpg"
+  - image: "/uploads/helsinki-shelter-9.jpg"
+  - image: "/uploads/helsinki-shelter-10.jpg"
+  - image: "/uploads/helsinki-shelter-11.jpg"
+  - image: "/uploads/helsinki-shelter-12.jpg"
+  - image: "/uploads/helsinki-shelter-13.jpg"
 body_en: |
   ### Basic Info
 
