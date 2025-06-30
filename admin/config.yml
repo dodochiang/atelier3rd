@@ -1,6 +1,5 @@
 backend:
-  name: github
-  repo: dodochiang/atelier3rd
+  name: git-gateway
   branch: main
 
 media_folder: "static/uploads"
