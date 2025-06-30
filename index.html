@@ -1,11 +1,59 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Atelier3rd</title>
-  </head>
-  <body>
-    <h1>Welcome to Atelier3rd Portfolio</h1>
-    <p><a href="/admin">Enter CMS Admin</a></p>
-  </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Architect Projects</title>
+  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; line-height: 1.6; }
+    .project { border-bottom: 1px solid #ddd; margin-bottom: 2rem; padding-bottom: 2rem; }
+    img { max-width: 100%; height: auto; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>Project List</h1>
+  <div id="projects">Loading...</div>
+
+  <script>
+    const folder = '/projects/';
+    const files = [
+      'helsinki-shelter.md' // ← 你可加入更多 md 檔名
+    ];
+
+    async function loadMarkdown(file) {
+      const res = await fetch(folder + file);
+      const text = await res.text();
+
+      const match = /^---([\s\S]*?)---/.exec(text);
+      const frontmatter = match ? jsyaml.load(match[1]) : {};
+      const body = text.replace(/^---[\s\S]*?---/, '').trim();
+      const html = marked.parse(body);
+
+      return { ...frontmatter, html };
+    }
+
+    async function renderProjects() {
+      const container = document.getElementById('projects');
+      container.innerHTML = '';
+
+      for (const file of files) {
+        const project = await loadMarkdown(file);
+
+        const div = document.createElement('div');
+        div.className = 'project';
+        div.innerHTML = `
+          <h2>${project.title_en || 'Untitled'}</h2>
+          <p><strong>Year:</strong> ${project.year || 'N/A'}</p>
+          ${project.thumbnail ? `<img src="${project.thumbnail}" alt="Thumbnail" />` : ''}
+          ${project.html}
+        `;
+        container.appendChild(div);
+      }
+    }
+
+    renderProjects();
+  </script>
+</body>
 </html>
