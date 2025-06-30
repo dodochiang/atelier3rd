@@ -2,7 +2,8 @@
 title_en: People’s Architecture – Transitional Shelter
 title_zh: 人民建築 - 中繼屋
 year: 2017
-thumbnail: "/uploads/helsinki-shelter-thumbnail.jpg"
+thumbnail: "/uploads/helsinki-shelter-thumbnail.jpg"]
+slug: "helsinki-shelter"
 gallery:
   - image: "/uploads/helsinki-shelter-1.jpg"
   - image: "/uploads/helsinki-shelter-2.jpg"

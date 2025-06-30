@@ -2,57 +2,62 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Architect Projects</title>
-  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <title>Portfolio</title>
   <style>
-    body { font-family: sans-serif; margin: 2rem; line-height: 1.6; }
-    .project { border-bottom: 1px solid #ddd; margin-bottom: 2rem; padding-bottom: 2rem; }
-    img { max-width: 100%; height: auto; margin-top: 1rem; }
+    .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; }
+    .card { border: 1px solid #ccc; padding: 1rem; text-align: center; }
+    .thumb { width: 100%; aspect-ratio: 4/3; object-fit: cover; }
   </style>
 </head>
 <body>
-  <h1>Project List</h1>
-  <div id="projects">Loading...</div>
+  <h1>作品集 Projects</h1>
+  <div>
+    <button onclick="switchLang('zh')">中文</button>
+    <button onclick="switchLang('en')">English</button>
+    <select onchange="sortProjects(this.value)">
+      <option value="year">Sort by Year</option>
+      <option value="name">Sort by Name</option>
+    </select>
+  </div>
+  <div id="project-grid" class="grid"></div>
 
   <script>
-    const folder = '/projects/';
-    const files = [
-      'helsinki-shelter.md' // ← 你可加入更多 md 檔名
-    ];
+    const projects = [/* ← JS 內會透過 script 匯入所有 front matter 資料 */];
 
-    async function loadMarkdown(file) {
-      const res = await fetch(folder + file);
-      const text = await res.text();
+    let currentLang = 'en';
 
-      const match = /^---([\s\S]*?)---/.exec(text);
-      const frontmatter = match ? jsyaml.load(match[1]) : {};
-      const body = text.replace(/^---[\s\S]*?---/, '').trim();
-      const html = marked.parse(body);
-
-      return { ...frontmatter, html };
-    }
-
-    async function renderProjects() {
-      const container = document.getElementById('projects');
+    function renderProjects() {
+      const container = document.getElementById('project-grid');
       container.innerHTML = '';
-
-      for (const file of files) {
-        const project = await loadMarkdown(file);
-
-        const div = document.createElement('div');
-        div.className = 'project';
-        div.innerHTML = `
-          <h2>${project.title_en || 'Untitled'}</h2>
-          <p><strong>Year:</strong> ${project.year || 'N/A'}</p>
-          ${project.thumbnail ? `<img src="${project.thumbnail}" alt="Thumbnail" />` : ''}
-          ${project.html}
+      projects.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <a href="/projects/${p.slug}.html">
+            <img class="thumb" src="${p.thumbnail}" alt="${p.title_en}" />
+            <h3>${currentLang === 'zh' ? p.title_zh : p.title_en}</h3>
+            <p>${p.year}</p>
+          </a>
         `;
-        container.appendChild(div);
-      }
+        container.appendChild(card);
+      });
     }
 
+    function switchLang(lang) {
+      currentLang = lang;
+      renderProjects();
+    }
+
+    function sortProjects(criteria) {
+      if (criteria === 'year') {
+        projects.sort((a, b) => b.year - a.year);
+      } else {
+        projects.sort((a, b) => a.title_en.localeCompare(b.title_en));
+      }
+      renderProjects();
+    }
+
+    // 初始化渲染
     renderProjects();
   </script>
 </body>

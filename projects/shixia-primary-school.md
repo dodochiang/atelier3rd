@@ -3,6 +3,7 @@ title_en: "Shenzhen Shixia Primary School Tengger Campus"
 title_zh: "深圳石廈小學騰挪校舍"
 year: 2018
 thumbnail: "/uploads/shixia-campus-thumbnail.jpg"
+slug: "shixia-primary-school"
 gallery:
   - image: "/uploads/shixia-campus-1.jpg"
   - image: "/uploads/shixia-campus-2.jpg"
@@ -70,4 +71,3 @@ body_zh: |
   #### 效率證明：「30天蓋完一所小學」
   常民加強型輕鋼系統於30天內完成施工，材料皆為無毒、無塗料、可再利用，達成綠建築標準，並預期具50年使用壽命。
 ---
-
