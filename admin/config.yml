@@ -1,5 +1,5 @@
 backend:
-  name: git-gateway
+  name: github
   repo: dodochiang/atelier3rd
   branch: main
 
@@ -13,28 +13,10 @@ collections:
     create: true
     slug: "{{slug}}"
     fields:
-      - label: "Project Name (EN)"
-        name: "title_en"
-        widget: "string"
-      - label: "Project Name (ZH)"
-        name: "title_zh"
-        widget: "string"
-      - label: "Year"
-        name: "year"
-        widget: "number"
-      - label: "Description (EN)"
-        name: "body_en"
-        widget: "markdown"
-      - label: "Description (ZH)"
-        name: "body_zh"
-        widget: "markdown"
-      - label: "Thumbnail"
-        name: "thumbnail"
-        widget: "image"
-      - label: "Gallery"
-        name: "gallery"
-        widget: "list"
-        field:
-          label: "Image"
-          name: "image"
-          widget: "image"
+      - { label: "Project Name (EN)", name: "title_en", widget: "string" }
+      - { label: "Project Name (ZH)", name: "title_zh", widget: "string" }
+      - { label: "Year", name: "year", widget: "number" }
+      - { label: "Description (EN)", name: "body_en", widget: "markdown" }
+      - { label: "Description (ZH)", name: "body_zh", widget: "markdown" }
+      - { label: "Thumbnail", name: "thumbnail", widget: "image" }
+      - { label: "Gallery", name: "gallery", widget: "list", field: {label: "Image", name: "image", widget: "image"} }
