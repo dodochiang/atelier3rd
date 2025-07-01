@@ -3,6 +3,11 @@ backend:
   repo: dodochiang/atelier3rd
   branch: main
 
+media_library:
+  name: uploadcare
+  config:
+    publicKey: demopublickey
+
 media_folder: "static/uploads"        # 圖片實際儲存位置
 public_folder: "/uploads"             # 圖片在前台使用的路徑
 
