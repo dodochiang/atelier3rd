@@ -1,0 +1,26 @@
+backend:
+  name: github
+  repo: dodochiang/atelier3rd
+  branch: main
+
+media_folder: "static/uploads"
+public_folder: "/uploads"
+
+collections:
+  - name: "projects"
+    label: "作品 Project"
+    folder: "projects"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "英文標題 Title (EN)", name: "title_en", widget: "string" }
+      - { label: "中文標題 Title (ZH)", name: "title_zh", widget: "string" }
+      - { label: "年份 Year", name: "year", widget: "number" }
+      - { label: "封面縮圖 Thumbnail", name: "thumbnail", widget: "image", required: false }
+      - label: "作品圖庫 Gallery"
+        name: "gallery"
+        widget: "list"
+        field:
+          { label: "圖片 Image", name: "image", widget: "image" }
+      - { label: "英文內文 Description (EN)", name: "body_en", widget: "markdown" }
+      - { label: "中文內文 Description (ZH)", name: "body_zh", widget: "markdown" }

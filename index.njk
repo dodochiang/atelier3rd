@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Atelier 3rd Portfolio</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; }
+    .lang-switch { margin-bottom: 1rem; }
+    .project-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; }
+    .project { border: 1px solid #ccc; padding: 0.5rem; text-align: center; }
+    .project img { max-width: 100%; height: auto; }
+  </style>
+</head>
+<body>
+  <div class="lang-switch">
+    <button onclick="switchLang('en')">English</button>
+    <button onclick="switchLang('zh')">中文</button>
+    <select id="sortOrder" onchange="sortProjects()">
+      <option value="year-desc">Sort by Year ↓</option>
+      <option value="year-asc">Sort by Year ↑</option>
+      <option value="title-en">Sort by Name (EN)</option>
+    </select>
+  </div>
+  <div class="project-grid" id="projectGrid">
+    {% for project in collections.projects %}
+    <div class="project" data-year="{{ project.data.year }}" data-title-en="{{ project.data.title_en }}">
+      <a href="{{ project.url }}">
+        <img src="{{ project.data.thumbnail }}" alt="{{ project.data.title_en }}">
+        <div class="title en">{{ project.data.title_en }}</div>
+        <div class="title zh" style="display:none">{{ project.data.title_zh }}</div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+  <script>
+    function switchLang(lang) {
+      document.querySelectorAll('.title.en').forEach(el => el.style.display = lang === 'en' ? 'block' : 'none');
+      document.querySelectorAll('.title.zh').forEach(el => el.style.display = lang === 'zh' ? 'block' : 'none');
+    }
+    function sortProjects() {
+      const grid = document.getElementById('projectGrid');
+      const items = Array.from(grid.children);
+      const order = document.getElementById('sortOrder').value;
+      items.sort((a, b) => {
+        if (order === 'year-desc') return b.dataset.year - a.dataset.year;
+        if (order === 'year-asc') return a.dataset.year - b.dataset.year;
+        if (order === 'title-en') return a.dataset.titleEn.localeCompare(b.dataset.titleEn);
+      });
+      items.forEach(item => grid.appendChild(item));
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Netlify CMS</title>
+  </head>
+  <body>
+    <!-- ✅ 使用穩定的 v2.10.0 CDN -->
+    <script src="https://unpkg.com/netlify-cms@2.10.0/dist/netlify-cms.js"></script>
+
+    <!-- ✅ 放在 script 後面，確保 CMS 已載入 -->
+    <script>
+      if (window.CMS) {
+        window.CMS.init({
+          config: "/admin/config.yml"
+        });
+      } else {
+        console.error("CMS not loaded");
+      }
+    </script>
+  </body>
+</html>

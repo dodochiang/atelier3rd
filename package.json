@@ -1,0 +1,15 @@
+{
+  "name": "atelier3rd",
+  "version": "1.0.0",
+  "description": "Atelier-3rd portfolio site",
+  "main": "index.js",
+  "scripts": {
+    "build": "eleventy",
+    "start": "eleventy --serve"
+  },
+  "author": "atelier3rd",
+  "license": "MIT",
+  "devDependencies": {
+    "@11ty/eleventy": "^2.0.1"
+  }
+}

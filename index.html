@@ -1,49 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Portfolio</title>
-  <style>
-    .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; }
-    .card { border: 1px solid #ccc; padding: 1rem; text-align: center; }
-    .thumb { width: 100%; aspect-ratio: 4/3; object-fit: cover; }
-  </style>
-</head>
-<body>
-  <h1>作品集 Projects</h1>
-  <div>
-    <button onclick="switchLang('zh')">中文</button>
-    <button onclick="switchLang('en')">English</button>
-    <select onchange="sortProjects(this.value)">
-      <option value="year">Sort by Year</option>
-      <option value="name">Sort by Name</option>
-    </select>
-  </div>
-  <div id="project-grid" class="grid"></div>
-
-  <script type="module">
-  async function fetchProjects() {
-    const projectListEl = document.getElementById("project-list");
-    const response = await fetch("/projects/");
-    const text = await response.text();
-
-    // 簡單用來抓出連結的方式（需 directory listing 功能支援）
-    const links = [...text.matchAll(/href="(.*?\.md)"/g)].map((m) => m[1]);
-
-    for (const link of links) {
-      const res = await fetch(`/projects/${link}`);
-      const md = await res.text();
-      const match = md.match(/thumbnail:\s*["']?(.*?)["']?\s*\n.*title_en:\s*["']?(.*?)["']?/s);
-      if (match) {
-        const [_, thumbnail, title] = match;
-        const div = document.createElement("div");
-        div.innerHTML = `<a href="/projects/${link.replace(".md", "")}"><img src="${thumbnail}" alt="${title}" width="200"><br>${title}</a>`;
-        projectListEl.appendChild(div);
-      }
-    }
-  }
-
-  fetchProjects();
-</script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Atelier3rd Portfolio</title>
+  </head>
+  <body>
+    <h1>Portfolio Projects</h1>
+    <ul>
+      {% for project in collections.projects %}
+        <li>
+          <a href="{{ project.url }}">
+            <img src="{{ project.data.thumbnail }}" alt="{{ project.data.title_en }}" width="200"/>
+            <div>{{ project.data.title_en }} / {{ project.data.title_zh }}</div>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </body>
 </html>
