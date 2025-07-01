@@ -2,89 +2,113 @@
 title_en: People’s Architecture – Transitional Shelter
 title_zh: 人民建築 - 中繼屋
 year: 2017
-thumbnail: "/uploads/helsinki-shelter-thumbnail.jpg"
-slug: "helsinki-shelter"
+thumbnail: 'https://ucarecdn.com/110ebbc7-9439-45a7-ba33-61614a24bf21/'
 gallery:
-  - image: "/uploads/helsinki-shelter-1.jpg"
-  - image: "/uploads/helsinki-shelter-2.jpg"
-  - image: "/uploads/helsinki-shelter-3.jpg"
-  - image: "/uploads/helsinki-shelter-4.jpg"
-  - image: "/uploads/helsinki-shelter-5.jpg"
-  - image: "/uploads/helsinki-shelter-6.jpg"
-  - image: "/uploads/helsinki-shelter-7.jpg"
-  - image: "/uploads/helsinki-shelter-8.jpg"
-  - image: "/uploads/helsinki-shelter-9.jpg"
-  - image: "/uploads/helsinki-shelter-10.jpg"
-  - image: "/uploads/helsinki-shelter-11.jpg"
-  - image: "/uploads/helsinki-shelter-12.jpg"
-  - image: "/uploads/helsinki-shelter-13.jpg"
-body_en: |
+  - 'https://ucarecdn.com/3dcef96d-e321-455c-a733-61129f28c986/'
+body_en: >
   ### Basic Info
+
 
 
   - **Architect / Architecture Firm:** Hsieh Ying-Chun Architect & Atelier-3  
 
+
   - **Website:** [hsieh-ying-chun.com](https://www.hsieh-ying-chun.com/),
+
   [architectureforpeople.org](https://www.architectureforpeople.org/exhibition/peoples-architecture/)  
+
 
   - **Email:** hsiehyingchun@gmail.com  
 
+
   - **Completion Year:** 2017  
+
 
   - **Built Area:** 19.2 sq. meter  
 
+
   - **Location:** Helsinki, Finland  
+
 
   - **Photographer:** Alexander Popkov, Pinja Nikki  
 
+
   - **Lead Architect:** Hsieh Ying Chun  
+
 
   - **Team:** Hsieh Ying Chun & Atelier-3  
 
+
   - **Contractors:** Helsinki Design Week 2017  
 
+
   - **Co-Organizers:** Aalto University, Aavaranta Reception Centre, Bilkent
+
   University, Finnish Red Cross, Group X (Aalto University), Shih Chien
+
   University, Taiwanese in Finland  
+
 
   - **Sponsors:** Pauian Archiland, China Airline  
 
+
   - **Key Designers:** Shao-yi Chiang, Chia Hua Wu  
 
+
   - **Manufacturers / Products:** Design For People Ltd.
+
 
 
   ### Project Description
 
 
+
   #### Transitional Shelter, Built by Users
 
+
   In Helsinki Design Week 2017, we delivered a proposal to collaboratively build
+
   a transitional shelter with refugees, citizens and students. The goal is not
+
   only to provide dignified temporary living space, but also to restore dignity
+
   and self-worth through participatory construction.
+
 
 
   #### Self-sufficient Living / Sustainability
 
+
   The shelter uses a wooden frame and recyclable materials like straw and soil
+
   for insulation. It includes dry toilets and can be equipped with solar panels,
+
   allowing off-grid living. The shelter is fully demountable and its parts can
+
   be reused.
+
 
 
   #### Presentation
 
+
   The exhibition featured: 1) the housing unit, 2) previous works by the
+
   architect, 3) a media platform for public interaction. The two-level structure
+
   includes a ground-level space for livelihood or community use, and an upper
+
   level for private residence.
+
 
 
   #### From Survival to Contribution
 
+
   This low-cost construction system allows refugees to build housing with their
+
   own hands, not only solving shelter needs but also fostering reconciliation
+
   with host societies.
 body_zh: >
   ### 基本資料
@@ -142,3 +166,4 @@ body_zh: >
 
   此簡化建築系統讓難民自行興建棲居空間，不再僅是受助者，也能貢獻能力，緩解當前的社會張力。
 ---
+
