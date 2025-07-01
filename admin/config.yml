@@ -3,24 +3,53 @@ backend:
   repo: dodochiang/atelier3rd
   branch: main
 
-media_folder: "static/uploads"
-public_folder: "/uploads"
+media_folder: "static/uploads"        # 圖片實際儲存位置
+public_folder: "/uploads"             # 圖片在前台使用的路徑
 
 collections:
   - name: "projects"
-    label: "作品 Project"
+    label: "作品管理"
     folder: "projects"
     create: true
     slug: "{{slug}}"
     fields:
-      - { label: "英文標題 Title (EN)", name: "title_en", widget: "string" }
-      - { label: "中文標題 Title (ZH)", name: "title_zh", widget: "string" }
-      - { label: "年份 Year", name: "year", widget: "number" }
-      - { label: "封面縮圖 Thumbnail", name: "thumbnail", widget: "image", required: false }
-      - label: "作品圖庫 Gallery"
+      - label: "作品名稱（EN）"
+        name: "title_en"
+        widget: "string"
+        required: true
+
+      - label: "作品名稱（中文）"
+        name: "title_zh"
+        widget: "string"
+        required: true
+
+      - label: "年份"
+        name: "year"
+        widget: "number"
+        required: true
+
+      - label: "縮圖"
+        name: "thumbnail"
+        widget: "image"
+        hint: "建議尺寸 600x400px"
+        required: true
+
+      - label: "圖片集（Gallery）"
         name: "gallery"
         widget: "list"
+        label_singular: "圖片"
         field:
-          { label: "圖片 Image", name: "image", widget: "image" }
-      - { label: "英文內文 Description (EN)", name: "body_en", widget: "markdown" }
-      - { label: "中文內文 Description (ZH)", name: "body_zh", widget: "markdown" }
+          label: "圖片"
+          name: "image"
+          widget: "image"
+          required: false
+
+      - label: "英文介紹（Markdown）"
+        name: "body_en"
+        widget: "markdown"
+        required: false
+
+      - label: "中文介紹（Markdown）"
+        name: "body_zh"
+        widget: "markdown"
+        required: false

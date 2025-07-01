@@ -8,7 +8,7 @@ gallery:
 - image: /uploads/placeholder-1.jpg
 - image: /uploads/placeholder-2.jpg
 - image: /uploads/placeholder-3.jpg
-thumbnail: /static/uploads/placeholder-thumbnail.jpg
+thumbnail: /uploads/placeholder-thumbnail.jpg
 title_en: Placeholder Project
 title_zh: 範例作品
 year: 2025

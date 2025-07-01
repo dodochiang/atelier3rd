@@ -2,7 +2,7 @@
 title_en: "Project Placeholder 1"
 title_zh: "作品佔位符 1"
 year: 2025
-thumbnail: "/static/uploads/placeholder-thumbnail.jpg"
+thumbnail: "/uploads/placeholder-thumbnail.jpg"
 slug: "placeholder1"
 gallery:
   - image: "/uploads/placeholder-1.jpg"
