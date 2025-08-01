@@ -8,7 +8,7 @@ backend:
   branch: main
 
 media_library:
-  name: uploadcare
+  name: default
   config:
     publicKey: demopublickey
 
