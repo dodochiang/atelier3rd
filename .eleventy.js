@@ -1,6 +1,6 @@
 module.exports = function (eleventyConfig) {
   // ✅ 靜態檔案複製
-  eleventyConfig.addPassthroughCopy("static");
+  eleventyConfig.addPassthroughCopy({ "static/uploads": "uploads" });
   eleventyConfig.addPassthroughCopy("admin"); // ← 加入這行
 
   // ✅ 加入 markdown-it filter（確保已安裝）
