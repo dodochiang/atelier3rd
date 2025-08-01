@@ -1,4 +1,0 @@
-mkdir -p static/uploads
-touch static/uploads/.gitkeep
-git add static/uploads/.gitkeep
-git commit -m "Add uploads folder"
