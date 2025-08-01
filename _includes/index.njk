@@ -1,0 +1,15 @@
+{% extends "layout.njk" %}
+
+{% block content %}
+  <section class="home">
+    <h1 class="home-title">
+      <span class="lang lang-en">{{ title_en }}</span>
+      <span class="lang lang-zh">{{ title_zh }}</span>
+    </h1>
+
+    <div class="home-description">
+      <div class="lang lang-en">{{ body_en | markdown | safe }}</div>
+      <div class="lang lang-zh">{{ body_zh | markdown | safe }}</div>
+    </div>
+  </section>
+{% endblock %}

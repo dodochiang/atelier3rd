@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html data-lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title>{{ title_en or title_zh or 'Untitled Page' }}</title>
+  <style>
+    html[data-lang='en'] .lang-zh {
+      display: none !important;
+    }
+    html[data-lang='zh'] .lang-en {
+      display: none !important;
+    }
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: white;
+      padding: 1em 2em;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .navbar-left a,
+    .navbar-right a {
+      text-decoration: none;
+      color: black;
+      font-size: 1.1em;
+      font-weight: bold;
+      margin-left: 1em;
+      transition: color 0.2s ease;
+    }
+
+    .navbar-right a:hover {
+      color: #333; /* hover 時變成深灰*/
+}
+
+    .navbar-left a {
+      margin-left: 0;
+    }
+
+    .navbar-right {
+      flex: 1;
+      text-align: right;
+    }
+
+    .lang-toggle {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.9rem;
+    }
+
+    .lang-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: gray; /* 預設灰色 */
+      font-weight: normal;
+      padding: 2px 4px;
+      transition: color 0.2s ease; /* 平滑過渡 */
+  }
+
+    .lang-btn.active {
+      color: black;
+      font-weight: bold;
+  }
+
+    /* Hover 效果 */
+    .lang-btn:hover {
+      color: #333; /* 灰字 → 稍微變深 */
+  }
+
+    .lang-btn.active:hover {
+      color: #000; /* 黑字保持黑 */
+  }
+
+    .container {
+      max-width: 1000px;
+      margin: 2em auto;
+      padding: 1em;
+    }
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1em;
+      }
+
+      .project {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .project img {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        display: block;
+        border: none;
+      }
+
+      .project-title {
+        text-align: center;
+        font-size: 1em;
+        font-weight: bold;
+        color: #666;
+        margin-top: 0.3em;
+      }
+
+      .project-meta {
+        text-align: center;
+        font-size: 0.7em;
+        color: #666;
+        margin-top: 0.3em;
+      }
+      .project-thumb img {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        display: block;
+        border: none;
+      }
+      .page-content h1,
+      .page-content h2,
+      .page-content h3,
+      .page-content p {
+        text-align: left;
+      }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="lang-toggle">
+      <button class="lang-btn" data-lang-toggle="zh">中文</button>
+      |
+      <button class="lang-btn" data-lang-toggle="en">EN</button>
+    </div>
+
+    <div class="navbar-right">
+      <a class="lang-en" href="/">Main</a>
+      <a class="lang-en" href="/projects/">Projects</a>
+      <a class="lang-en" href="/about/">About</a>
+      <a class="lang-en" href="/contact/">Contact</a>
+
+      <a class="lang-zh" href="/">首頁</a>
+      <a class="lang-zh" href="/projects/">作品</a>
+      <a class="lang-zh" href="/about/">關於</a>
+      <a class="lang-zh" href="/contact/">聯繫</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    {% block content %}{{ content | safe }}{% endblock %}
+  </div>
+
+  <script>
+    function setLang(lang) {
+      // 儲存語言到 localStorage 並設定 data-lang 屬性
+      localStorage.setItem('lang', lang);
+      document.documentElement.setAttribute('data-lang', lang);
+
+      // 更新語言按鈕樣式（黑色/灰色）
+      document.querySelectorAll('[data-lang-toggle]').forEach(btn => {
+        const btnLang = btn.getAttribute('data-lang-toggle');
+        if (btnLang === lang) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+    }
+
+    function updateToggleButtonText(lang) {
+      const btn = document.getElementById("langToggleBtn");
+      if (!btn) return;
+      btn.textContent = lang === "zh" ? "EN / 中" : "中 / EN";
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const savedLang = localStorage.getItem('lang') || 'zh';
+      setLang(savedLang);
+
+      document.querySelectorAll('[data-lang-toggle]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const current = localStorage.getItem('lang') || 'en';
+          const next = current === 'en' ? 'zh' : 'en';
+          setLang(next);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+site_url: https://atelier3rd.netlify.app
+display_url: https://atelier3rd.netlify.app
+logo_url: /uploads/logo.png
+
+backend:
+  name: github
+  repo: dodochiang/atelier3rd
+  branch: main
+
+media_library:
+  name: uploadcare
+  config:
+    publicKey: demopublickey
+
+media_folder: "static/uploads"        # 實際存放圖片的位置
+public_folder: "/uploads"             # 前台可用的圖片路徑
+
+editor:
+  preview: true
+
+collections:
+  - name: "projects"
+    label: "作品管理"
+    folder: "projects"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - label: "基本資料"
+        name: "basic"
+        widget: "object"
+        fields:
+          - { label: "作品名稱（EN）", name: "title_en", widget: "string", required: true }
+          - { label: "作品名稱（中文）", name: "title_zh", widget: "string", required: true }
+          - { label: "地點", name: "location", widget: "string", required: false }
+          - { label: "作品類型（EN）", name: "type", widget: "string", required: false }
+          - { label: "作品類型（中文）", name: "type_zh", widget: "string", required: false }
+          - { label: "年份", name: "year", widget: "number", required: true }
+
+      - label: "縮圖"
+        name: "thumbnail"
+        widget: "image"
+        hint: "建議尺寸 600x400px"
+        required: true
+
+      - label: "圖片集（Gallery）"
+        name: "gallery"
+        widget: "list"
+        label_singular: "圖片"
+        fields:
+          - { label: "圖片", name: "image", widget: "image", required: false }
+          - { label: "說明（EN）", name: "caption_en", widget: "string", required: false }
+          - { label: "說明（中文）", name: "caption_zh", widget: "string", required: false }
+
+      - label: "介紹（EN）"
+        name: "body_en"
+        widget: "markdown"
+        required: false
+
+      - label: "介紹（中文）"
+        name: "body_zh"
+        widget: "markdown"
+        required: false
+
+      - label: "影片連結（YouTube Embed URL）"
+        name: "video"
+        widget: "string"
+        required: false
+        hint: "例如 https://www.youtube.com/embed/xxxx"
+
+  - name: "about"
+    label: "關於"
+    files:
+      - file: "pages/about.md"
+        label: "About"
+        name: "about"
+        fields:
+          - { label: "Title (EN)", name: "title_en", widget: "string" }
+          - { label: "Title (ZH)", name: "title_zh", widget: "string" }
+          - { label: "Body (EN)", name: "body_en", widget: "markdown" }
+          - { label: "Body (ZH)", name: "body_zh", widget: "markdown" }
+
+  - name: "contact"
+    label: "聯絡頁面"
+    files:
+      - file: "pages/contact.md"
+        label: "Contact"
+        name: "contact"
+        fields:
+          - { label: "Title (EN)", name: "title_en", widget: "string" }
+          - { label: "Title (ZH)", name: "title_zh", widget: "string" }
+          - { label: "Body (EN)", name: "body_en", widget: "markdown" }
+          - { label: "Body (ZH)", name: "body_zh", widget: "markdown" }

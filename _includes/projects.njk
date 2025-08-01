@@ -1,0 +1,177 @@
+{% extends "layout.njk" %}
+
+{% block content %}
+
+{% set typePairs = [] %}
+{% for project in collections.projects %}
+  {% set type = project.data.type %}
+  {% set type_zh = project.data.type_zh %}
+  {% set alreadyExists = false %}
+  {% for pair in typePairs %}
+    {% if pair.type == type %}
+      {% set alreadyExists = true %}
+    {% endif %}
+  {% endfor %}
+  {% if not alreadyExists %}
+    {% set typePairs = typePairs.concat([{ "type": type, "type_zh": type_zh }]) %}
+  {% endif %}
+{% endfor %}
+
+<style>
+  .project a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .project a:hover {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .projects-grid {
+    max-width: 1000px;
+    margin: 2em auto;
+    padding: 1em;
+    list-style: none;
+  }
+
+  .project-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+  }
+
+  .filters {
+    margin: 1em 0;
+    text-align: center;
+  }
+
+  .filters label,
+  .filters select,
+  .filters button {
+    margin: 0 0.5em;
+  }
+
+  .project-title {
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 1em 0;
+  }
+
+  .project-meta {
+    text-align: center;
+    font-size: 0.8em;
+    color: #666;
+    margin-top: 0.3em;
+  }
+
+  .project-thumb img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    display: block;
+    border: none;
+  }
+</style>
+
+<section class="projects-page">
+  <h1 class="project-title">
+    <span class="lang-en">{{ title_en or "Projects" }}</span>
+    <span class="lang-zh">{{ title_zh or "作品" }}</span>
+  </h1>
+
+  <div class="filters">
+    <label for="typeFilter" id="typeFilterLabel">Type:</label>
+    <select id="typeFilter">
+      <option value="all" data-en="All" data-zh="全部">All</option>
+      {% for pair in typePairs %}
+        <option value="{{ pair.type }}" data-en="{{ pair.type }}" data-zh="{{ pair.type_zh }}">{{ pair.type }}</option>
+      {% endfor %}
+    </select>
+
+    <button id="sortDesc">
+  <span class="lang lang-en">▼ Newest</span>
+  <span class="lang lang-zh">▼ 最新</span>
+</button>
+<button id="sortAsc">
+  <span class="lang lang-en">▲ Oldest</span>
+  <span class="lang lang-zh">▲ 最舊</span>
+</button>
+  </div>
+
+  <ul class="grid projects-grid project-grid">
+    {% for project in collections.projects %}
+      <li class="project"
+          data-year="{{ project.data.year }}"
+          data-type="{{ project.data.type }}"
+          data-location="{{ project.data.location_en }}">
+        <a href="{{ project.url }}">
+          <img src="{{ project.data.thumbnail }}" alt="Project thumbnail">
+          <div class="project-title">
+            <span class="lang-en">{{ project.data.title_en }}</span>
+            <span class="lang-zh">{{ project.data.title_zh }}</span>
+          </div>
+          <div class="project-meta">
+            <span class="lang-en">
+              {{ project.data.year }} | {{ project.data.location_en }} | {{ project.data.type }}
+            </span>
+            <span class="lang-zh">
+              {{ project.data.year }} | {{ project.data.location_zh }} | {{ project.data.type_zh }}
+            </span>
+          </div>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+</section>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const typeFilter = document.getElementById("typeFilter");
+    const typeFilterLabel = document.getElementById("typeFilterLabel");
+    const sortAscBtn = document.getElementById("sortAsc");
+    const sortDescBtn = document.getElementById("sortDesc");
+    const projectList = document.querySelector(".project-grid");
+    let projects = Array.from(projectList.children);
+
+    function filterAndSort(order = "desc") {
+      const selectedType = typeFilter.value;
+
+      let filtered = projects.filter(project => {
+        return selectedType === "all" || project.dataset.type === selectedType;
+      });
+
+      filtered.sort((a, b) => {
+        const aYear = parseInt(a.dataset.year);
+        const bYear = parseInt(b.dataset.year);
+        return order === "asc" ? aYear - bYear : bYear - aYear;
+      });
+
+      projectList.innerHTML = "";
+      filtered.forEach(p => projectList.appendChild(p));
+    }
+
+    typeFilter.addEventListener("change", () => filterAndSort());
+    sortAscBtn.addEventListener("click", () => filterAndSort("asc"));
+    sortDescBtn.addEventListener("click", () => filterAndSort("desc"));
+
+    filterAndSort("desc"); // 預設
+
+    // 多語言處理：按鈕、option、label
+    const lang = localStorage.getItem("lang") || "en";
+    document.querySelectorAll("option").forEach(opt => {
+      if (opt.dataset[lang]) opt.textContent = opt.dataset[lang];
+    });
+    [sortAscBtn, sortDescBtn].forEach(btn => {
+      if (btn.dataset[lang]) btn.textContent = btn.dataset[lang];
+    });
+    if (typeFilterLabel) {
+      typeFilterLabel.textContent = lang === "zh" ? "類型：" : "Type:";
+    }
+  });
+</script>
+
+{% endblock %}
