@@ -2,6 +2,11 @@ module.exports = function (eleventyConfig) {
   // 讓 static 目錄的檔案（如圖片）原樣複製到 _site
   eleventyConfig.addPassthroughCopy("static");
 
+  // 加入 markdown-it filter，供模板中使用 {{ content | markdown }}
+  eleventyConfig.addFilter("markdown", content =>
+    require("markdown-it")({ html: true }).render(content || "")
+  );
+
   // 定義 projects collection 並依年份由新到舊排序
   eleventyConfig.addCollection("projects", function (collectionApi) {
     return collectionApi.getFilteredByGlob("projects/*.md").sort((a, b) => {
