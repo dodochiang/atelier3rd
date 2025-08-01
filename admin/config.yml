@@ -13,7 +13,7 @@ media_library:
     publicKey: demopublickey
 
 media_folder: "static/uploads"        # 實際存放圖片的位置
-public_folder: "/uploads"             # 前台可用的圖片路徑
+public_folder: "static/uploads"             # 前台可用的圖片路徑
 
 editor:
   preview: true
