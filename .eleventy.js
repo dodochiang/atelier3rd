@@ -1,13 +1,15 @@
 module.exports = function (eleventyConfig) {
-  // 讓 static 目錄的檔案（如圖片）原樣複製到 _site
+  // ✅ 靜態檔案複製
   eleventyConfig.addPassthroughCopy("static");
+  eleventyConfig.addPassthroughCopy("admin"); // ← 加入這行
 
-  // 加入 markdown-it filter，供模板中使用 {{ content | markdown }}
+  // ✅ 加入 markdown-it filter（確保已安裝）
+  const markdownIt = require("markdown-it")({ html: true });
   eleventyConfig.addFilter("markdown", content =>
-    require("markdown-it")({ html: true }).render(content || "")
+    markdownIt.render(content || "")
   );
 
-  // 定義 projects collection 並依年份由新到舊排序
+  // ✅ 自定義 collection: projects
   eleventyConfig.addCollection("projects", function (collectionApi) {
     return collectionApi.getFilteredByGlob("projects/*.md").sort((a, b) => {
       return b.data.year - a.data.year;
@@ -16,10 +18,10 @@ module.exports = function (eleventyConfig) {
 
   return {
     dir: {
-      input: ".",          // 輸入目錄為根目錄
+      input: ".",
       includes: "_includes",
       data: "_data",
-      output: "_site",     // 產出目錄
+      output: "_site",
     },
     markdownTemplateEngine: "njk",
     htmlTemplateEngine: "njk",
