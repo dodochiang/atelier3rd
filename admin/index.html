@@ -1,76 +1,133 @@
-<!-- 建議你用 Decap v3 的 script；若已載入就保留現有的 -->
-<script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Content Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- 可選：Netlify Identity 登入 -->
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  </head>
+  <body>
+    <!-- Decap CMS v3 -->
+    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 
-<script>
-  // 載入預覽用 CSS（與站上樣式一致、但高度更保守）
-  CMS.registerPreviewStyle('/admin/preview.css');
+    <script>
+      (function () {
+        // 等待 Decap 載入完成
+        function ready(fn) {
+          if (document.readyState !== 'loading') return fn();
+          document.addEventListener('DOMContentLoaded', fn);
+        }
 
-  // Projects 預覽模板（React）
-  const ProjectPreview = createClass({
-    render() {
-      const entry = this.props.entry;
-      const get    = (k) => entry.getIn(['data', k]);
-      const getList = (k) => entry.getIn(['data', k]) || [];
+        ready(function () {
+          const CMS = window.CMS;
+          const createClass = window.createClass;
+          const h = window.h;
 
-      const title_en   = get('title_en');
-      const title_zh   = get('title_zh');
-      const year       = get('year');
-      const loc_en     = get('location_en');
-      const loc_zh     = get('location_zh');
-      const type_en    = get('type');
-      const type_zh    = get('type_zh'); // 若你已用映射，這個可不顯示
-      const thumbnail  = get('thumbnail');
-      const gallery    = getList('gallery').toJS();
+          if (!CMS || !createClass || !h) {
+            console.error('Decap CMS 未正確載入（CMS/createClass/h 缺少）');
+            return;
+          }
 
-      // body 使用 widgetFor，才能看到 Markdown 渲染結果
-      const body_en    = this.props.widgetFor('body_en');
-      const body_zh    = this.props.widgetFor('body_zh');
+          // 預覽樣式（沒有檔案也不會壞）
+          try {
+            CMS.registerPreviewStyle('/admin/preview.css');
+          } catch (e) {
+            console.warn('preview.css 未載入（可忽略）');
+          }
 
-      // 跟前台一致：路徑正規化（簡化版）
-      const normSrc = (src) => {
-        if (!src) return '';
-        const s = String(src);
-        return /^https?:\/\//i.test(s) ? s : (s.startsWith('/') ? s : '/' + s);
-      };
+          // 可選：登入後回到 /admin/
+          if (window.netlifyIdentity) {
+            window.netlifyIdentity.on('init', (user) => {
+              if (!user) {
+                window.netlifyIdentity.on('login', () => {
+                  document.location.href = '/admin/';
+                });
+              }
+            });
+          }
 
-      const heroSrc = normSrc(thumbnail);
-      const firstImg = gallery && gallery.length ? normSrc(gallery[0].image) : '';
+          // --- Projects 預覽 ---
+          const ProjectPreview = createClass({
+            render() {
+              const entry = this.props.entry;
+              const get     = (k) => entry.getIn(['data', k]);
+              const getList = (k) => entry.getIn(['data', k]) || [];
 
-      return h('div', { className: 'cms-preview-content' },
-        heroSrc && h('div', { className: 'project-hero' },
-          h('img', { src: heroSrc, alt: 'Project thumbnail' })
-        ),
-        h('h1', { className: 'project-title' },
-          h('span', { className: 'lang-en' }, title_en),
-          ' ',
-          h('span', { className: 'lang-zh' }, title_zh)
-        ),
-        h('p', { className: 'project-meta' },
-          `${year || ''}｜ `,
-          h('span', { className: 'lang-en' }, `${loc_en || ''}${type_en ? ' | ' + type_en : ''}`),
-          ' ',
-          h('span', { className: 'lang-zh' }, `${loc_zh || ''}${type_zh ? ' | ' + type_zh : ''}`)
-        ),
+              const title_en  = get('title_en');
+              const title_zh  = get('title_zh');
+              const year      = get('year');
+              const loc_en    = get('location_en');
+              const loc_zh    = get('location_zh');
 
-        h('div', { className: 'project-content' },
-          h('div', { className: 'lang-en' }, body_en),
-          h('div', { className: 'lang-zh' }, body_zh)
-        ),
+              // 如果你改成只存中文類型，可用 map 映射
+              const typeZh    = get('type');
+              const typeMap = {
+                '住宅': 'Residential',
+                '商業': 'Commercial',
+                '文化': 'Cultural',
+                '公共': 'Public',
+                '裝置': 'Installation',
+                '工作營及展覽': 'Workshops & Exhibition'
+              };
+              const type_en   = typeMap[typeZh] || get('type_en') || '';
+              const type_zh   = typeZh || get('type_zh') || '';
 
-        // 簡化的 gallery：只展示第一張，保持比例、看裁切效果
-        firstImg && h('div', { className: 'project-slider' },
-          h('div', { className: 'slide-image-wrapper' },
-            h('img', { src: firstImg, alt: 'Preview image' })
-          ),
-          (gallery[0].caption_en || gallery[0].caption_zh) &&
-          h('div', { className: 'gallery-caption' },
-            h('div', { className: 'lang-en' }, gallery[0].caption_en || ''),
-            h('div', { className: 'lang-zh' }, gallery[0].caption_zh || '')
-          )
-        )
-      );
-    }
-  });
+              const thumbnail = get('thumbnail');
+              const gallery   = getList('gallery').toJS();
 
-  CMS.registerPreviewTemplate('projects', ProjectPreview);
-</script>
+              const body_en   = this.props.widgetFor('body_en');
+              const body_zh   = this.props.widgetFor('body_zh');
+
+              const normSrc = (src) => {
+                if (!src) return '';
+                const s = String(src);
+                return /^https?:\/\//i.test(s) ? s : (s.startsWith('/') ? s : '/' + s);
+              };
+
+              const heroSrc  = normSrc(thumbnail);
+              const firstImg = gallery && gallery.length ? normSrc(gallery[0].image) : '';
+
+              return h('div', { className: 'cms-preview-content' },
+                heroSrc && h('div', { className: 'project-hero', style: { position: 'relative', width: '100%', aspectRatio: '16 / 9', overflow: 'hidden' } },
+                  h('img', { src: heroSrc, alt: 'Project thumbnail', style: { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' } })
+                ),
+
+                h('h1', { className: 'project-title', style: { textAlign: 'center' } },
+                  h('span', { className: 'lang-en' }, title_en || ''),
+                  ' ',
+                  h('span', { className: 'lang-zh' }, title_zh || '')
+                ),
+
+                h('p', { className: 'project-meta', style: { textAlign: 'center', color: 'gray' } },
+                  `${year || ''}｜ `,
+                  h('span', { className: 'lang-en' }, `${loc_en || ''}${type_en ? ' | ' + type_en : ''}`),
+                  ' ',
+                  h('span', { className: 'lang-zh' }, `${loc_zh || ''}${type_zh ? ' | ' + type_zh : ''}`)
+                ),
+
+                h('div', { className: 'project-content', style: { maxWidth: '800px', margin: '0 auto' } },
+                  h('div', { className: 'lang-en' }, body_en),
+                  h('div', { className: 'lang-zh' }, body_zh)
+                ),
+
+                firstImg && h('div', { className: 'project-slider', style: { maxWidth: '100%', margin: '2em auto' } },
+                  h('div', { className: 'slide-image-wrapper', style: { position: 'relative', width: '100%', aspectRatio: '16 / 9', overflow: 'hidden' } },
+                    h('img', { src: firstImg, alt: 'Preview image', style: { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' } })
+                  ),
+                  (gallery[0].caption_en || gallery[0].caption_zh) &&
+                  h('div', { className: 'gallery-caption', style: { textAlign: 'center', color: 'gray', marginTop: '.5em' } },
+                    h('div', { className: 'lang-en' }, gallery[0].caption_en || ''),
+                    h('div', { className: 'lang-zh' }, gallery[0].caption_zh || '')
+                  )
+                )
+              );
+            }
+          });
+
+          CMS.registerPreviewTemplate('projects', ProjectPreview);
+        });
+      })();
+    </script>
+  </body>
+</html>
