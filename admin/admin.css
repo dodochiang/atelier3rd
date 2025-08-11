@@ -1,0 +1,62 @@
+:root {
+  --brand: #111;       /* brand primary */
+  --brand-2: #666;     /* secondary text */
+  --accent: #111;      /* buttons/links */
+}
+
+/* App header */
+.nc-appHeader {
+  background: #fff !important;
+  border-bottom: 1px solid #eee !important;
+}
+.nc-appHeader-branding {
+  color: var(--brand);
+  font-weight: 700;
+}
+
+/* Buttons */
+.nc-btn, .nc-toolbar-button {
+  border-radius: 12px !important;
+}
+
+/* Inputs */
+.nc-controlPane input,
+.nc-controlPane textarea,
+.nc-controlPane .css-yk16xz-control, /* select */
+.nc-controlPane .css-1pahdxg-control {
+  border-radius: 10px !important;
+}
+
+/* Preview area */
+.preview-wrap {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+.preview-hero img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 0.75rem;
+}
+.preview-hero h1 {
+  margin: .25rem 0;
+  font-size: 1.25rem;
+}
+.preview-hero .muted { color: var(--brand-2); }
+.preview-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: .75rem;
+  margin-top: 1rem;
+}
+.preview-gallery img {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  border-radius: 10px;
+}
+.preview-gallery figcaption {
+  font-size: .8rem;
+  color: var(--brand-2);
+  margin-top: .25rem;
+}

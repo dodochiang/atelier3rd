@@ -3,25 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <title>Content Manager</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Netlify Identity Widget -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <script src="https://unpkg.com/netlify-cms@^2/dist/netlify-cms.js"></script>
   </head>
-  <body>
-    <!-- CMS 本體 -->
-    <script src="https://unpkg.com/netlify-cms@^2.0.0/dist/netlify-cms.js"></script>
-
-    <script>
-      // 登入邏輯
-      if (window.netlifyIdentity) {
-        window.netlifyIdentity.on("init", (user) => {
-          if (!user) {
-            window.netlifyIdentity.on("login", () => {
-              document.location.href = "/admin/";
-            });
-          }
-        });
-      }
-    </script>
-  </body>
+  <body></body>
 </html>
