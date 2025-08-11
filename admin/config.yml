@@ -16,12 +16,12 @@ editor:
 collections:
   # ========== Projects（資料夾型）==========
   - name: "projects"
-    label: "項目管理"
+    label: "項目"
     folder: "projects"
     create: true
-    slug: "{{year}}-{{title_en}}"
+    slug: "{{year}}-{{title_en}}-{{title_zh}}"
     identifier_field: "title_zh"
-    summary: "{{title_zh}} / {{title_en}} — {{year}}"
+    summary: "{{title_zh}} / {{title_en}} — {{year}} · {{type_zh | default('類型未填')}}"
     sortable_fields: ["year", "title_zh", "title_en", "commit_date"]
     preview_path: "projects/{{slug}}/"
     fields:
@@ -29,13 +29,13 @@ collections:
         name: "title_en"
         widget: "string"
         required: true
-        hint: "英文官方名稱；例：Riverside House"
+        hint: "英文項目名稱；例：Riverside House"
 
       - label: "作品名稱（中文）"
         name: "title_zh"
         widget: "string"
         required: true
-        hint: "中文官方名稱；例：河畔住宅"
+        hint: "中文項目名稱；例：伸港黃宅"
 
       - label: "年份"
         name: "year"
@@ -44,7 +44,7 @@ collections:
         min: 1900
         max: 2100
         required: true
-        hint: "四位數；例如 2024"
+        hint: "西元年份；例如 2024"
 
       - label: "地點（EN，可留白）"
         name: "location_en"
@@ -56,7 +56,7 @@ collections:
         name: "location_zh"
         widget: "string"
         required: false
-        hint: "例：台中市，台灣"
+        hint: "例：台中，台灣"
 
       - label: "作品類型（EN）"
         name: "type"
@@ -65,13 +65,9 @@ collections:
           - Residential
           - Commercial
           - Cultural
-          - Education
-          - Hospitality
           - Public
-          - Mixed-use
-          - Interior
-          - Landscape
           - Installation
+          - Workshops & Exhibitions
         required: false
         multiple: false
         hint: "選擇主要類型（英文）"
@@ -84,13 +80,9 @@ collections:
           - 住宅
           - 商業
           - 文化
-          - 教育
-          - 旅館
           - 公共
-          - 複合
-          - 室內
-          - 景觀
           - 裝置
+          - 工作營及展覽
         required: false
         multiple: false
         hint: "選擇主要類型（中文）"
