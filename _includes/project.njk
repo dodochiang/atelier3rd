@@ -1,8 +1,7 @@
 {% extends "layout.njk" %}
 
 {% block content %}
-{# ---------- 資料 fallback：同時支援 basic.* 與扁平欄位 ---------- #}
-{% set d = page or data or self or {} %}
+{# ---------- 資料 fallback：同時支援 basic.* 與扁平欄位（不使用 {} 與三元） ---------- #}
 {% set title_en = (basic and basic.title_en) or title_en %}
 {% set title_zh = (basic and basic.title_zh) or title_zh %}
 {% set year     = (basic and basic.year)     or year %}
@@ -11,12 +10,19 @@
 {% set type_en  = type %}
 {% set type_zh  = type_zh %}
 
-{# 縮圖路徑正規化 #}
+{# 縮圖路徑正規化（純 if/else） #}
 {% set _thumb = thumbnail or '' %}
-{% if _thumb and ('://' in _thumb) %}
-  {% set heroSrc = _thumb %}
-{% else %}
-  {% set heroSrc = _thumb and (_thumb[0] == '/' ? _thumb : '/' + _thumb) %}
+{% set heroSrc = '' %}
+{% if _thumb %}
+  {% if (_thumb | lower | slice(0,4)) == 'http' %}
+    {% set heroSrc = _thumb %}
+  {% else %}
+    {% if _thumb[0] == '/' %}
+      {% set heroSrc = _thumb %}
+    {% else %}
+      {% set heroSrc = '/' ~ _thumb %}
+    {% endif %}
+  {% endif %}
 {% endif %}
 
 <style>
@@ -230,28 +236,34 @@
 
   <div class="project-slider">
     <div class="slider-window" id="sliderWindow">
-      {% for item in gallery %}
-        {# 相簿圖片路徑正規化 #}
-        {% set g = item or {} %}
-        {% set _img = g.image or '' %}
-        {% if _img and ('://' in _img) %}
-          {% set imgSrc = _img %}
-        {% else %}
-          {% set imgSrc = _img and (_img[0] == '/' ? _img : '/' + _img) %}
-        {% endif %}
+    {% for item in gallery %}
+{% set g = item %}
+{% set _img = g.image or '' %}
+{% set imgSrc = '' %}
+{% if _img %}
+  {% if (_img | lower | slice(0,4)) == 'http' %}
+    {% set imgSrc = _img %}
+  {% else %}
+    {% if _img[0] == '/' %}
+      {% set imgSrc = _img %}
+    {% else %}
+      {% set imgSrc = '/' ~ _img %}
+    {% endif %}
+  {% endif %}
+{% endif %}
 
-        <div class="slide{% if loop.first %} active{% endif %}">
-          <div class="slide-image-wrapper">
-            {% if imgSrc %}
-              <img src="{{ imgSrc | safe }}" data-index="{{ loop.index0 }}" onclick="openLightbox({{ loop.index0 }})" loading="lazy" decoding="async">
-            {% endif %}
-          </div>
-          <div class="gallery-caption">
-            <span class="lang-en">{{ g.caption_en }}</span>
-            <span class="lang-zh">{{ g.caption_zh }}</span>
-          </div>
-        </div>
-      {% endfor %}
+<div class="slide{% if loop.first %} active{% endif %}">
+  <div class="slide-image-wrapper">
+    {% if imgSrc %}
+      <img src="{{ imgSrc | safe }}" data-index="{{ loop.index0 }}" onclick="openLightbox({{ loop.index0 }})" loading="lazy" decoding="async">
+    {% endif %}
+  </div>
+  <div class="gallery-caption">
+    <span class="lang-en">{{ g.caption_en }}</span>
+    <span class="lang-zh">{{ g.caption_zh }}</span>
+  </div>
+</div>
+{% endfor %}
 
       <button class="slider-btn prev" onclick="moveSlide(-1)" aria-label="Previous">←</button>
       <button class="slider-btn next" onclick="moveSlide(1)" aria-label="Next">→</button>
