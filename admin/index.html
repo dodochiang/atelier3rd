@@ -3,16 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <title>Content Manager</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- Netlify Identity（用 Git Gateway / Netlify Identity 登入時需要） -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Netlify Identity（若使用 git-gateway 需要；backend: github 可留可拿掉） -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   </head>
   <body>
-    <!-- 建議使用 Decap CMS（Netlify CMS 改名） -->
+    <!-- Decap CMS v3 -->
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 
     <script>
-      // 登入後回到 /admin/
+      // Optional：登入後回到 /admin/
       if (window.netlifyIdentity) {
         window.netlifyIdentity.on("init", (user) => {
           if (!user) {

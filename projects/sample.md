@@ -1,6 +1,5 @@
 ---
 layout: project.njk
-permalink: /projects/sample/index.html
 
 title_en: Sample Project
 title_zh: 範例作品
@@ -9,7 +8,7 @@ year: 2000
 location_en: Taipei
 location_zh: 台北
 
-type: residential
+type: Residential
 type_zh: 住宅
 
 thumbnail: /uploads/sample-thumb.jpg
@@ -22,8 +21,8 @@ gallery:
     caption_en: Interior view
     caption_zh: 室內視角
   - image: /uploads/sample-3.jpg
-    caption_en: Interior view
-    caption_zh: 室內視角
+    caption_en: Front elevation
+    caption_zh: 建築正立面
   - image: /uploads/sample-4.jpg
     caption_en: Interior view
     caption_zh: 室內視角
@@ -46,8 +45,7 @@ gallery:
     caption_en: Interior view
     caption_zh: 室內視角
 
-
-body_en: >
+body_en: |-
   ### Project Overview
 
   This project is situated within a complex urban fabric where modernity constantly negotiates with deep-rooted traditions. The building stands not only as a physical structure but also as a mediator of eras—reflecting the shifts in cultural identity, lifestyle, and community needs. The site was once home to a row of early 20th-century shophouses. Instead of erasing the past, the design strategy reinterprets the scale and rhythm of the original urban grain. This generated a layered spatial sequence that transitions from the street into a semi-public courtyard, then into private interiors, emphasizing a porous relationship between inside and outside.
@@ -74,8 +72,7 @@ body_en: >
 
   The project serves as a prototype for regenerative urban development—sensitive to history, adaptable to the future, and grounded in the present. It demonstrates that architecture is not merely about building form, but about cultivating relationships—between people, between timeframes, and between the built and natural environment.
 
-
-body_zh: >
+body_zh: |-
   ### 計畫簡介
 
   本案基地位於一個歷史紋理與當代需求交織的市中心。它不只是單純的新建築，而是一種回應時代演變的設計實踐。設計初衷並非徹底抹除舊有脈絡，而是將過去的空間尺度、街道肌理和社會活動重新詮釋，將歷史轉化為當代表達的材料。基地原為一排老式騎樓房屋，設計保留其建築比例與步行節奏，透過分層空間邏輯打造由街道進入半戶外中庭、再通往私人空間的轉譯過程，強調開放與包容的場域。
