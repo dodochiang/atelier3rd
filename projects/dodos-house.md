@@ -8,10 +8,10 @@ location_zh: 台中，台灣
 type: 工作營及展覽
 thumbnail: /uploads/events-09257.jpg
 gallery:
-  - image: /uploads/239571569485313_.pic_hd.jpg
+  - image: /uploads/img_9434.jpeg
     caption_en: Hi!
     caption_zh: 嗨！
-  - image: /uploads/1.pic_hd.jpg
+  - image: /uploads/events-13805.jpg
     caption_en: Test
     caption_zh: 測試
 body_en: Want to see how your project will perform before you deploy? Install
