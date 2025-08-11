@@ -15,29 +15,31 @@ editor:
 
 collections:
   - name: "projects"
-    label: "作品管理"
+    label: "項目管理"
     folder: "projects"
     create: true
-    slug: "{{slug}}"
+    slug: "{{year}}-{{title_en}}"
+    identifier_field: "title_zh"
     summary: "{{title_zh}} / {{title_en}} — {{year}}"
     sortable_fields: ["year", "title_zh", "title_en", "commit_date"]
     editor:
       preview: true
     fields:
-      - { label: "作品名稱（EN）", name: "title_en", widget: "string", required: true }
-      - { label: "作品名稱（中文）", name: "title_zh", widget: "string", required: true }
-      - { label: "年份", name: "year", widget: "number", required: true }
+      - { label: "作品名稱（EN）", name: "title_en", widget: "string", required: true, hint: "e.g. Riverside House" }
+      - { label: "作品名稱（中文）", name: "title_zh", widget: "string", required: true, hint: "例如：河畔住宅" }
+      - { label: "年份", name: "year", widget: "number", value_type: "int", min: 1900, max: 2100, required: true }
       - { label: "地點（EN，可留白）", name: "location_en", widget: "string", required: false }
       - { label: "地點（中文，可留白）", name: "location_zh", widget: "string", required: false }
       - { label: "作品類型（EN）", name: "type", widget: "string", required: false }
       - { label: "作品類型（中文）", name: "type_zh", widget: "string", required: false }
 
-      - { label: "縮圖", name: "thumbnail", widget: "image", hint: "建議尺寸 600x400px", required: false }
+      - { label: "縮圖", name: "thumbnail", widget: "image", allow_multiple: false, required: false, hint: "建議 1200×800（4:3）" }
 
       - label: "圖片集（Gallery）"
         name: "gallery"
         widget: "list"
         label_singular: "圖片"
+        collapsed: true
         fields:
           - { label: "圖片", name: "image", widget: "image", required: false }
           - { label: "說明（EN）", name: "caption_en", widget: "string", required: false }
@@ -45,8 +47,12 @@ collections:
 
       - { label: "介紹（EN）", name: "body_en", widget: "markdown", required: false }
       - { label: "介紹（中文）", name: "body_zh", widget: "markdown", required: false }
-      - { label: "影片連結（YouTube Embed URL）", name: "video", widget: "string", required: false, hint: "例如 https://www.youtube.com/embed/xxxx" }
-      
+      - { label: "影片連結（YouTube Embed URL）", name: "video", widget: "string", required: false, hint: "例如：https://www.youtube.com/embed/xxxx" }
+
+    # 管理介面卡片右側的小縮圖（可選）
+    # 需要 Netlify CMS 2.10+；若沒有可先拿掉
+    preview_path: "projects/{{slug}}/"
+
   - name: "about"
     label: "關於"
     files:
@@ -60,7 +66,7 @@ collections:
           - { label: "Body (ZH)", name: "body_zh", widget: "markdown" }
 
   - name: "contact"
-    label: "聯絡頁面"
+    label: "聯絡"
     files:
       - file: "pages/contact.md"
         label: "Contact"
