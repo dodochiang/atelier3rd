@@ -16,7 +16,7 @@ editor:
 collections:
   # ========== Projects ==========
   - name: "projects"
-    label: "項目管理"
+    label: "項目"
     folder: "projects"
     create: true
     slug: "{{title_en}}"
@@ -34,13 +34,13 @@ collections:
         name: "title_en"
         widget: "string"
         required: true
-        hint: "英文官方名稱；例：Riverside House"
+        hint: "英文項目名稱；例：Riverside House"
 
       - label: "作品名稱（中文）"
         name: "title_zh"
         widget: "string"
         required: true
-        hint: "中文官方名稱；例：河畔住宅"
+        hint: "中文項目名稱；例：伸港黃宅"
 
       - label: "年份"
         name: "year"
@@ -61,7 +61,7 @@ collections:
         name: "location_zh"
         widget: "string"
         required: false
-        hint: "例：台中市，台灣"
+        hint: "例：台中，台灣"
 
       # 類型（只存中文顯示；英文由前端對照）
       - label: "作品類型（中文）"
