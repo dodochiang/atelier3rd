@@ -46,35 +46,22 @@ collections:
         required: true
         hint: "四位數；例如 2024"
       - { label: "地點（EN，可留白）", name: "location_en", widget: "string", required: false, hint: "例：Taichung, Taiwan" }
-      - { label: "地點（中文，可留白）", name: "location_zh", widget: "string", required: false, hint: "例：台中市，台灣" }
+      - { label: "地點（中文，可留白）", name: "location_zh", widget: "string", required: false, hint: "例：台中，台灣" }
 
-      # 類型（下拉）
-      - label: "作品類型（EN）"
+      # 類型（單一欄位，選中文 → 存英文）
+      - label: "作品類型"
         name: "type"
         widget: "select"
         multiple: false
         required: false
         options:
-          - Residential
-          - Commercial
-          - Cultural
-          - Public
-          - Installation
-          - Workshops & Exhibition
-        hint: "選擇主要類型（英文）"
-      - label: "作品類型（中文）"
-        name: "type_zh"
-        widget: "select"
-        multiple: false
-        required: false
-        options:
-          - 住宅
-          - 商業
-          - 文化
-          - 公共
-          - 裝置
-          - 工作營及展覽
-        hint: "選擇主要類型（中文）"
+      - { label: "住宅", value: "Residential" }
+      - { label: "商業", value: "Commercial" }
+      - { label: "文化", value: "Cultural" }
+      - { label: "公共", value: "Public" }
+      - { label: "裝置", value: "Installation" }
+      - { label: "工作營及展覽", value: "Workshops & Exhibition" }
+        hint: "選擇主要類型（中文，實際儲存英文）"
 
       # 縮圖
       - label: "縮圖"

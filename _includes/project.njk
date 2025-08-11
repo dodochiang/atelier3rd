@@ -1,14 +1,21 @@
 {% extends "layout.njk" %}
 
 {% block content %}
-{# ---------- 資料 fallback：同時支援 basic.* 與扁平欄位（不使用 {} 與三元） ---------- #}
-{% set title_en = (basic and basic.title_en) or title_en %}
-{% set title_zh = (basic and basic.title_zh) or title_zh %}
-{% set year     = (basic and basic.year)     or year %}
-{% set loc_en   = location_en or location %}
-{% set loc_zh   = location_zh or location %}
-{% set type_en  = type %}
-{% set type_zh  = type_zh %}
+{# 英文 → 中文 類型對照 #}
+{% set TYPE_ZH = {
+  "Residential": "住宅",
+  "Commercial": "商業",
+  "Cultural": "文化",
+  "Public": "公共",
+  "Installation": "裝置",
+  "Workshops & Exhibition": "工作營及展覽"
+} %}
+
+{# -------- 扁平欄位（不再支援 basic.*） -------- #}
+{% set loc_en = location_en or location %}
+{% set loc_zh = location_zh or location %}
+{% set type_en = type %}
+{% set type_zh_display = TYPE_ZH[type_en] or type_en %}
 
 {# 縮圖路徑正規化（純 if/else） #}
 {% set _thumb = thumbnail or '' %}
@@ -29,7 +36,7 @@
   .project-hero {
     width: 100%;
     aspect-ratio: 16 / 9;
-    max-height: 500px;          /* ← 修正拼寫 */
+    max-height: 500px;
     overflow: hidden;
     position: relative;
     margin-bottom: 2.5em;
@@ -39,7 +46,7 @@
     inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;          /* 滿版裁切 */
+    object-fit: cover;
     object-position: center;
     display: block;
   }
@@ -215,7 +222,7 @@
 <p class="project-meta">
   {{ year }}｜
   <span class="lang-en">{{ loc_en }}{% if type_en %} | {{ type_en }}{% endif %}</span>
-  <span class="lang-zh">{{ loc_zh }}{% if type_zh %} | {{ type_zh }}{% endif %}</span>
+  <span class="lang-zh">{{ loc_zh }}{% if type_en %} | {{ type_zh_display }}{% endif %}</span>
 </p>
 
 <div class="project-content">
@@ -236,34 +243,34 @@
 
   <div class="project-slider">
     <div class="slider-window" id="sliderWindow">
-    {% for item in gallery %}
-{% set g = item %}
-{% set _img = g.image or '' %}
-{% set imgSrc = '' %}
-{% if _img %}
-  {% if (_img | lower | slice(0,4)) == 'http' %}
-    {% set imgSrc = _img %}
-  {% else %}
-    {% if _img[0] == '/' %}
-      {% set imgSrc = _img %}
-    {% else %}
-      {% set imgSrc = '/' ~ _img %}
-    {% endif %}
-  {% endif %}
-{% endif %}
+      {% for item in gallery %}
+        {% set g = item %}
+        {% set _img = g.image or '' %}
+        {% set imgSrc = '' %}
+        {% if _img %}
+          {% if (_img | lower | slice(0,4)) == 'http' %}
+            {% set imgSrc = _img %}
+          {% else %}
+            {% if _img[0] == '/' %}
+              {% set imgSrc = _img %}
+            {% else %}
+              {% set imgSrc = '/' ~ _img %}
+            {% endif %}
+          {% endif %}
+        {% endif %}
 
-<div class="slide{% if loop.first %} active{% endif %}">
-  <div class="slide-image-wrapper">
-    {% if imgSrc %}
-      <img src="{{ imgSrc | safe }}" data-index="{{ loop.index0 }}" onclick="openLightbox({{ loop.index0 }})" loading="lazy" decoding="async">
-    {% endif %}
-  </div>
-  <div class="gallery-caption">
-    <span class="lang-en">{{ g.caption_en }}</span>
-    <span class="lang-zh">{{ g.caption_zh }}</span>
-  </div>
-</div>
-{% endfor %}
+        <div class="slide{% if loop.first %} active{% endif %}">
+          <div class="slide-image-wrapper">
+            {% if imgSrc %}
+              <img src="{{ imgSrc | safe }}" data-index="{{ loop.index0 }}" onclick="openLightbox({{ loop.index0 }})" loading="lazy" decoding="async">
+            {% endif %}
+          </div>
+          <div class="gallery-caption">
+            <span class="lang-en">{{ g.caption_en }}</span>
+            <span class="lang-zh">{{ g.caption_zh }}</span>
+          </div>
+        </div>
+      {% endfor %}
 
       <button class="slider-btn prev" onclick="moveSlide(-1)" aria-label="Previous">←</button>
       <button class="slider-btn next" onclick="moveSlide(1)" aria-label="Next">→</button>

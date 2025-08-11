@@ -1,27 +1,76 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Content Manager</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Netlify Identity（若使用 git-gateway 需要；backend: github 可留可拿掉） -->
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-  </head>
-  <body>
-    <!-- Decap CMS v3 -->
-    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+<!-- 建議你用 Decap v3 的 script；若已載入就保留現有的 -->
+<script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 
-    <script>
-      // Optional：登入後回到 /admin/
-      if (window.netlifyIdentity) {
-        window.netlifyIdentity.on("init", (user) => {
-          if (!user) {
-            window.netlifyIdentity.on("login", () => {
-              document.location.href = "/admin/";
-            });
-          }
-        });
-      }
-    </script>
-  </body>
-</html>
+<script>
+  // 載入預覽用 CSS（與站上樣式一致、但高度更保守）
+  CMS.registerPreviewStyle('/admin/preview.css');
+
+  // Projects 預覽模板（React）
+  const ProjectPreview = createClass({
+    render() {
+      const entry = this.props.entry;
+      const get    = (k) => entry.getIn(['data', k]);
+      const getList = (k) => entry.getIn(['data', k]) || [];
+
+      const title_en   = get('title_en');
+      const title_zh   = get('title_zh');
+      const year       = get('year');
+      const loc_en     = get('location_en');
+      const loc_zh     = get('location_zh');
+      const type_en    = get('type');
+      const type_zh    = get('type_zh'); // 若你已用映射，這個可不顯示
+      const thumbnail  = get('thumbnail');
+      const gallery    = getList('gallery').toJS();
+
+      // body 使用 widgetFor，才能看到 Markdown 渲染結果
+      const body_en    = this.props.widgetFor('body_en');
+      const body_zh    = this.props.widgetFor('body_zh');
+
+      // 跟前台一致：路徑正規化（簡化版）
+      const normSrc = (src) => {
+        if (!src) return '';
+        const s = String(src);
+        return /^https?:\/\//i.test(s) ? s : (s.startsWith('/') ? s : '/' + s);
+      };
+
+      const heroSrc = normSrc(thumbnail);
+      const firstImg = gallery && gallery.length ? normSrc(gallery[0].image) : '';
+
+      return h('div', { className: 'cms-preview-content' },
+        heroSrc && h('div', { className: 'project-hero' },
+          h('img', { src: heroSrc, alt: 'Project thumbnail' })
+        ),
+        h('h1', { className: 'project-title' },
+          h('span', { className: 'lang-en' }, title_en),
+          ' ',
+          h('span', { className: 'lang-zh' }, title_zh)
+        ),
+        h('p', { className: 'project-meta' },
+          `${year || ''}｜ `,
+          h('span', { className: 'lang-en' }, `${loc_en || ''}${type_en ? ' | ' + type_en : ''}`),
+          ' ',
+          h('span', { className: 'lang-zh' }, `${loc_zh || ''}${type_zh ? ' | ' + type_zh : ''}`)
+        ),
+
+        h('div', { className: 'project-content' },
+          h('div', { className: 'lang-en' }, body_en),
+          h('div', { className: 'lang-zh' }, body_zh)
+        ),
+
+        // 簡化的 gallery：只展示第一張，保持比例、看裁切效果
+        firstImg && h('div', { className: 'project-slider' },
+          h('div', { className: 'slide-image-wrapper' },
+            h('img', { src: firstImg, alt: 'Preview image' })
+          ),
+          (gallery[0].caption_en || gallery[0].caption_zh) &&
+          h('div', { className: 'gallery-caption' },
+            h('div', { className: 'lang-en' }, gallery[0].caption_en || ''),
+            h('div', { className: 'lang-zh' }, gallery[0].caption_zh || '')
+          )
+        )
+      );
+    }
+  });
+
+  CMS.registerPreviewTemplate('projects', ProjectPreview);
+</script>

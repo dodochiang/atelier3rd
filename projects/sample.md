@@ -5,8 +5,7 @@ title_zh: 範例作品
 year: 2000
 location_en: Taipei
 location_zh: 台北
-type: Residential
-type_zh: 住宅
+type: 住宅
 thumbnail: /uploads/sample-thumb.jpg
 gallery:
   - image: /uploads/sample-1.jpg
