@@ -22,9 +22,9 @@ collections:
     folder: "projects"
     create: true
     # v3 支援：以欄位組合檔名（避免出現系統年份）
-    slug: "{{fields.year}}-{{fields.title_en}}"
+    slug: "{{fields.title_en}}"
     identifier_field: "title_zh"
-    summary: "{{title_zh}} / {{title_en}} — {{year}} · {{type_zh | default('類型未填')}}"
+    summary: "{{title_zh}} / {{title_en}}"
     sortable_fields: ["year", "title_zh", "title_en", "commit_date"]
     preview_path: "projects/{{slug}}/"
     fields:
@@ -58,13 +58,9 @@ collections:
           - Residential
           - Commercial
           - Cultural
-          - Education
-          - Hospitality
           - Public
-          - Mixed-use
-          - Interior
-          - Landscape
           - Installation
+          - Workshops & Exhibition
         hint: "選擇主要類型（英文）"
       - label: "作品類型（中文）"
         name: "type_zh"
@@ -75,13 +71,9 @@ collections:
           - 住宅
           - 商業
           - 文化
-          - 教育
-          - 旅館
           - 公共
-          - 複合
-          - 室內
-          - 景觀
           - 裝置
+          - 工作營及展覽
         hint: "選擇主要類型（中文）"
 
       # 縮圖
