@@ -7,13 +7,14 @@ backend:
   repo: dodochiang/atelier3rd
   branch: main
 
-media_folder: "static/uploads"        # 實際存放圖片的位置
-public_folder: "/uploads"             # 前台可用的圖片路徑
+media_folder: "static/uploads"   # 實際存檔位置（repo 裡）
+public_folder: "/uploads"        # 網站公開路徑（搭配 Eleventy passthrough）
 
 editor:
   preview: true
 
 collections:
+  # ========== Projects（資料夾型）==========
   - name: "projects"
     label: "項目管理"
     folder: "projects"
@@ -22,115 +23,130 @@ collections:
     identifier_field: "title_zh"
     summary: "{{title_zh}} / {{title_en}} — {{year}}"
     sortable_fields: ["year", "title_zh", "title_en", "commit_date"]
-    editor:
-      preview: true
+    preview_path: "projects/{{slug}}/"
     fields:
-  # ---- 基本資料 ----
-  - label: "作品名稱（EN）"
-    name: "title_en"
-    widget: "string"
-    required: true
-    hint: "英文官方名稱；例：Riverside House"
+      - label: "作品名稱（EN）"
+        name: "title_en"
+        widget: "string"
+        required: true
+        hint: "英文官方名稱；例：Riverside House"
 
-  - label: "作品名稱（中文）"
-    name: "title_zh"
-    widget: "string"
-    required: true
-    hint: "中文官方名稱；例：伸港黃宅"
+      - label: "作品名稱（中文）"
+        name: "title_zh"
+        widget: "string"
+        required: true
+        hint: "中文官方名稱；例：河畔住宅"
 
-  - label: "年份"
-    name: "year"
-    widget: "number"
-    value_type: "int"
-    min: 1900
-    max: 2100
-    required: true
-    hint: "完工或主要設計年份；四位數（例如：2024）"
+      - label: "年份"
+        name: "year"
+        widget: "number"
+        value_type: "int"
+        min: 1900
+        max: 2100
+        required: true
+        hint: "四位數；例如 2024"
 
-  - label: "地點（EN，可留白）"
-    name: "location_en"
-    widget: "string"
-    required: false
-    hint: "城市、國家（英文）；例：Taichung, Taiwan"
+      - label: "地點（EN，可留白）"
+        name: "location_en"
+        widget: "string"
+        required: false
+        hint: "例：Taichung, Taiwan"
 
-  - label: "地點（中文，可留白）"
-    name: "location_zh"
-    widget: "string"
-    required: false
-    hint: "城市、國家（中文）；例：台中，台灣"
+      - label: "地點（中文，可留白）"
+        name: "location_zh"
+        widget: "string"
+        required: false
+        hint: "例：台中市，台灣"
 
-  # ---- 作品類型：改為下拉選單（中英各一）----
-  - label: "作品類型（EN）"
-    name: "type"
-    widget: "select"
-    options:
-      - Residential
-      - Commercial
-      - Cultural
-      - Public
-      - Installation
-      - Exhibition & Workshops
-    required: false
-    hint: "選擇一個主要類型（英文）"
-    multiple: false
-    # allow_add: true   # 若要允許自訂選項，打開這行
+      - label: "作品類型（EN）"
+        name: "type"
+        widget: "select"
+        options:
+          - Residential
+          - Commercial
+          - Cultural
+          - Education
+          - Hospitality
+          - Public
+          - Mixed-use
+          - Interior
+          - Landscape
+          - Installation
+        required: false
+        multiple: false
+        hint: "選擇主要類型（英文）"
+        # allow_add: true
 
-  - label: "作品類型（中文）"
-    name: "type_zh"
-    widget: "select"
-    options:
-      - 住宅
-      - 商業
-      - 文化
-      - 公共
-      - 裝置
-      - 展覽及工作營
-    required: false
-    hint: "選擇一個主要類型（中文）"
-    multiple: false
-    # allow_add: true
+      - label: "作品類型（中文）"
+        name: "type_zh"
+        widget: "select"
+        options:
+          - 住宅
+          - 商業
+          - 文化
+          - 教育
+          - 旅館
+          - 公共
+          - 複合
+          - 室內
+          - 景觀
+          - 裝置
+        required: false
+        multiple: false
+        hint: "選擇主要類型（中文）"
+        # allow_add: true
 
-  # ---- 圖片 ----
-  - label: "縮圖"
-    name: "thumbnail"
-    widget: "image"
-    allow_multiple: false
-    required: false
-    hint: "建議 1200×900（4:3），JPG"
+      - label: "縮圖"
+        name: "thumbnail"
+        widget: "image"
+        allow_multiple: false
+        required: false
+        hint: "建議 1200×900（4:3），JPG"
 
-  - label: "圖片集（Gallery）"
-    name: "gallery"
-    widget: "list"
-    label_singular: "圖片"
-    collapsed: true
-    fields:
-      - { label: "圖片", name: "image", widget: "image", required: false, hint: "盡量與縮圖同寬高比（4:3 或 16:9）" }
-      - { label: "說明（EN）", name: "caption_en", widget: "string", required: false, hint: "簡短描述；例：South facade" }
-      - { label: "說明（中文）", name: "caption_zh", widget: "string", required: false, hint: "簡短描述；例：南向立面" }
+      - label: "圖片集（Gallery）"
+        name: "gallery"
+        widget: "list"
+        label_singular: "圖片"
+        collapsed: true
+        fields:
+          - label: "圖片"
+            name: "image"
+            widget: "image"
+            required: false
+            hint: "建議與縮圖相近比例（4:3 或 16:9）"
+          - label: "說明（EN）"
+            name: "caption_en"
+            widget: "string"
+            required: false
+            hint: "例：South facade"
+          - label: "說明（中文）"
+            name: "caption_zh"
+            widget: "string"
+            required: false
+            hint: "例：南向立面"
 
-  # ---- 內文 ----
-  - label: "介紹（EN）"
-    name: "body_en"
-    widget: "markdown"
-    required: false
-    hint: "英文敘述；支援 Markdown 標題、清單、粗體等"
+      - label: "介紹（EN）"
+        name: "body_en"
+        widget: "markdown"
+        required: false
+        hint: "英文敘述；支援 Markdown"
 
-  - label: "介紹（中文）"
-    name: "body_zh"
-    widget: "markdown"
-    required: false
-    hint: "中文敘述；支援 Markdown 標題、清單、粗體等"
+      - label: "介紹（中文）"
+        name: "body_zh"
+        widget: "markdown"
+        required: false
+        hint: "中文敘述；支援 Markdown"
 
-  # ---- 影片 ----
-  - label: "影片連結（YouTube Embed URL）"
-    name: "video"
-    widget: "string"
-    required: false
-    hint: "請貼「嵌入」網址，如：https://www.youtube.com/embed/XXXXXX"
-    pattern:
-      - '^$|^https:\/\/www\.youtube\.com\/embed\/[A-Za-z0-9_-]+'
-      - "格式錯誤，請使用 https://www.youtube.com/embed/XXXXXX"
+      - label: "影片連結（YouTube Embed URL）"
+        name: "video"
+        widget: "string"
+        required: false
+        hint: "請用 https://www.youtube.com/embed/XXXXXX"
+        pattern:
+          - '^$|^https:\/\/www\.youtube\.com\/embed\/[A-Za-z0-9_-]+'
+          - "格式錯誤，請使用 https://www.youtube.com/embed/XXXXXX"
 
+  # ========== About（單檔型）==========
   - name: "about"
     label: "關於"
     files:
@@ -143,6 +159,7 @@ collections:
           - { label: "Body (EN)", name: "body_en", widget: "markdown" }
           - { label: "Body (ZH)", name: "body_zh", widget: "markdown" }
 
+  # ========== Contact（單檔型）==========
   - name: "contact"
     label: "聯絡"
     files:
