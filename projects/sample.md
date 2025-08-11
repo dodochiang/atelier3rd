@@ -1,4 +1,52 @@
 ---
+layout: project.njk
+permalink: /projects/sample/index.html
+
+title_en: Sample Project
+title_zh: 範例作品
+year: 2000
+
+location_en: Taipei
+location_zh: 台北
+
+type: residential
+type_zh: 住宅
+
+thumbnail: /uploads/sample-thumb.jpg
+
+gallery:
+  - image: /uploads/sample-1.jpg
+    caption_en: Front elevation
+    caption_zh: 建築正立面
+  - image: /uploads/sample-2.jpg
+    caption_en: Interior view
+    caption_zh: 室內視角
+  - image: /uploads/sample-3.jpg
+    caption_en: Interior view
+    caption_zh: 室內視角
+  - image: /uploads/sample-4.jpg
+    caption_en: Interior view
+    caption_zh: 室內視角
+  - image: /uploads/sample-5.jpg
+    caption_en: Interior view
+    caption_zh: 室內視角
+  - image: /uploads/sample-6.jpg
+    caption_en: Interior view
+    caption_zh: 室內視角
+  - image: /uploads/sample-7.jpg
+    caption_en: Interior view
+    caption_zh: 室內視角
+  - image: /uploads/sample-8.jpg
+    caption_en: Interior view
+    caption_zh: 室內視角
+  - image: /uploads/sample-9.jpg
+    caption_en: Interior view
+    caption_zh: 室內視角
+  - image: /uploads/sample-10.jpg
+    caption_en: Interior view
+    caption_zh: 室內視角
+
+
 body_en: >
   ### Project Overview
 
@@ -25,20 +73,8 @@ body_en: >
   ### Reflection
 
   The project serves as a prototype for regenerative urban development—sensitive to history, adaptable to the future, and grounded in the present. It demonstrates that architecture is not merely about building form, but about cultivating relationships—between people, between timeframes, and between the built and natural environment.
-layout: project.njk
-<<<<<<< HEAD
-basic:
-  title_en: Sun Moon Lake
-  title_zh: 日月潭辦公室
-  location: 南投，台灣
-  type: Housing
-  type_zh: 住宅
-  year: 1999
-=======
-title_zh: 範例作品 2
-year: 2000
-location_en: Taichung, Taiwan
->>>>>>> 8661d1fe6ea332ce19ac16a4900b3392f94064a1
+
+
 body_zh: >
   ### 計畫簡介
 
@@ -65,66 +101,6 @@ body_zh: >
   ### 設計反思
 
   本案不只是空間形構，更是都市生活方式與社區經營的新提案。透過歷史的再詮釋與環境友善設計的整合，嘗試為未來都市居住型態提供一個可延伸、可複製的雛型，也讓建築真正成為社會改變的一部分。
-<<<<<<< HEAD
-permalink: /projects/sample-01/index.html
-thumbnail: /uploads/sample-thumb.jpg
-lang: en
-title_en: Sample Project
-=======
-permalink: /projects/sample/index.html
-location_zh: 台中，台灣
-type: Commercial
-thumbnail: /uploads/sample-thumb.jpg
-lang: en
-title_en: Sample Project 2
-type_zh: 商業
->>>>>>> 8661d1fe6ea332ce19ac16a4900b3392f94064a1
-gallery:
-  - image: /uploads/sample-1.jpg
-    caption_en: Front elevation
-    caption_zh: 建築正立面
-  - image: /uploads/sample-2.jpg
-    caption_en: Interior view
-    caption_zh: 室內視角
-  - image: /uploads/sample-3.jpg
-    caption_en: Front elevation
-    caption_zh: 建築正立面
-  - image: /uploads/sample-4.jpg
-    caption_en: Interior view
-    caption_zh: 室內視角
-  - image: /uploads/sample-5.jpg
-    caption_en: Interior view
-    caption_zh: 室內視角
-  - image: /uploads/sample-6.jpg
-    caption_en: Interior view
-    caption_zh: 室內視角
-  - image: /uploads/sample-7.jpg
-    caption_en: Interior view
-    caption_zh: 室內視角
-  - image: /uploads/sample-8.jpg
-    caption_en: Interior view
-    caption_zh: 室內視角
-  - image: /uploads/sample-9.jpg
-    caption_en: Interior view
-    caption_zh: 室內視角
-  - image: /uploads/sample-10.jpg
-    caption_en: Interior view
-    caption_zh: 室內視角
-<<<<<<< HEAD
-location_en: Taipei
-type_zh: 住宅
-title_zh: 範例作品
-location: 台北
-location_zh: 台北
-tags:
-  - projects
-type: residential
+
 video: https://www.youtube.com/embed/IEQmRM3mT08?si=oc9-ykQLsobElFnE
-year: 2000
-=======
-location: 台北
-tags:
-  - projects
-video: https://www.youtube.com/embed/IEQmRM3mT08?si=oc9-ykQLsobElFnE
->>>>>>> 8661d1fe6ea332ce19ac16a4900b3392f94064a1
 ---
