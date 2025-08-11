@@ -1,5 +1,5 @@
 ---
-title_zh: 範例作品
+title_zh: 範例作品 1
 year: 2000
 location_en: Taipei
 location_zh: 台北
@@ -68,7 +68,7 @@ basic:
   type_zh: 住宅
   year: 1999
 lang: en
-title_en: Sample Project
+title_en: Sample Project 1
 gallery:
   - image: /uploads/sample-1.jpg
     caption_en: Front elevation
