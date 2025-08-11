@@ -7,11 +7,6 @@ backend:
   repo: dodochiang/atelier3rd
   branch: main
 
-media_library:
-  name: default
-  config:
-    publicKey: demopublickey
-
 media_folder: "static/uploads"        # 實際存放圖片的位置
 public_folder: "uploads"             # 前台可用的圖片路徑
 
