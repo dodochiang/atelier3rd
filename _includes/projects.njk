@@ -112,10 +112,18 @@
 
       {# 縮圖路徑正規化：支援絕對網址與本地 /uploads #}
       {% set thumb = d.thumbnail or '' %}
-      {% if thumb and ('://' in thumb) %}
-        {% set thumbSrc = thumb %}
-      {% else %}
-        {% set thumbSrc = thumb and (thumb[0] == '/' ? thumb : '/' + thumb) %}
+      {% set thumbSrc = '' %}
+      {% if thumb %}
+        {# http / https 視為絕對網址 #}
+        {% if (thumb | lower | slice(0,4)) == 'http' %}
+          {% set thumbSrc = thumb %}
+        {% else %}
+          {% if thumb[0] == '/' %}
+            {% set thumbSrc = thumb %}
+          {% else %}
+            {% set thumbSrc = '/' ~ thumb %}
+          {% endif %}
+        {% endif %}
       {% endif %}
 
       <li class="project"
