@@ -6,11 +6,9 @@ backend:
   name: github
   repo: dodochiang/atelier3rd
   branch: main
-  # 若改用 Netlify Identity + Git Gateway，則改成：
-  # name: git-gateway
 
-media_folder: "static/uploads"   # 檔案實際存放於 repo 的資料夾
-public_folder: "/uploads"        # 網站對外可見的路徑（搭配 Eleventy passthrough）
+media_folder: "static/uploads"   # 存在 repo 的位置
+public_folder: "/uploads"        # 網站公開路徑（配合 Eleventy passthrough）
 
 editor:
   preview: true
@@ -21,22 +19,29 @@ collections:
     label: "項目管理"
     folder: "projects"
     create: true
-    # v3 支援：以欄位組合檔名（避免出現系統年份）
-    slug: "{{fields.title_en}}"
+    slug: "{{title_en}}"
     identifier_field: "title_zh"
-    summary: "{{title_zh}} / {{title_en}}"
+    summary: "{{title_zh}} / {{title_en}} — {{year}} · {{type}}"
     sortable_fields: ["year", "title_zh", "title_en", "commit_date"]
     preview_path: "projects/{{slug}}/"
     fields:
-      # 讓 CMS 產出的檔案自帶 layout
       - label: "Layout"
         name: "layout"
         widget: "hidden"
         default: "project.njk"
 
-      # 標題 / 年份 / 地點
-      - { label: "作品名稱（EN）", name: "title_en", widget: "string", required: true, hint: "英文官方名稱；例：Riverside House" }
-      - { label: "作品名稱（中文）", name: "title_zh", widget: "string", required: true, hint: "中文官方名稱；例：河畔住宅" }
+      - label: "作品名稱（EN）"
+        name: "title_en"
+        widget: "string"
+        required: true
+        hint: "英文官方名稱；例：Riverside House"
+
+      - label: "作品名稱（中文）"
+        name: "title_zh"
+        widget: "string"
+        required: true
+        hint: "中文官方名稱；例：河畔住宅"
+
       - label: "年份"
         name: "year"
         widget: "number"
@@ -45,25 +50,34 @@ collections:
         max: 2100
         required: true
         hint: "四位數；例如 2024"
-      - { label: "地點（EN，可留白）", name: "location_en", widget: "string", required: false, hint: "例：Taichung, Taiwan" }
-      - { label: "地點（中文，可留白）", name: "location_zh", widget: "string", required: false, hint: "例：台中，台灣" }
 
-      # 類型（單一欄位，選中文 → 存英文）
-      - label: "作品類型"
+      - label: "地點（EN，可留白）"
+        name: "location_en"
+        widget: "string"
+        required: false
+        hint: "例：Taichung, Taiwan"
+
+      - label: "地點（中文，可留白）"
+        name: "location_zh"
+        widget: "string"
+        required: false
+        hint: "例：台中市，台灣"
+
+      # 類型（只存中文顯示；英文由前端對照）
+      - label: "作品類型（中文）"
         name: "type"
         widget: "select"
         multiple: false
         required: false
         options:
-      - { label: "住宅", value: "Residential" }
-      - { label: "商業", value: "Commercial" }
-      - { label: "文化", value: "Cultural" }
-      - { label: "公共", value: "Public" }
-      - { label: "裝置", value: "Installation" }
-      - { label: "工作營及展覽", value: "Workshops & Exhibition" }
-        hint: "選擇主要類型（中文，實際儲存英文）"
+          - 住宅
+          - 商業
+          - 文化
+          - 公共
+          - 裝置
+          - 工作營及展覽
+        hint: "選擇主要類型（中文）"
 
-      # 縮圖
       - label: "縮圖"
         name: "thumbnail"
         widget: "image"
@@ -71,7 +85,6 @@ collections:
         required: false
         hint: "建議 1200×900（4:3）JPG"
 
-      # 圖片集
       - label: "圖片集（Gallery）"
         name: "gallery"
         widget: "list"
@@ -79,14 +92,12 @@ collections:
         collapsed: true
         fields:
           - { label: "圖片", name: "image", widget: "image", required: false, hint: "建議 4:3 或 16:9" }
-          - { label: "說明（EN）", name: "caption_en", widget: "string", required: false, hint: "例：South facade" }
-          - { label: "說明（中文）", name: "caption_zh", widget: "string", required: false, hint: "例：南向立面" }
+          - { label: "說明（EN）", name: "caption_en", widget: "string", required: false }
+          - { label: "說明（中文）", name: "caption_zh", widget: "string", required: false }
 
-      # 內文
       - { label: "介紹（EN）", name: "body_en", widget: "markdown", required: false, hint: "英文敘述；支援 Markdown" }
       - { label: "介紹（中文）", name: "body_zh", widget: "markdown", required: false, hint: "中文敘述；支援 Markdown" }
 
-      # 影片
       - label: "影片連結（YouTube Embed URL）"
         name: "video"
         widget: "string"
