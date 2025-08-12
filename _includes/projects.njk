@@ -1,7 +1,6 @@
 {% extends "layout.njk" %}
 
 {% block content %}
-
 {# 英文 → 中文 類型對照 #}
 {% set TYPE_ZH = {
   "Residential": "住宅",
@@ -9,7 +8,19 @@
   "Cultural": "文化",
   "Public": "公共",
   "Installation": "裝置",
-  "Workshops & Exhibition": "工作營及展覽"
+  "Workshop": "工作營",
+  "Exhibition": "展覽"
+} %}
+
+{# 若 CMS 儲存的是中文，這份用來轉成英文顯示 #}
+{% set TYPE_EN = {
+  "住宅": "Residential",
+  "商業": "Commercial",
+  "文化": "Cultural",
+  "公共": "Public",
+  "裝置": "Installation",
+  "工作營": "Workshop",
+  "展覽": "Exhibition"
 } %}
 
 {# 蒐集不重複的 type 清單 #}
@@ -40,7 +51,6 @@
   .project-title {
     text-align: center;
     font-size: 1.2em;
-    font-weight: bold;
     margin: 1em 0;
   }
 
@@ -73,7 +83,7 @@
       {% for t in typeList %}
         <option
           value="{{ t }}"
-          data-en="{{ t }}"
+          data-en="{{ TYPE_EN[t] or t }}"
           data-zh="{{ TYPE_ZH[t] or t }}"
         >{{ t }}</option>
       {% endfor %}
@@ -122,12 +132,17 @@
             <span class="lang-zh">{{ d.title_zh }}</span>
           </div>
 
+          {% set loc_en = d.location_en or d.location_zh or '' %}
+          {% set loc_zh = d.location_zh or d.location_en or '' %}
+          {% set type_en = TYPE_EN[d.type] or d.type %}
+          {% set type_zh = TYPE_ZH[d.type] or d.type %}
+
           <div class="project-meta">
             <span class="lang-en">
-              {{ d.year }}{% if d.location_en %} | {{ d.location_en }}{% endif %}{% if d.type %} | {{ d.type }}{% endif %}
+              {{ d.year }}{% if loc_en %} | {{ loc_en }}{% endif %}{% if d.type %} | {{ type_en }}{% endif %}
             </span>
             <span class="lang-zh">
-              {{ d.year }}{% if d.location_zh %} | {{ d.location_zh }}{% endif %}{% if d.type %} | {{ TYPE_ZH[d.type] or d.type }}{% endif %}
+              {{ d.year }}{% if loc_zh %} | {{ loc_zh }}{% endif %}{% if d.type %} | {{ type_zh }}{% endif %}
             </span>
           </div>
         </a>

@@ -72,6 +72,23 @@ collections:
         required: false
         hint: "例：台中，台灣"
 
+      # 戶數
+        - label: "戶數"
+        name: "units"
+        widget: "number"
+        value_type: "int"
+        min: 1
+        required: true
+        hint: "整數；例：24（戶）"
+
+      # 總樓地板面積
+        - label: "總樓地板面積（m²）"
+        name: "gfa"
+        widget: "number"
+        value_type: "float"
+        required: true
+        hint: "平方公尺；可小數，例如 3820.5"
+
       # 類型（只存中文顯示；英文由前端對照）
       - label: "作品類型（中文）"
         name: "type"
@@ -84,7 +101,8 @@ collections:
           - 文化
           - 公共
           - 裝置
-          - 工作營及展覽
+          - 工作營
+          - 展覽
         hint: "選擇主要類型（中文）"
 
       - label: "縮圖"
