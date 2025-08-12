@@ -10,7 +10,8 @@ backend:
 media_library:
   name: cloudinary
   config:
-    cloud_name: "dw6nekwxn"
+    cloud_name: dw6nekwxn        # from Cloudinary Dashboard → Settings → Account
+    api_key: 414678917212337              # from Settings → Access Keys (safe to expose; NOT the API secret)
     default_transformations:
       - - fetch_format: auto
           quality: auto

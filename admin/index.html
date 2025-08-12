@@ -10,7 +10,10 @@
   <body>
     <!-- Decap CMS v3 -->
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
-
+    <script src="https://unpkg.com/decap-cms-media-library-cloudinary@^3.0.0/dist/decap-cms-media-library-cloudinary.js"></script>
+    <script>
+      CMS.registerMediaLibrary(cloudinary);
+    </script>
     <script>
       (function () {
         // 等待 Decap 載入完成
