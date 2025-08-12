@@ -51,45 +51,6 @@ collections:
         required: true
         hint: "中文項目名稱；例：伸港黃宅"
 
-      - label: "年份"
-        name: "year"
-        widget: "number"
-        value_type: "int"
-        min: 1900
-        max: 2100
-        required: true
-        hint: "四位數；例如 2024"
-
-      - label: "地點（EN，可留白）"
-        name: "location_en"
-        widget: "string"
-        required: false
-        hint: "例：Taichung, Taiwan"
-
-      - label: "地點（中文，可留白）"
-        name: "location_zh"
-        widget: "string"
-        required: false
-        hint: "例：台中，台灣"
-
-      # 戶數
-        - label: "戶數"
-        name: "units"
-        widget: "number"
-        value_type: "int"
-        min: 1
-        required: true
-        hint: "整數；例：24（戶）"
-
-      # 總樓地板面積
-        - label: "總樓地板面積（m²）"
-        name: "gfa"
-        widget: "number"
-        value_type: "float"
-        required: true
-        hint: "平方公尺；可小數，例如 3820.5"
-
-      # 類型（只存中文顯示；英文由前端對照）
       - label: "作品類型（中文）"
         name: "type"
         widget: "select"
@@ -104,6 +65,43 @@ collections:
           - 工作營
           - 展覽
         hint: "選擇主要類型（中文）"
+
+      - label: "地點（EN，可留白）"
+        name: "location_en"
+        widget: "string"
+        required: false
+        hint: "例：Taichung, Taiwan"
+
+      - label: "地點（中文，可留白）"
+        name: "location_zh"
+        widget: "string"
+        required: false
+        hint: "例：台中，台灣"
+
+      - label: "年份"
+        name: "year"
+        widget: "number"
+        value_type: "int"
+        min: 1900
+        max: 2100
+        required: true
+        hint: "四位數；例如 2024"
+
+      # --- 新增的兩個 meta ---
+      - label: "戶數"
+        name: "units"
+        widget: "number"
+        value_type: "int"
+        min: 1
+        required: false
+        hint: "整數；例：12（戶）"
+
+      - label: "總樓地板面積（m²）"
+        name: "floor_area"
+        widget: "number"
+        value_type: "float"
+        required: false
+        hint: "平方公尺；可小數，例如 3820.5"
 
       - label: "縮圖"
         name: "thumbnail"
