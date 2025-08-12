@@ -3,8 +3,10 @@ layout: project.njk
 title_en: Sample Project
 title_zh: 範例作品
 year: 2000
-location_en: Taipei
-location_zh: 台北
+location_en: Taipei, Taiwan
+location_zh: 台北，台灣
+floor_area: 1500
+units: 12
 type: 住宅
 thumbnail: /uploads/sample-thumb.jpg
 gallery:

@@ -1,11 +1,13 @@
 ---
 layout: project.njk
-title_en: Dodo's House
-title_zh: 多多的家
+title_en: Huang's House
+title_zh: 伸港黃宅
 year: 2028
-location_en: Taichung, Taiwan
-location_zh: 台中，台灣
-type: 工作營及展覽
+location_en: Changhua, Taiwan
+location_zh: 彰化，台灣
+floor_area: 100
+units: 1
+type: 工作營
 thumbnail: /uploads/events-09257.jpg
 gallery:
   - image: /uploads/img_9434.jpeg

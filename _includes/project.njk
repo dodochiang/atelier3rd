@@ -12,7 +12,6 @@
   "Exhibition": "展覽"
 } %}
 
-{# 若 CMS 儲存的是中文，這份用來轉成英文顯示 #}
 {% set TYPE_EN = {
   "住宅": "Residential",
   "商業": "Commercial",
@@ -132,14 +131,15 @@
     transform: translateY(-50%);
     background: rgba(255,255,255,0.7);
     border: none;
-    font-size: 1.5em;
     cursor: pointer;
     z-index: 2;
     line-height: 1;
-    padding: .2em .5em;
+    padding: 0.2em 0.5em;
     border-radius: .4em;
+    font-size: 1.5em;
   }
-  .slider-btn.prev { left: 1em; }
+  .slider-btn.prev {
+    left: 1em; }
   .slider-btn.next { right: 1em; }
 
   .lightbox {
@@ -217,7 +217,7 @@
     .video-container {
       max-height: 300px;
     }
-  }
+
 </style>
 
 {% if heroSrc %}
@@ -231,10 +231,61 @@
   <span class="lang-zh">{{ title_zh }}</span>
 </h1>
 
-<p class="project-meta">
-  {{ year }}｜
-  <span class="lang-en">{{ loc_en }}{% if type_en %} | {{ type_en }}{% endif %}</span>
-  <span class="lang-zh">{{ loc_zh }}{% if type_en %} | {{ type_zh_display }}{% endif %}</span>
+{% set loc_en_safe = (loc_en or '') | replace(',', '&#44;') | safe %}
+{% set loc_zh_safe = (loc_zh or '') | replace('，', '&#65292;') | replace(',', '&#44;') | safe %}
+
+{% set _fa = floor_area %}
+{% set _un = units %}
+
+{% if _fa is not none %}
+  {% set fa_str = (_fa ~ '') %}
+  {% if ('㎡' in fa_str) or ('m²' in fa_str) or ('sqm' in (fa_str|lower)) %}
+    {% set fa_en = fa_str %}{% set fa_zh = fa_str %}
+  {% else %}
+    {% set fa_en = fa_str ~ ' sqm' %}
+    {% set fa_zh = fa_str ~ '㎡' %}
+  {% endif %}
+{% endif %}
+
+{% if _un is not none %}
+  {% set un_str = (_un ~ '') %}
+  {% if ('戶' in un_str) or ('units' in (un_str|lower)) %}
+    {% set units_en = un_str %}{% set units_zh = un_str %}
+  {% else %}
+    {% set units_en = un_str ~ ' units' %}
+    {% set units_zh = un_str ~ '戶' %}
+  {% endif %}
+{% endif %}
+
+<style>
+  .project-meta-line { text-align:center; font-size:0.9em; color:gray; }
+  .project-meta-line + .project-meta-line { margin-top:.25em; }
+</style>
+
+{# 第一行：類型｜地點 #}
+<p class="project-meta-line">
+  <span class="lang-en">
+    {% if type_en %}{{ type_en }}{% endif %}
+    {% if loc_en_safe %}｜{{ loc_en_safe }}{% endif %}
+  </span>
+  <span class="lang-zh">
+    {% if type_zh_display %}{{ type_zh_display }}{% endif %}
+    {% if loc_zh_safe %}｜{{ loc_zh_safe }}{% endif %}
+  </span>
+</p>
+
+{# 第二行：戶數｜面積｜年份 #}
+<p class="project-meta-line">
+  <span class="lang-en">
+    {% if units_en %}{{ units_en }}{% endif %}
+    {% if fa_en %}｜{{ fa_en }}{% endif %}
+    {% if year %}｜{{ year }}{% endif %}
+  </span>
+  <span class="lang-zh">
+    {% if units_zh %}{{ units_zh }}{% endif %}
+    {% if fa_zh %}｜{{ fa_zh }}{% endif %}
+    {% if year %}｜{{ year }}{% endif %}
+  </span>
 </p>
 
 <div class="project-content">
