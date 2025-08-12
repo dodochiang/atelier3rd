@@ -30,16 +30,10 @@ body_en: >-
   In Helsinki Design Week 2017, we deliver our proposal to build a transitional shelter together with refugees, citizens and international students. The built shelter can provide a decent living space for participating refugees to sooth any sense of anxiety from having to leave their homeland. Furthermore, through their own efforts, the participatory and collaborative construction process can comfort the refugee’s sense of uncertainty and rebuild their sense of value and dignity, while nurturing their ability and creativity for the future reconstruction of their homeland.
 
 
-   
-
-
   #### Self-sufficient Living /Sustainability
 
 
   Our proposed transitional shelter is built by an easy-to-assemble wooden frame. By simplifying the process of construction and applying *easily acquired and recyclable materials, this process significantly reduces the* *technical requirements, thereby allowing people to build their own house with simple tools. The walls of the* transitional shelter are filled with soil and straw bales for insulation, preserving heat and controlling moisture. The shelter contains a urine-diverting dry toilet, and could potentially be equipped with solar electric power system. These components make each shelter self-sufficient without having to rely on municipal services. In the event of refugees returning to their homeland, all building materials could be reused for other constructions, including social housing. This would minimize the overall environmental impact of building construction. 
-
-
-   
 
 
   #### Presentation
@@ -48,13 +42,55 @@ body_en: >-
   Our exhibition has three components: 1) the housing unit; 2) a gallery showing the previous work of Architect HSIEH and his team; and 3) a media platform showing the exchange of ideas between shelter builders and visitors. The two-floor shelter contains on its ground floor an open space for a small grocery shop, a studio or a communal space; and on the upper floor a private dwelling space. During the exhibition, visitors can view the whole structural system and construction process, and share their ideas and opinions.
 
 
-   
-
-
   #### From Survival to Contribution
 
 
   The avarice and insatiable consumerism in today’s housing industry has made everyone a consumer who ought to pay a fortune simply for a place to live. Refugees may not have the financial ability to pay which may preclude them as ‘consumers’ of the housing market. By taking this collaborative, simplified and low-cost construction approach, refugees can apply their skillset and contribute their efforts not only for their own housing needs, but also for resolving any potential tensions and conflicts with the host communities.
+
+
+
+
+
+  Lead Architect: Hsieh Ying Chun
+
+
+  Team: Hsieh Ying Chun & Atelier-3
+
+
+  Contractors: Helsinki Design Week 2017
+
+
+  Co-Organizers: Aalto University, Finland
+
+
+    Aavaranta Reception Centre
+
+
+    Bilkent University, Turkey
+
+
+    Finnish Red Cross
+
+
+    Group X (Aalto University, Department of Architecture), Finland
+
+
+    Department of Architecture, Shih Chien University, Taiwan
+
+
+    Taiwanese in Finland
+
+
+  Sponsors: Pauian Archiland
+
+
+        China Airline
+
+
+  Photogarpher: Alexander Popkov
+
+
+  Pinja Nikki
 body_zh: >-
   #### 中繼屋，自建
 
@@ -84,5 +120,53 @@ body_zh: >-
 
 
   當今的房屋工業化生產體系，讓居住者淪爲付錢的消費者。對難民來講，他怎麽可能成爲消費者？此協力造屋系統，經過簡化工法的設計，使難民能發揮潛能，解決在異鄉暫時棲身的居住問題，不再是社會的負擔，從而化解目前的矛盾與衝突。
+
+
+
+
+  總建築師：謝英俊
+
+
+  團隊：謝英俊第三建築工作室
+
+
+  承建商：2017芬蘭赫爾辛基設計周
+
+
+  合作夥伴：阿爾託大學, 芬蘭
+
+
+         Aavaranta接待中心
+
+
+         比爾肯特大學, 土耳其
+
+
+         芬蘭紅十字會
+
+
+         Group
+
+  X (阿爾託大學, 建築系), 芬蘭
+
+
+         建築系, 實踐大學, 台灣
+
+
+         芬蘭台灣人協會
+
+
+  贊助人：桃園璞園建築籃球隊
+
+
+         中華航空
+
+
+  攝影師：
+
+
+  Alexander Popkov/ Pinja
+
+  Nikki
 video: https://www.youtube.com/embed/uKP6LlWqPvM?si=7l7C9vJdNX13-V0D
 ---
