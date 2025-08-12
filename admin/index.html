@@ -4,18 +4,17 @@
     <meta charset="utf-8" />
     <title>Content Manager</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- 可選：Netlify Identity 登入 -->
+    <!-- Optional: Netlify Identity -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   </head>
   <body>
     <!-- Decap CMS v3 -->
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
-    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+    <!-- Cloudinary media library for Decap -->
     <script src="https://unpkg.com/decap-cms-media-library-cloudinary@^3.0.0/dist/decap-cms-media-library-cloudinary.js"></script>
-    <script> CMS.registerMediaLibrary(cloudinary); </script>
+
     <script>
       (function () {
-        // 等待 Decap 載入完成
         function ready(fn) {
           if (document.readyState !== 'loading') return fn();
           document.addEventListener('DOMContentLoaded', fn);
@@ -27,18 +26,21 @@
           const h = window.h;
 
           if (!CMS || !createClass || !h) {
-            console.error('Decap CMS 未正確載入（CMS/createClass/h 缺少）');
+            console.error('Decap CMS did not load (CMS/createClass/h missing).');
             return;
           }
 
-          // 預覽樣式（沒有檔案也不會壞）
-          try {
-            CMS.registerPreviewStyle('/admin/preview.css');
-          } catch (e) {
-            console.warn('preview.css 未載入（可忽略）');
+          // Register Cloudinary *after* Decap is ready
+          if (window.cloudinary) {
+            CMS.registerMediaLibrary(cloudinary);
+          } else {
+            console.error('Cloudinary media library script not found.');
           }
 
-          // 可選：登入後回到 /admin/
+          // Optional preview CSS
+          try { CMS.registerPreviewStyle('/admin/preview.css'); } catch {}
+
+          // Optional: return to /admin/ after login
           if (window.netlifyIdentity) {
             window.netlifyIdentity.on('init', (user) => {
               if (!user) {
@@ -49,21 +51,20 @@
             });
           }
 
-          // --- Projects 預覽 ---
+          // --- Projects preview ---
           const ProjectPreview = createClass({
             render() {
-              const entry = this.props.entry;
+              const entry   = this.props.entry;
               const get     = (k) => entry.getIn(['data', k]);
               const getList = (k) => entry.getIn(['data', k]) || [];
 
-              const title_en  = get('title_en');
-              const title_zh  = get('title_zh');
-              const year      = get('year');
-              const loc_en    = get('location_en');
-              const loc_zh    = get('location_zh');
+              const title_en = get('title_en');
+              const title_zh = get('title_zh');
+              const year     = get('year');
+              const loc_en   = get('location_en');
+              const loc_zh   = get('location_zh');
+              const typeZh   = get('type');
 
-              // 如果你改成只存中文類型，可用 map 映射
-              const typeZh    = get('type');
               const typeMap = {
                 '住宅': 'Residential',
                 '商業': 'Commercial',
@@ -72,14 +73,13 @@
                 '裝置': 'Installation',
                 '工作營及展覽': 'Workshops & Exhibition'
               };
-              const type_en   = typeMap[typeZh] || get('type_en') || '';
-              const type_zh   = typeZh || get('type_zh') || '';
+              const type_en = typeMap[typeZh] || '';
 
               const thumbnail = get('thumbnail');
-              const gallery   = getList('gallery').toJS();
+              const gallery   = getList('gallery')?.toJS?.() || [];
 
-              const body_en   = this.props.widgetFor('body_en');
-              const body_zh   = this.props.widgetFor('body_zh');
+              const body_en = this.props.widgetFor('body_en');
+              const body_zh = this.props.widgetFor('body_zh');
 
               const normSrc = (src) => {
                 if (!src) return '';
@@ -88,39 +88,35 @@
               };
 
               const heroSrc  = normSrc(thumbnail);
-              const firstImg = gallery && gallery.length ? normSrc(gallery[0].image) : '';
+              const firstImg = gallery.length ? normSrc(gallery[0].image) : '';
 
               return h('div', { className: 'cms-preview-content' },
                 heroSrc && h('div', { className: 'project-hero', style: { position: 'relative', width: '100%', aspectRatio: '16 / 9', overflow: 'hidden' } },
                   h('img', { src: heroSrc, alt: 'Project thumbnail', style: { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' } })
                 ),
-
                 h('h1', { className: 'project-title', style: { textAlign: 'center' } },
                   h('span', { className: 'lang-en' }, title_en || ''),
                   ' ',
                   h('span', { className: 'lang-zh' }, title_zh || '')
                 ),
-
                 h('p', { className: 'project-meta', style: { textAlign: 'center', color: 'gray' } },
                   `${year || ''}｜ `,
                   h('span', { className: 'lang-en' }, `${loc_en || ''}${type_en ? ' | ' + type_en : ''}`),
                   ' ',
-                  h('span', { className: 'lang-zh' }, `${loc_zh || ''}${type_zh ? ' | ' + type_zh : ''}`)
+                  h('span', { className: 'lang-zh' }, `${loc_zh || ''}${typeZh ? ' | ' + typeZh : ''}`)
                 ),
-
                 h('div', { className: 'project-content', style: { maxWidth: '800px', margin: '0 auto' } },
                   h('div', { className: 'lang-en' }, body_en),
                   h('div', { className: 'lang-zh' }, body_zh)
                 ),
-
                 firstImg && h('div', { className: 'project-slider', style: { maxWidth: '100%', margin: '2em auto' } },
                   h('div', { className: 'slide-image-wrapper', style: { position: 'relative', width: '100%', aspectRatio: '16 / 9', overflow: 'hidden' } },
                     h('img', { src: firstImg, alt: 'Preview image', style: { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' } })
                   ),
-                  (gallery[0].caption_en || gallery[0].caption_zh) &&
+                  (gallery[0]?.caption_en || gallery[0]?.caption_zh) &&
                   h('div', { className: 'gallery-caption', style: { textAlign: 'center', color: 'gray', marginTop: '.5em' } },
-                    h('div', { className: 'lang-en' }, gallery[0].caption_en || ''),
-                    h('div', { className: 'lang-zh' }, gallery[0].caption_zh || '')
+                    h('div', { className: 'lang-en' }, gallery[0]?.caption_en || ''),
+                    h('div', { className: 'lang-zh' }, gallery[0]?.caption_zh || '')
                   )
                 )
               );

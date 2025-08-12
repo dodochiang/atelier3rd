@@ -8,13 +8,13 @@ backend:
   branch: main
 
 media_library:
-  - name: cloudinary
-    config:
-      cloud_name: dw6nekwxn
-      api_key: 414678917212337
-      default_transformations:
-        - - fetch_format: auto
-            quality: auto
+  name: cloudinary
+  config:
+    cloud_name: dw6nekwxn
+    api_key: 414678917212337
+    default_transformations:
+      - - fetch_format: auto
+          quality: auto
 
 media_folder: "static/uploads"   # 存在 repo 的位置
 public_folder: "/uploads"        # 網站公開路徑（配合 Eleventy passthrough）
