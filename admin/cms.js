@@ -43,15 +43,15 @@ const normSrc = (src) => {
 const fmtArea = (v, lang) => {
   const s = ensureStr(v).trim();
   if (!s) return "";
-  if (/㎡|m²|sqm/i.test(s)) return s;
-  return lang === "zh" ? s + "㎡" : s + " sqm";
+  if (/㎡|m²|sqm/i.test(s)) return s;                        // 已含單位
+  return lang === "zh" ? s + "㎡" : s + " sqm";              // 自動補單位
 };
 
 const fmtUnits = (v, lang) => {
   const s = ensureStr(v).trim();
   if (!s) return "";
-  if (/戶|units/i.test(s)) return s;
-  return lang === "zh" ? s + "戶" : s + " units";
+  if (/戶|units/i.test(s)) return s;                         // 已含單位
+  return lang === "zh" ? s + "戶" : s + " units";            // 自動補單位
 };
 
 /* ===== Projects – Live Preview（兩行 meta、gallery_images、credits） ===== */
@@ -73,17 +73,13 @@ const ProjectPreview = createClass({
     const floor_area = get("floor_area"); // number or string
     const units      = get("units");      // number or string
 
-    // Credits（markdown）
+    // Credits（markdown widgets）
     const credits_en = this.props.widgetFor("credits_en");
     const credits_zh = this.props.widgetFor("credits_zh");
 
-    // 逗號安全化（視覺仍是逗號）
-    const loc_en_safe = loc_en.replace(/,/g, "&#44;");
-    const loc_zh_safe = loc_zh.replace(/，/g, "&#65292;").replace(/,/g, "&#44;");
-
-    // 兩行 meta
-    const line1_en = [type_en, loc_en_safe].filter(Boolean).join(SEP);
-    const line1_zh = [type_zh, loc_zh_safe].filter(Boolean).join(SEP);
+    // 兩行 meta（注意：預覽端不再做逗號替換）
+    const line1_en = [type_en, loc_en].filter(Boolean).join(SEP);
+    const line1_zh = [type_zh,  loc_zh].filter(Boolean).join(SEP);
 
     const u_en = fmtUnits(units, "en");
     const u_zh = fmtUnits(units, "zh");
@@ -99,7 +95,7 @@ const ProjectPreview = createClass({
     const gallery     = getList("gallery");
     const galleryImgs = getList("gallery_images");
 
-    // 合併相簿來源
+    // 合併相簿來源：優先進階（有 caption），否則多選圖片
     let previewList = [];
     const gArr  = gallery.toJS?.() || [];
     const giArr = galleryImgs.toJS?.() || [];
@@ -157,7 +153,7 @@ const ProjectPreview = createClass({
         h("div", { className: "lang-zh" }, credits_zh || null)
       ]),
 
-      // gallery（預覽只帶第一張）
+      // gallery（預覽只帶第一張，避免過重）
       first && h("div", { className: "project-slider" }, [
         h("div", { className: "slide-image-wrapper" },
           h("img", { src: first.image, alt: "Preview image" })
@@ -188,13 +184,7 @@ const SimplePagePreview = createClass({
 CMS.registerPreviewTemplate("about", SimplePagePreview);
 CMS.registerPreviewTemplate("contact", SimplePagePreview);
 
-/* ===== Optional：介面字串調整（保留） ===== */
-CMS.registerLocale("en", {
-  app: { header: { content: "Atelier3rd CMS" } },
-  workflow: { workflow: { drafts: "草稿", inReview: "審核中", ready: "準備發布" } }
-});
-
-/* ===== Optional：自訂小 widget（保留） ===== */
+/* ===== Optional：自訂小 widget ===== */
 const YearWidget = createClass({
   render() {
     return h("input", {

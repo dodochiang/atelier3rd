@@ -114,7 +114,7 @@ collections:
       # 在 projects 的 fields 裡，加在原來 gallery 旁邊
       - label: "簡易相簿（多選）"
         name: "gallery_images"
-        widget: "image"
+        widget: "file"
         multiple: true          # 一次多選
         required: false
         hint: "可一次多選多張；若需要說明，改用下方的進階相簿"
