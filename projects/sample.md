@@ -9,11 +9,6 @@ year: 2000
 units: 12
 floor_area: 1500
 thumbnail: /uploads/sample-thumb.jpg
-gallery_images:
-  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1754983458/AfP_HDW_construction_photo_by_Alexander_Popkov_19_cthyk9.jpg
-  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1754983458/AfP_HDW_08092017_photo_by_pinja_nikki_07_ochx6h.jpg
-  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1754983458/AfP_HDW_construction_photo_by_Alexander_Popkov_36_cnk2rj.jpg
-  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1754983457/WeChat_Image_20190709165901_dh99rw.jpg
 gallery:
   - image: /uploads/sample-1.jpg
     caption_en: Front elevation

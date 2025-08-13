@@ -17,6 +17,20 @@
     <!-- Cloudinary media library plugin -->
     <script src="https://unpkg.com/decap-cms-media-library-cloudinary@^3.0.0/dist/decap-cms-media-library-cloudinary.js"></script>
 
+    <!-- ✅ 建議新增：先把語系鎖成官方英文，避免殘缺字典造成 editor.* 文案外漏 -->
+    <script>
+      (function () {
+        function ready(fn){ if (document.readyState !== 'loading') fn(); else document.addEventListener('DOMContentLoaded', fn); }
+        ready(function () {
+          if (window.CMS && CMS.setLocale) {
+            CMS.setLocale('en'); // 不覆蓋字典，只選用官方 en
+          }
+          // 如果你想預覽面板也吃到樣式，可選擇這裡先註冊（或維持在 cms.js 內）
+          try { CMS.registerPreviewStyle('/admin/preview.css'); } catch (e) {}
+        });
+      })();
+    </script>
+
     <!-- 你的 CMS 初始化（Cloudinary 註冊、Preview 樣式、Project/Pages 預覽模板…） -->
     <script src="/admin/cms.js"></script>
   </body>

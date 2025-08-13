@@ -2,6 +2,10 @@
    Decap CMS – Project & Pages Preview
    =============================== */
 
+// 先強制使用官方英文語系，避免殘缺字典造成 editor.* key 外漏
+if (window.CMS && CMS.setLocale) {
+  CMS.setLocale('en');
+}
 /* -------- Register Cloudinary media library (robust) -------- */
 (function registerCloudinary(retries = 20) {
   const ok = (window.CMS && (window.cloudinary || window.Cloudinary)) ? true : false;
@@ -13,6 +17,7 @@
     console.warn('[CMS] Cloudinary media library not found. Is the plugin script loaded in /admin/index.html?');
   }
 })();
+
 
 /* 預覽面板樣式（右側 preview） */
 CMS.registerPreviewStyle("/admin/preview.css");

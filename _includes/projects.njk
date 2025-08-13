@@ -11,7 +11,6 @@
   "Workshop": "工作營",
   "Exhibition": "展覽"
 } %}
-
 {% set TYPE_EN = {
   "住宅": "Residential",
   "商業": "Commercial",
@@ -22,14 +21,57 @@
   "展覽": "Exhibition"
 } %}
 
-{# 以英文為標準化的 type 清單 #}
+{# ---------- 圖片正規化巨集（支援 Cloudinary 物件 / public_id / 本地路徑 / 完整網址） ---------- #}
+{% macro pickImage(item) -%}
+  {%- if item is string -%}
+    {{- item -}}
+  {%- elif item and item.url is defined and item.url -%}
+    {{- item.url -}}
+  {%- elif item and item.secure_url is defined and item.secure_url -%}
+    {{- item.secure_url -}}
+  {%- elif item and item.path is defined and item.path -%}
+    {{- item.path -}}
+  {%- elif item and item.public_id is defined and item.public_id -%}
+    {%- set ext = (item.extension is defined and item.extension) and ('.' ~ item.extension) or '' -%}
+    {{- item.public_id ~ ext -}}
+  {%- else -%}
+    {{- '' -}}
+  {%- endif -%}
+{%- endmacro %}
+
+{% macro normalizeSrc(src) -%}
+  {%- set s = (src or '') | trim -%}
+  {%- if not s -%}{%- set _='' -%}{{- _ -}}
+  {%- else -%}
+    {# 完整網址 / 協定相對 / data: → 原樣 #}
+    {%- if (s | lower | slice(0,7)) == 'http://'
+          or (s | lower | slice(0,8)) == 'https://'
+          or (s | slice(0,2)) == '//'
+          or (s | lower | slice(0,5)) == 'data:' -%}
+      {{- s -}}
+    {# 站內絕對路徑 → 原樣 #}
+    {%- elif s[0] == '/' -%}
+      {{- s -}}
+    {# 相對 uploads → 轉為站內絕對 #}
+    {%- elif (s | lower | slice(0,8)) == 'uploads/'
+          or (s | lower | slice(0,15)) == 'static/uploads/' -%}
+      {{- '/' ~ s -}}
+    {# 其他 → 當作 Cloudinary public_id #}
+    {%- else -%}
+      {%- set cloudName = 'dw6nekwxn' -%}
+      {{- 'https://res.cloudinary.com/' ~ cloudName ~ '/image/upload/' ~ s -}}
+    {%- endif -%}
+  {%- endif -%}
+{%- endmacro %}
+
+{# 以英文為標準化的 type 清單（避免 indexOf/concat） #}
 {% set typeList = [] %}
 {% for p in collections.projects %}
   {% set raw = p.data.type %}
   {% if raw %}
     {% set t_en = TYPE_EN[raw] or raw %}
-    {% if typeList.indexOf(t_en) == -1 %}
-      {% set typeList = typeList.concat([t_en]) %}
+    {% if t_en not in typeList %}
+      {% set typeList = typeList + [t_en] %}
     {% endif %}
   {% endif %}
 {% endfor %}
@@ -64,17 +106,16 @@
     margin-top: 0.3em;
     font-variant-ligatures: none;
   }
+  .project-meta-line { text-align:center; font-size:0.6em; color:#666; }
+  .project-meta-line + .project-meta-line { margin-top:.2em; }
 
-  .project-thumb img {
+  .project-thumb {
     width: 100%;
     aspect-ratio: 4 / 3;
     object-fit: cover;
     display: block;
     border: none;
   }
-
-</style>
-
 </style>
 
 <section class="projects-page">
@@ -93,11 +134,7 @@
       <option value="all" data-en="All" data-zh="全部">All</option>
       {% for t in typeList %}
         {% set t_zh = TYPE_ZH[t] or t %}
-        <option
-          value="{{ t }}"                  {# value 固定英文 #}
-          data-en="{{ t }}"
-          data-zh="{{ t_zh }}"
-        >{{ t }}</option>
+        <option value="{{ t }}" data-en="{{ t }}" data-zh="{{ t_zh }}">{{ t }}</option>
       {% endfor %}
     </select>
 
@@ -115,36 +152,53 @@
     {% for project in collections.projects %}
       {% set d = project.data %}
 
-      {# 縮圖路徑正規化：支援絕對網址與本地路徑 #}
-      {% set thumb = d.thumbnail or '' %}
-      {% set thumbSrc = '' %}
-      {% if thumb %}
-        {% if (thumb | lower | slice(0,4)) == 'http' %}
-          {% set thumbSrc = thumb %}
-        {% else %}
-          {% if thumb[0] == '/' %}
-            {% set thumbSrc = thumb %}
-          {% else %}
-            {% set thumbSrc = '/' ~ thumb %}
-          {% endif %}
-        {% endif %}
-      {% endif %}
-
-      {# 類型標準化 #}
+      {# 類型/地點（先算再用） #}
       {% set rawType = d.type or '' %}
       {% set type_en = TYPE_EN[rawType] or rawType %}
       {% set type_zh = TYPE_ZH[type_en] or rawType %}
+      {% set loc_en = d.location_en or '' %}
+      {% set loc_zh = d.location_zh or '' %}
+
+      {# 縮圖：先 pick 再 normalize（避免雙重前綴） #}
+      {% set thumbRaw = pickImage(d.thumbnail) %}
+      {% set thumbSrc = normalizeSrc(thumbRaw) %}
+
+      {# 面積/戶數（自動補單位） #}
+      {% set _fa = d.floor_area %}
+      {% set _un = d.units %}
+      {% if _fa is not none %}
+        {% set fa_str = (_fa ~ '') %}
+        {% if ('㎡' in fa_str) or ('m²' in fa_str) or ('sqm' in (fa_str|lower)) %}
+          {% set fa_en = fa_str %}{% set fa_zh = fa_str %}
+        {% else %}
+          {% set fa_en = fa_str ~ ' sqm' %}
+          {% set fa_zh = fa_str ~ '㎡' %}
+        {% endif %}
+      {% endif %}
+      {% if _un is not none %}
+        {% set un_str = (_un ~ '') %}
+        {% if ('戶' in un_str) or ('units' in (un_str|lower)) %}
+          {% set units_en = un_str %}{% set units_zh = un_str %}
+        {% else %}
+          {% set units_en = un_str ~ ' units' %}
+          {% set units_zh = un_str ~ '戶' %}
+        {% endif %}
+      {% endif %}
 
       <li class="project"
           data-year="{{ d.year }}"
           data-type="{{ type_en }}"
           data-type-en="{{ type_en }}"
           data-type-zh="{{ type_zh }}"
-          data-location-en="{{ loc_en_safe }}"
-          data-location-zh="{{ loc_zh_safe }}">
+          data-location-en="{{ loc_en }}"
+          data-location-zh="{{ loc_zh }}">
         <a href="{{ project.url }}" class="project-card">
           {% if thumbSrc %}
-            <img src="{{ thumbSrc | safe }}" alt="{{ d.title_en or d.title_zh }} — thumbnail" loading="lazy" decoding="async">
+            <img class="project-thumb"
+                 src="{{ thumbSrc | safe }}"
+                 alt="{{ d.title_en or d.title_zh }} — thumbnail"
+                 loading="lazy" decoding="async"
+                 referrerpolicy="no-referrer-when-downgrade">
           {% endif %}
 
           <div class="project-title">
@@ -152,61 +206,23 @@
             <span class="lang-zh">{{ d.title_zh }}</span>
           </div>
 
-          {% set loc_en = d.location_en or '' %}
-          {% set loc_zh = d.location_zh or '' %}
-          {% set loc_en_safe = loc_en | replace(',', '&#44;') | safe %}
-          {% set loc_zh_safe = loc_zh | replace('，', '&#65292;') | replace(',', '&#44;') | safe %}
-
-          {% set _fa = d.floor_area %}
-          {% set _un = d.units %}
-
-          {% if _fa is not none %}
-            {% set fa_str = (_fa ~ '') %}
-            {% if ('㎡' in fa_str) or ('m²' in fa_str) or ('sqm' in (fa_str|lower)) %}
-              {% set fa_en = fa_str %}{% set fa_zh = fa_str %}
-            {% else %}
-              {% set fa_en = fa_str ~ ' sqm' %}
-              {% set fa_zh = fa_str ~ '㎡' %}
-            {% endif %}
-          {% endif %}
-
-          {% if _un is not none %}
-            {% set un_str = (_un ~ '') %}
-            {% if ('戶' in un_str) or ('units' in (un_str|lower)) %}
-              {% set units_en = un_str %}{% set units_zh = un_str %}
-            {% else %}
-              {% set units_en = un_str ~ ' units' %}
-              {% set units_zh = un_str ~ '戶' %}
-            {% endif %}
-          {% endif %}
-
-          <style>
-            .project-meta-line { text-align:center; font-size:0.6em; color:#666; }
-            .project-meta-line + .project-meta-line { margin-top:.2em; }
-          </style>
-
-          <div class="project-meta-line">
-            <span class="lang-en">
-              {% if type_en %}{{ type_en }}{% endif %}
-              {% if loc_en_safe %}｜{{ loc_en_safe }}{% endif %}
-            </span>
-            <span class="lang-zh">
-              {% if type_zh %}{{ type_zh }}{% endif %}
-              {% if loc_zh_safe %}｜{{ loc_zh_safe }}{% endif %}
-            </span>
-          </div>
-
-          <div class="project-meta-line">
-            <span class="lang-en">
-              {% if units_en %}{{ units_en }}{% endif %}
-              {% if fa_en %}｜{{ fa_en }}{% endif %}
-              {% if d.year %}｜{{ d.year }}{% endif %}
-            </span>
-            <span class="lang-zh">
-              {% if units_zh %}{{ units_zh }}{% endif %}
-              {% if fa_zh %}｜{{ fa_zh }}{% endif %}
-              {% if d.year %}｜{{ d.year }}{% endif %}
-            </span>
+          <div class="project-meta">
+            <div class="project-meta-line">
+              <span class="lang-en">
+                {% if type_en %}{{ type_en }}{% endif %}{% if loc_en %} ｜ {{ loc_en }}{% endif %}
+              </span>
+              <span class="lang-zh">
+                {% if type_zh %}{{ type_zh }}{% endif %}{% if loc_zh %} ｜ {{ loc_zh }}{% endif %}
+              </span>
+            </div>
+            <div class="project-meta-line">
+              <span class="lang-en">
+                {% if units_en %}{{ units_en }}{% endif %}{% if fa_en %} ｜ {{ fa_en }}{% endif %}{% if d.year %} ｜ {{ d.year }}{% endif %}
+              </span>
+              <span class="lang-zh">
+                {% if units_zh %}{{ units_zh }}{% endif %}{% if fa_zh %} ｜ {{ fa_zh }}{% endif %}{% if d.year %} ｜ {{ d.year }}{% endif %}
+              </span>
+            </div>
           </div>
         </a>
       </li>
@@ -224,34 +240,24 @@
     const projects = $$(".project-grid > .project");
 
     function getLang() {
-      // 可能的來源：
-      // 1) localStorage.lang = 'en' / 'zh' / 'lang-en' / 'lang-zh'
-      // 2) <body> 或 <html> 類別含有 'lang-en' / 'lang-zh'
       let v = (localStorage.getItem("lang") || "").toLowerCase();
       if (v === "lang-en") v = "en";
       if (v === "lang-zh") v = "zh";
       if (v !== "en" && v !== "zh") {
-        if (document.documentElement.classList.contains("lang-zh") || document.body.classList.contains("lang-zh")) {
-          v = "zh";
-        } else if (document.documentElement.classList.contains("lang-en") || document.body.classList.contains("lang-en")) {
-          v = "en";
-        } else {
-          v = "en"; // 預設英文
-        }
+        if (document.documentElement.classList.contains("lang-zh") || document.body.classList.contains("lang-zh")) v = "zh";
+        else if (document.documentElement.classList.contains("lang-en") || document.body.classList.contains("lang-en")) v = "en";
+        else v = "en";
       }
       return v;
     }
 
     function applyTypeI18n() {
       const lang = getLang();
-      // 更新 label（顯示對應語系的 span）
-      // 如果你的全站已經用 CSS 控制 .lang-en / .lang-zh 顯示，這段可省略
       const label = $("#typeFilterLabel");
       if (label) {
         $$(".lang-en", label).forEach(el => el.style.display = (lang === "en" ? "" : "none"));
         $$(".lang-zh", label).forEach(el => el.style.display = (lang === "zh" ? "" : "none"));
       }
-      // 更新 option 顯示文字
       $$("#typeFilter option").forEach(opt => {
         const txt = opt.dataset[lang];
         if (txt) opt.textContent = txt;
@@ -259,56 +265,32 @@
     }
 
     function filterAndSort(order = "desc") {
-      const lang = getLang();
-      const selectedVal = typeFilter.value; // 英文標準值或 'all'
-
-      const filtered = projects.filter(project => {
-        if (selectedVal === "all") return true;
-        // 對應語系比對
-        if (lang === "zh") {
-          return (project.dataset.typeZh || project.dataset.typeZh === "") ? (project.dataset.typeZh === (project.dataset.typeZh && project.dataset.typeZh)) : (project.dataset.typeEn === selectedVal);
-        }
-        return project.dataset.typeEn === selectedVal;
-      });
-
+      const selectedVal = typeFilter.value;
+      const filtered = projects.filter(project => selectedVal === "all" ? true : (project.dataset.typeEn === selectedVal));
       filtered.sort((a, b) => {
         const aYear = parseInt(a.dataset.year || "0", 10);
         const bYear = parseInt(b.dataset.year || "0", 10);
         return order === "asc" ? aYear - bYear : bYear - aYear;
       });
-
-      // 清單重排
       projectList.innerHTML = "";
       filtered.forEach(p => projectList.appendChild(p));
     }
 
-    // 修正：以英文為標準值，切換語系不影響 value；只影響顯示
     typeFilter.addEventListener("change", () => filterAndSort(currentOrder));
     let currentOrder = "desc";
     $("#sortAsc").addEventListener("click", () => { currentOrder = "asc"; filterAndSort("asc"); });
     $("#sortDesc").addEventListener("click", () => { currentOrder = "desc"; filterAndSort("desc"); });
 
-    // 初始
     applyTypeI18n();
     filterAndSort("desc");
 
-    // 觀察語系變化（若全站切換是改 body/html class）
-    const observer = new MutationObserver(() => {
-      applyTypeI18n();
-      // 語系變更時，保持目前排序與篩選
-      filterAndSort(currentOrder);
-    });
+    const observer = new MutationObserver(() => { applyTypeI18n(); filterAndSort(currentOrder); });
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
     observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
 
-    // 監聽 storage（若其他頁切換語系寫入 localStorage）
     window.addEventListener("storage", (e) => {
-      if (e.key === "lang") {
-        applyTypeI18n();
-        filterAndSort(currentOrder);
-      }
+      if (e.key === "lang") { applyTypeI18n(); filterAndSort(currentOrder); }
     });
   });
 </script>
-
 {% endblock %}
