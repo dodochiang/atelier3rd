@@ -78,52 +78,53 @@
       {% set loc_en  = d.location_en or '' %}
       {% set loc_zh  = d.location_zh or '' %}
 
-      {# --- 取得 thumbnail 原始字串（支援字串與 Cloudinary 物件） --- #}
-      {% set _thumb = '' %}
+      {# --- 取出縮圖（支援字串、Cloudinary 物件） --- #}
+      {% set thumb = '' %}
       {% if d.thumbnail is string %}
-        {% set _thumb = d.thumbnail %}
+        {% set thumb = d.thumbnail %}
       {% elseif d.thumbnail %}
         {% if d.thumbnail.secure_url is defined and d.thumbnail.secure_url %}
-          {% set _thumb = d.thumbnail.secure_url %}
+          {% set thumb = d.thumbnail.secure_url %}
         {% elif d.thumbnail.url is defined and d.thumbnail.url %}
-          {% set _thumb = d.thumbnail.url %}
+          {% set thumb = d.thumbnail.url %}
         {% elif d.thumbnail.path is defined and d.thumbnail.path %}
-          {% set _thumb = d.thumbnail.path %}
+          {% set thumb = d.thumbnail.path %}
         {% elif d.thumbnail.public_id is defined and d.thumbnail.public_id %}
-          {# 只組合 public_id 與副檔名，不先加 Cloudinary 網域 #}
-          {% set _ext = (d.thumbnail.extension is defined and d.thumbnail.extension) and ('.' ~ d.thumbnail.extension) or '' %}
-          {% set _thumb = d.thumbnail.public_id ~ _ext %}
+          {# 只在「只有 public_id」時才組一次完整網址 #}
+          {% set ext = (d.thumbnail.extension is defined and d.thumbnail.extension) and ('.' ~ d.thumbnail.extension) or '' %}
+          {% set thumb = 'https://res.cloudinary.com/dw6nekwxn/image/upload/' ~ d.thumbnail.public_id ~ ext %}
         {% endif %}
       {% endif %}
 
-      {# --- 標準化成可用 URL（完整網址就原樣，避免再加一次前綴） --- #}
-      {% set thumbSrc = _thumb | trim %}
+      {# --- 規則化（不主動加任何 Cloudinary 前綴） --- #}
+      {% set thumbSrc = (thumb or '') | trim %}
       {% if thumbSrc %}
-        {% set _low = thumbSrc | lower %}
-        {% set _is_http      = (_low | slice(0,7))  == 'http://' %}
-        {% set _is_https     = (_low | slice(0,8))  == 'https://' %}
-        {% set _is_proto_rel = (thumbSrc | slice(0,2)) == '//' %}
-        {% set _is_data      = (_low | slice(0,5))  == 'data:' %}
-        {% set _is_abs       = (thumbSrc | slice(0,1)) == '/' %}
-        {% set _is_uploads   = (_low | slice(0,8))  == 'uploads/' %}
-        {% set _is_static_up = (_low | slice(0,15)) == 'static/uploads/' %}
+        {% set low = thumbSrc | lower %}
+        {% set is_http  = (low | slice(0,7)) == 'http://' %}
+        {% set is_https = (low | slice(0,8)) == 'https://' %}
+        {% set is_proto = (thumbSrc | slice(0,2)) == '//' %}
+        {% set is_data  = (low | slice(0,5)) == 'data:' %}
 
-        {% if _is_http or _is_https or _is_proto_rel or _is_data %}
-          {# 已是完整網址/協定相對/data: → 原樣 #}
+        {% if is_http or is_https or is_proto or is_data %}
+          {# 完整網址或 data: → 原樣 #}
           {% set thumbSrc = thumbSrc %}
-        {% elif _is_abs %}
+        {% elif (thumbSrc | slice(0,1)) == '/' %}
           {# 站內絕對路徑 → 原樣 #}
           {% set thumbSrc = thumbSrc %}
-        {% elif _is_uploads or _is_static_up %}
+        {% elif (low | slice(0,8)) == 'uploads/' or (low | slice(0,15)) == 'static/uploads/' %}
           {# 站內相對 uploads → 補一個 / #}
           {% set thumbSrc = '/' ~ thumbSrc %}
         {% else %}
-          {# 其他（public_id 或單純檔名）→ 單次加 Cloudinary 前綴 #}
-          {% if (thumbSrc | slice(0,1)) == '/' %}
-            {% set thumbSrc = thumbSrc | slice(1) %}
-          {% endif %}
-          {% set thumbSrc = 'https://res.cloudinary.com/dw6nekwxn/image/upload/' ~ thumbSrc %}
+          {# 其他情況（例如已是完整 Cloudinary 參數化 URL、公網 URL、或不需要補前綴的字串）→ 原樣 #}
+          {% set thumbSrc = thumbSrc %}
         {% endif %}
+
+        {# ---- 防呆：剝掉意外的雙前綴、雙斜線 ---- #}
+        {% set cloudPrefix = 'https://res.cloudinary.com/dw6nekwxn/image/upload/' %}
+        {# 變成 image/upload/https://... → 把前面的 cloudPrefix 去掉 #}
+        {% set thumbSrc = thumbSrc | replace(cloudPrefix ~ 'https://', 'https://') | replace(cloudPrefix ~ 'http://', 'http://') %}
+        {# image/upload// → image/upload/ #}
+        {% set thumbSrc = thumbSrc | replace('image/upload//', 'image/upload/') %}
       {% endif %}
 
       {# 面積/戶數 #}
