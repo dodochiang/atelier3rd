@@ -1,7 +1,8 @@
 {% extends "layout.njk" %}
 
 {% block content %}
-{# 英文 → 中文 類型對照 #}
+
+{# ========= 類型對照 ========= #}
 {% set TYPE_ZH = {
   "Residential": "住宅",
   "Commercial": "商業",
@@ -11,7 +12,6 @@
   "Workshop": "工作營",
   "Exhibition": "展覽"
 } %}
-
 {% set TYPE_EN = {
   "住宅": "Residential",
   "商業": "Commercial",
@@ -22,21 +22,21 @@
   "展覽": "Exhibition"
 } %}
 
-{# ---------- 共用：安全圖片路徑（支援 Cloudinary / 本機 / data:） ---------- #}
+{# ========= 只在 block 裡宣告巨集，避免頂層語法干擾 extends ========= #}
 {% macro normalizeSrc(src) -%}
   {%- set s = (src or '') | trim -%}
   {%- if not s -%}{%- set _='' -%}{{- _ -}}
   {%- else -%}
-    {# 絕對網址或 data: 或 protocol-relative #}
+    {# 絕對網址 / data: / protocol-relative #}
     {%- if (s | lower | slice(0,7)) == 'http://'
           or (s | lower | slice(0,8)) == 'https://'
           or (s | slice(0,2)) == '//'
           or (s | lower | slice(0,5)) == 'data:' -%}
       {{- s -}}
-    {# 站內以 / 開頭 #}
+    {# 站內路徑 #}
     {%- elif s[0] == '/' -%}
       {{- s -}}
-    {# 常見相對 uploads 路徑：補 / #}
+    {# 常見相對 uploads 路徑 #}
     {%- elif (s | lower | slice(0,8)) == 'uploads/'
           or (s | lower | slice(0,15)) == 'static/uploads/' -%}
       {{- '/' ~ s -}}
@@ -47,203 +47,47 @@
     {%- endif -%}
   {%- endif -%}
 {%- endmacro %}
-{% from _self import normalizeSrc %}
 
-{# -------- 扁平欄位（不再支援 basic.*） -------- #}
+{# ========= 扁平欄位 ========= #}
 {% set loc_en = location_en or location %}
 {% set loc_zh = location_zh or location %}
 {% set type_en = type %}
 {% set type_zh_display = TYPE_ZH[type_en] or type_en %}
-
-{# Hero 縮圖路徑正規化 #}
 {% set heroSrc = normalizeSrc(thumbnail) %}
 
 <style>
-  .project-hero {
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    max-height: 500px;
-    overflow: hidden;
-    position: relative;
-    margin-bottom: 2.5em;
-  }
-  .project-hero img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    display: block;
-  }
-
-  .project-title {
-    text-align: center;
-    font-size: 18pt;
-    font-weight: bold;
-    margin: 1em 0;
-  }
-
-  .project-section-title {
-    text-align: center;
-    font-size: 1.2em;
-    font-weight: bold;
-    margin: 2em 0 1em;
-    color: #444;
-  }
-
-  .project-meta-line { text-align:center; font-size:0.9em; color:gray; }
-  .project-meta-line + .project-meta-line { margin-top:.25em; }
-
-  .project-content {
-    max-width: 800px;
-    margin: 0 auto 2em;
-    line-height: 1.6;
-  }
-
-  /* Credits 小字（全裝置生效） */
-  .project-credits {
-    max-width: 800px;
-    margin: 0 auto 1.5em;
-    font-size: 0.85em;
-    color: #777;
-    line-height: 1.5;
-  }
-  .project-credits h3 {
-    margin: 0 0 .4em;
-    font-size: 1em;
-    font-weight: 700;
-    color: #666;
-    text-align: left;
-  }
-  .project-credits p { margin: .2em 0; }
-  .project-credits ul { margin: .3em 0 .6em 1.2em; }
-
-  .project-slider {
-    max-width: 100%;
-    margin: 2em auto;
-    position: relative;
-  }
-  .slider-window { position: relative; }
-
-  .slide { display: none; width: 100%; }
-  .slide.active { display: block; }
-
-  .slide-image-wrapper {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    overflow: hidden;
-  }
-  .slide-image-wrapper img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    cursor: zoom-in;
-  }
-
-  .gallery-caption {
-    margin-top: 0.5em;
-    padding: 0.5em 1em;
-    text-align: center;
-    font-size: 0.85em;
-    color: gray;
-  }
-
-  .slider-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(255,255,255,0.7);
-    border: none;
-    cursor: pointer;
-    z-index: 2;
-    line-height: 1;
-    padding: 0.2em 0.5em;
-    border-radius: .4em;
-    font-size: 1.5em;
-  }
-  .slider-btn.prev { left: 1em; }
-  .slider-btn.next { right: 1em; }
-
-  .lightbox {
-    display: none;
-    position: fixed;
-    z-index: 999;
-    inset: 0;
-    background: rgba(0,0,0,0.9);
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-  }
-  .lightbox img {
-    max-width: 90vw;
-    max-height: 80vh;
-    width: auto;
-    height: auto;
-    object-fit: contain;
-  }
-  .lightbox-caption {
-    color: white;
-    margin-top: 1em;
-    font-size: 0.9em;
-    text-align: center;
-    padding: 0 .75em;
-  }
-  .lightbox-controls {
-    position: absolute;
-    width: 100%;
-    top: 50%;
-    display: flex;
-    justify-content: space-between;
-    padding: 0 2em;
-  }
-  .lightbox-btn {
-    color: white;
-    font-size: 2em;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-  }
-  .lightbox-close {
-    position: absolute;
-    top: 1em;
-    right: 2em;
-    color: white;
-    font-size: 2em;
-    cursor: pointer;
-  }
-
-  .section-divider {
-    border: none;
-    border-top: 1px solid #ccc;
-    margin: 5em auto;
-    width: 60%;
-  }
-
-  .video-container {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 4 / 3;
-    overflow: hidden;
-    max-height: 500px;
-  }
-  .video-container iframe {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    border: 0;
-  }
-
-  @media (max-width: 600px) {
-    .project-hero,
-    .video-container {
-      max-height: 300px;
-    }
+  .project-hero{width:100%;aspect-ratio:16/9;max-height:500px;overflow:hidden;position:relative;margin-bottom:2.5em}
+  .project-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block}
+  .project-title{text-align:center;font-size:18pt;font-weight:bold;margin:1em 0}
+  .project-section-title{text-align:center;font-size:1.2em;font-weight:bold;margin:2em 0 1em;color:#444}
+  .project-meta-line{text-align:center;font-size:.9em;color:gray}
+  .project-meta-line + .project-meta-line{margin-top:.25em}
+  .project-content{max-width:800px;margin:0 auto 2em;line-height:1.6}
+  .project-credits{max-width:800px;margin:0 auto 1.5em;font-size:.85em;color:#777;line-height:1.5}
+  .project-credits h3{margin:0 0 .4em;font-size:1em;font-weight:700;color:#666;text-align:left}
+  .project-credits p{margin:.2em 0}
+  .project-credits ul{margin:.3em 0 .6em 1.2em}
+  .project-slider{max-width:100%;margin:2em auto;position:relative}
+  .slider-window{position:relative}
+  .slide{display:none;width:100%}
+  .slide.active{display:block}
+  .slide-image-wrapper{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden}
+  .slide-image-wrapper img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;cursor:zoom-in}
+  .gallery-caption{margin-top:.5em;padding:.5em 1em;text-align:center;font-size:.85em;color:gray}
+  .slider-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.7);border:none;cursor:pointer;z-index:2;line-height:1;padding:.2em .5em;border-radius:.4em;font-size:1.5em}
+  .slider-btn.prev{left:1em}
+  .slider-btn.next{right:1em}
+  .lightbox{display:none;position:fixed;z-index:999;inset:0;background:rgba(0,0,0,.9);align-items:center;justify-content:center;flex-direction:column}
+  .lightbox img{max-width:90vw;max-height:80vh;width:auto;height:auto;object-fit:contain}
+  .lightbox-caption{color:#fff;margin-top:1em;font-size:.9em;text-align:center;padding:0 .75em}
+  .lightbox-controls{position:absolute;width:100%;top:50%;display:flex;justify-content:space-between;padding:0 2em}
+  .lightbox-btn{color:#fff;font-size:2em;background:transparent;border:none;cursor:pointer}
+  .lightbox-close{position:absolute;top:1em;right:2em;color:#fff;font-size:2em;cursor:pointer}
+  .section-divider{border:none;border-top:1px solid #ccc;margin:5em auto;width:60%}
+  .video-container{position:relative;width:100%;aspect-ratio:4/3;overflow:hidden;max-height:500px}
+  .video-container iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  @media (max-width:600px){
+    .project-hero,.video-container{max-height:300px}
   }
 </style>
 
@@ -258,7 +102,7 @@
   <span class="lang-zh">{{ title_zh }}</span>
 </h1>
 
-{# 直接使用 loc_en / loc_zh，不做逗號實體替換 #}
+{# ===== 面積/戶數格式化 ===== #}
 {% set _fa = floor_area %}
 {% set _un = units %}
 
@@ -282,7 +126,7 @@
   {% endif %}
 {% endif %}
 
-{# 第一行：類型｜地點 #}
+{# ===== 第一行：類型｜地點 ===== #}
 <p class="project-meta-line">
   <span class="lang-en">
     {% if type_en %}{{ type_en }}{% endif %}
@@ -294,7 +138,7 @@
   </span>
 </p>
 
-{# 第二行：戶數｜面積｜年份 #}
+{# ===== 第二行：戶數｜面積｜年份 ===== #}
 <p class="project-meta-line">
   <span class="lang-en">
     {% if units_en %}{{ units_en }}{% endif %}
@@ -319,23 +163,18 @@
 
 {% if credits_en or credits_zh %}
   <div class="project-credits">
-    <div class="lang-en">
-      {{ credits_en | markdown | safe }}
-    </div>
-    <div class="lang-zh">
-      {{ credits_zh | markdown | safe }}
-    </div>
+    <div class="lang-en">{{ credits_en | markdown | safe }}</div>
+    <div class="lang-zh">{{ credits_zh | markdown | safe }}</div>
   </div>
 {% endif %}
 
 <hr class="section-divider">
 
-{# --------- 相簿來源整合：優先進階（有 caption），否則簡易（多選） --------- #}
+{# ===== 相簿來源整合：優先進階（含 caption），否則簡易（多選） ===== #}
 {% set gallery_list = [] %}
 {% if gallery and (gallery | length) %}
   {% set gallery_list = gallery %}
 {% elif gallery_images and (gallery_images | length) %}
-  {# 這裡不要用 |map；直接把陣列指派即可 #}
   {% set gallery_list = gallery_images %}
 {% endif %}
 
@@ -349,12 +188,10 @@
     <div class="slider-window" id="sliderWindow">
       {% for g in gallery_list %}
         {% if g.image is defined %}
-          {# 進階相簿格式 #}
           {% set _img = g.image or '' %}
           {% set cap_en = g.caption_en or '' %}
           {% set cap_zh = g.caption_zh or '' %}
         {% else %}
-          {# 簡易相簿格式（只是一張圖片路徑） #}
           {% set _img = g or '' %}
           {% set cap_en = '' %}
           {% set cap_zh = '' %}
@@ -392,6 +229,7 @@
 {% endif %}
 
 <hr class="section-divider">
+
 {% if video %}
   <h2 class="project-section-title">
     <span class="lang-en">Project Video</span>
@@ -399,86 +237,54 @@
   </h2>
   <div class="project-video" style="text-align: center; margin-top: 2em;">
     <div class="video-container">
-      <iframe
-        src="{{ video }}"
-        title="YouTube video"
-        frameborder="0"
-        allowfullscreen
-      ></iframe>
+      <iframe src="{{ video }}" title="YouTube video" frameborder="0" allowfullscreen></iframe>
     </div>
   </div>
 {% endif %}
 
 <script>
-  // Slides
   const slides = document.querySelectorAll(".slide");
   let currentIndex = 0;
+  function showSlide(index){ slides.forEach((s,i)=>s.classList.toggle("active", i===index)); currentIndex=index; }
+  function moveSlide(dir){ if(!slides.length) return; const next=(currentIndex+dir+slides.length)%slides.length; showSlide(next); }
 
-  function showSlide(index) {
-    slides.forEach((s, i) => s.classList.toggle("active", i === index));
-    currentIndex = index;
+  const lightbox=document.getElementById("lightbox");
+  const lightboxImg=document.getElementById("lightboxImage");
+  const lightboxCaption=document.getElementById("lightboxCaption");
+  const images=Array.from(document.querySelectorAll(".slide-image-wrapper img"));
+  const captions=Array.from(document.querySelectorAll(".gallery-caption"));
+
+  function openLightbox(index){ if(!images.length) return; lightbox.style.display="flex"; updateLightbox(index); }
+  function updateLightbox(index){
+    const img=images[index]; const cap=captions[index];
+    if(!img) return;
+    lightboxImg.src=img.src;
+    const lang=(document.documentElement.getAttribute("data-lang")||"en");
+    const active=cap?cap.querySelector(".lang-"+lang):null;
+    lightboxCaption.textContent=(active && active.textContent.trim())||"";
+    currentIndex=index;
   }
-  function moveSlide(dir) {
-    if (!slides.length) return;
-    const next = (currentIndex + dir + slides.length) % slides.length;
-    showSlide(next);
+  function changeLightbox(dir){ if(!images.length) return; const next=(currentIndex+dir+images.length)%images.length; updateLightbox(next); }
+  function closeLightbox(){ lightbox.style.display="none"; }
+
+  images.forEach((img,i)=>img.addEventListener("click",()=>openLightbox(i)));
+  const sliderWindow=document.getElementById("sliderWindow");
+  if(sliderWindow){
+    let startX=0;
+    sliderWindow.addEventListener("touchstart",e=>{startX=e.touches[0].clientX;},{passive:true});
+    sliderWindow.addEventListener("touchend",e=>{
+      const dx=e.changedTouches[0].clientX-startX;
+      if(dx>50) moveSlide(-1); else if(dx<-50) moveSlide(1);
+    },{passive:true});
   }
-
-  // Lightbox
-  const lightbox = document.getElementById("lightbox");
-  const lightboxImg = document.getElementById("lightboxImage");
-  const lightboxCaption = document.getElementById("lightboxCaption");
-
-  const images = Array.from(document.querySelectorAll(".slide-image-wrapper img"));
-  const captions = Array.from(document.querySelectorAll(".gallery-caption"));
-
-  function openLightbox(index) {
-    if (!images.length) return;
-    lightbox.style.display = "flex";
-    updateLightbox(index);
-  }
-  function updateLightbox(index) {
-    const img = images[index];
-    const caption = captions[index];
-    if (!img) return;
-    lightboxImg.src = img.src;
-    const currentLang = document.documentElement.getAttribute("data-lang") || "en";
-    const activeCaption = caption ? caption.querySelector(\`.lang-\${currentLang}\`) : null;
-    lightboxCaption.textContent = (activeCaption && activeCaption.textContent.trim()) || "";
-    currentIndex = index;
-  }
-  function changeLightbox(dir) {
-    if (!images.length) return;
-    const next = (currentIndex + dir + images.length) % images.length;
-    updateLightbox(next);
-  }
-  function closeLightbox() { lightbox.style.display = "none"; }
-
-  // 點擊圖片開啟 lightbox
-  images.forEach((img, i) => img.addEventListener("click", () => openLightbox(i)));
-
-  // Touch swipe on slider
-  const sliderWindow = document.getElementById("sliderWindow");
-  if (sliderWindow) {
-    let startX = 0;
-    sliderWindow.addEventListener("touchstart", e => { startX = e.touches[0].clientX; }, { passive: true });
-    sliderWindow.addEventListener("touchend", e => {
-      const deltaX = e.changedTouches[0].clientX - startX;
-      if (deltaX > 50) moveSlide(-1);
-      else if (deltaX < -50) moveSlide(1);
-    }, { passive: true });
-  }
-
-  // 鍵盤支援：Esc 離開、左右切換
-  document.addEventListener("keydown", function (e) {
-    if (lightbox && lightbox.style.display === "flex") {
-      if (e.key === "Escape") closeLightbox();
-      else if (e.key === "ArrowRight") changeLightbox(1);
-      else if (e.key === "ArrowLeft") changeLightbox(-1);
+  document.addEventListener("keydown",e=>{
+    if(lightbox && lightbox.style.display==="flex"){
+      if(e.key==="Escape") closeLightbox();
+      else if(e.key==="ArrowRight") changeLightbox(1);
+      else if(e.key==="ArrowLeft") changeLightbox(-1);
     }
   });
-
-  // 初始化
-  if (slides.length) showSlide(currentIndex);
+  if(slides.length) showSlide(currentIndex);
 </script>
+
 {% endblock %}
