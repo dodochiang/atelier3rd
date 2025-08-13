@@ -1,6 +1,7 @@
 {% extends "layout.njk" %}
 
 {% block content %}
+
 {# 類型對照 #}
 {% set TYPE_ZH = {
   "Residential": "住宅",
@@ -20,102 +21,20 @@
   "工作營": "Workshop",
   "展覽": "Exhibition"
 } %}
-
-{# ---------- 圖片正規化巨集（支援 Cloudinary 物件 / public_id / 本地路徑 / 完整網址） ---------- #}
-{% macro pickImage(item) -%}
-  {%- if item is string -%}
-    {{- item -}}
-  {%- elif item and item.url is defined and item.url -%}
-    {{- item.url -}}
-  {%- elif item and item.secure_url is defined and item.secure_url -%}
-    {{- item.secure_url -}}
-  {%- elif item and item.path is defined and item.path -%}
-    {{- item.path -}}
-  {%- elif item and item.public_id is defined and item.public_id -%}
-    {%- set ext = (item.extension is defined and item.extension) and ('.' ~ item.extension) or '' -%}
-    {{- item.public_id ~ ext -}}
-  {%- else -%}
-    {{- '' -}}
-  {%- endif -%}
-{%- endmacro %}
-
-{% macro normalizeSrc(src) -%}
-  {%- set s = (src or '') | trim -%}
-  {%- if not s -%}{%- set _='' -%}{{- _ -}}
-  {%- else -%}
-    {# 完整網址 / 協定相對 / data: → 原樣 #}
-    {%- if (s | lower | slice(0,7)) == 'http://'
-          or (s | lower | slice(0,8)) == 'https://'
-          or (s | slice(0,2)) == '//'
-          or (s | lower | slice(0,5)) == 'data:' -%}
-      {{- s -}}
-    {# 站內絕對路徑 → 原樣 #}
-    {%- elif s[0] == '/' -%}
-      {{- s -}}
-    {# 相對 uploads → 轉為站內絕對 #}
-    {%- elif (s | lower | slice(0,8)) == 'uploads/'
-          or (s | lower | slice(0,15)) == 'static/uploads/' -%}
-      {{- '/' ~ s -}}
-    {# 其他 → 當作 Cloudinary public_id #}
-    {%- else -%}
-      {%- set cloudName = 'dw6nekwxn' -%}
-      {{- 'https://res.cloudinary.com/' ~ cloudName ~ '/image/upload/' ~ s -}}
-    {%- endif -%}
-  {%- endif -%}
-{%- endmacro %}
-
-{# 以英文為標準化的 type 清單（避免 indexOf/concat） #}
-{% set typeList = [] %}
-{% for p in collections.projects %}
-  {% set raw = p.data.type %}
-  {% if raw %}
-    {% set t_en = TYPE_EN[raw] or raw %}
-    {% if t_en not in typeList %}
-      {% set typeList = typeList + [t_en] %}
-    {% endif %}
-  {% endif %}
-{% endfor %}
+{% set TYPE_OPTIONS = ["Residential","Commercial","Cultural","Public","Installation","Workshop","Exhibition"] %}
 
 <style>
   .project a { text-decoration: none; color: inherit; }
   .project a:hover { text-decoration: none; color: inherit; }
-
-  .projects-grid {
-    max-width: 1000px;
-    margin: 2em auto;
-    padding: 1em;
-    list-style: none;
-  }
-
+  .projects-grid { max-width: 1000px; margin: 2em auto; padding: 1em; list-style: none; }
   .project-card { display: block; color: inherit; border: none; padding: 0; }
-
   .filters { margin: 1em 0; text-align: center; }
   .filters label, .filters select, .filters button { margin: 0 0.5em; }
-
-  .project-title {
-    text-align: center;
-    font-size: 1em;
-    font-weight: normal;
-    margin: 1em 0;
-  }
-
-  .project-meta {
-    text-align: center;
-    font-size: 0.6em;
-    color: #666;
-    margin-top: 0.3em;
-    font-variant-ligatures: none;
-  }
+  .project-title { text-align: center; font-size: 1em; font-weight: normal; margin: 1em 0; }
+  .project-meta { text-align: center; font-size: 0.6em; color: #666; margin-top: 0.3em; font-variant-ligatures: none; }
   .project-meta-line { text-align:center; font-size:0.6em; color:#666; }
   .project-meta-line + .project-meta-line { margin-top:.2em; }
-
-  .project-thumb {
-    width: 100%;
-    aspect-ratio: 4 / 3;
-    object-fit: cover;
-    display: block;
-    border: none;
-  }
+  .project-thumb { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; border: none; }
 </style>
 
 <section class="projects-page">
@@ -132,7 +51,7 @@
 
     <select id="typeFilter">
       <option value="all" data-en="All" data-zh="全部">All</option>
-      {% for t in typeList %}
+      {% for t in TYPE_OPTIONS %}
         {% set t_zh = TYPE_ZH[t] or t %}
         <option value="{{ t }}" data-en="{{ t }}" data-zh="{{ t_zh }}">{{ t }}</option>
       {% endfor %}
@@ -152,18 +71,62 @@
     {% for project in collections.projects %}
       {% set d = project.data %}
 
-      {# 類型/地點（先算再用） #}
+      {# 類型/地點 #}
       {% set rawType = d.type or '' %}
       {% set type_en = TYPE_EN[rawType] or rawType %}
       {% set type_zh = TYPE_ZH[type_en] or rawType %}
-      {% set loc_en = d.location_en or '' %}
-      {% set loc_zh = d.location_zh or '' %}
+      {% set loc_en  = d.location_en or '' %}
+      {% set loc_zh  = d.location_zh or '' %}
 
-      {# 縮圖：先 pick 再 normalize（避免雙重前綴） #}
-      {% set thumbRaw = pickImage(d.thumbnail) %}
-      {% set thumbSrc = normalizeSrc(thumbRaw) %}
+      {# --- 取得 thumbnail 原始字串（支援字串與 Cloudinary 物件） --- #}
+      {% set _thumb = '' %}
+      {% if d.thumbnail is string %}
+        {% set _thumb = d.thumbnail %}
+      {% elseif d.thumbnail %}
+        {% if d.thumbnail.secure_url is defined and d.thumbnail.secure_url %}
+          {% set _thumb = d.thumbnail.secure_url %}
+        {% elif d.thumbnail.url is defined and d.thumbnail.url %}
+          {% set _thumb = d.thumbnail.url %}
+        {% elif d.thumbnail.path is defined and d.thumbnail.path %}
+          {% set _thumb = d.thumbnail.path %}
+        {% elif d.thumbnail.public_id is defined and d.thumbnail.public_id %}
+          {# 只組合 public_id 與副檔名，不先加 Cloudinary 網域 #}
+          {% set _ext = (d.thumbnail.extension is defined and d.thumbnail.extension) and ('.' ~ d.thumbnail.extension) or '' %}
+          {% set _thumb = d.thumbnail.public_id ~ _ext %}
+        {% endif %}
+      {% endif %}
 
-      {# 面積/戶數（自動補單位） #}
+      {# --- 標準化成可用 URL（完整網址就原樣，避免再加一次前綴） --- #}
+      {% set thumbSrc = _thumb | trim %}
+      {% if thumbSrc %}
+        {% set _low = thumbSrc | lower %}
+        {% set _is_http      = (_low | slice(0,7))  == 'http://' %}
+        {% set _is_https     = (_low | slice(0,8))  == 'https://' %}
+        {% set _is_proto_rel = (thumbSrc | slice(0,2)) == '//' %}
+        {% set _is_data      = (_low | slice(0,5))  == 'data:' %}
+        {% set _is_abs       = (thumbSrc | slice(0,1)) == '/' %}
+        {% set _is_uploads   = (_low | slice(0,8))  == 'uploads/' %}
+        {% set _is_static_up = (_low | slice(0,15)) == 'static/uploads/' %}
+
+        {% if _is_http or _is_https or _is_proto_rel or _is_data %}
+          {# 已是完整網址/協定相對/data: → 原樣 #}
+          {% set thumbSrc = thumbSrc %}
+        {% elif _is_abs %}
+          {# 站內絕對路徑 → 原樣 #}
+          {% set thumbSrc = thumbSrc %}
+        {% elif _is_uploads or _is_static_up %}
+          {# 站內相對 uploads → 補一個 / #}
+          {% set thumbSrc = '/' ~ thumbSrc %}
+        {% else %}
+          {# 其他（public_id 或單純檔名）→ 單次加 Cloudinary 前綴 #}
+          {% if (thumbSrc | slice(0,1)) == '/' %}
+            {% set thumbSrc = thumbSrc | slice(1) %}
+          {% endif %}
+          {% set thumbSrc = 'https://res.cloudinary.com/dw6nekwxn/image/upload/' ~ thumbSrc %}
+        {% endif %}
+      {% endif %}
+
+      {# 面積/戶數 #}
       {% set _fa = d.floor_area %}
       {% set _un = d.units %}
       {% if _fa is not none %}
@@ -293,4 +256,5 @@
     });
   });
 </script>
+
 {% endblock %}
