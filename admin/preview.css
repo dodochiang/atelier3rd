@@ -3,6 +3,9 @@
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   padding: 12px;
   color: #111;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* hero 區域：固定比例 + 限高（預覽縮小一點） */
@@ -12,7 +15,7 @@
   max-height: 360px;
   overflow: hidden;
   position: relative;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 .project-hero img {
   position: absolute;
@@ -28,21 +31,25 @@
   text-align: center;
   font-size: 20px;
   font-weight: 700;
-  margin: 12px 0;
+  margin: 12px 0 8px;
 }
 
-.project-meta {
+/* 兩行 meta：第1行「類型｜地點」，第2行「戶數｜面積｜年份」 */
+.project-meta-line {
   text-align: center;
   font-size: 14px;
   color: gray;
-  margin-bottom: 24px;
+  margin: 4px 0;
+}
+.project-meta-line .lang-en,
+.project-meta-line .lang-zh {
+  display: block;        /* 英/中各占一行 */
 }
 
-/* 內文的圖片不要超出台框 */
+/* 內文與圖片不要超出台框 */
 .project-content {
   max-width: 760px;
   margin: 0 auto 24px;
-  line-height: 1.6;
 }
 .project-content img {
   max-width: 100%;
@@ -50,10 +57,15 @@
   display: block;
 }
 
+/* Markdown 標題階層 */
+.project-content h1 { font-size: 24px; margin: 1em 0 .5em; }
+.project-content h2 { font-size: 20px; margin: 1em 0 .5em; }
+.project-content h3 { font-size: 18px; margin: 1em 0 .5em; }
+
 /* 簡化 gallery：同樣固定比例顯示第一張 */
 .project-slider {
   max-width: 100%;
-  margin: 24px auto;
+  margin: 20px auto;
 }
 .slide-image-wrapper {
   position: relative;
@@ -77,11 +89,8 @@
   padding: 0 12px;
 }
 
-/* 讓 Markdown 標題在預覽有階層感 */
-.project-content h1 { font-size: 24px; margin: 1em 0 .5em; }
-.project-content h2 { font-size: 20px; margin: 1em 0 .5em; }
-.project-content h3 { font-size: 18px; margin: 1em 0 .5em; }
-
 @media (max-width: 600px) {
   .project-hero { max-height: 240px; }
+  .project-title { font-size: 18px; }
+  .project-meta-line { font-size: 13px; }
 }

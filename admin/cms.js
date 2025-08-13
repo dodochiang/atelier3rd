@@ -1,49 +1,163 @@
-/* -------------- Brand CSS inside the editor preview -------------- */
-CMS.registerPreviewStyle("/admin/admin.css");
+/* ===============================
+   Decap CMS – Project & Pages Preview
+   =============================== */
 
-/* -------------- Simple “Projects” live preview ------------------- */
-/* Works with your frontmatter: title_en, title_zh, year, thumbnail, gallery, etc. */
+/* 預覽區樣式：請維持與 admin/index.html 同步 */
+CMS.registerPreviewStyle("/admin/preview.css");
+
+/* 若你要在這邊註冊 Cloudinary（通常也可放 index.html） */
+// if (window.cloudinary) CMS.registerMediaLibrary(window.cloudinary);
+
+/* ===== Helpers ===== */
+const { createClass, h } = window;
+
+// 類型中英對照（與前台一致）
+const TYPE_EN = {
+  "住宅": "Residential",
+  "商業": "Commercial",
+  "文化": "Cultural",
+  "公共": "Public",
+  "裝置": "Installation",
+  "工作營": "Workshop",
+  "展覽": "Exhibition",
+};
+
+const SEP = "｜"; // 全形豎線
+
+const ensureStr = (v) => (v === null || v === undefined) ? "" : String(v);
+
+const normSrc = (src) => {
+  const s = ensureStr(src).trim();
+  if (!s) return "";
+  return /^https?:\/\//i.test(s) ? s : (s.startsWith("/") ? s : "/" + s);
+};
+
+// 若是純數字，英文補 ' sqm'、中文補 '㎡'
+const fmtArea = (v, lang) => {
+  const s = ensureStr(v).trim();
+  if (!s) return "";
+  if (/㎡|m²|sqm/i.test(s)) return s;
+  return lang === "zh" ? s + "㎡" : s + " sqm";
+};
+
+// 若是純數字，英文補 ' units'、中文補 '戶'
+const fmtUnits = (v, lang) => {
+  const s = ensureStr(v).trim();
+  if (!s) return "";
+  if (/戶|units/i.test(s)) return s;
+  return lang === "zh" ? s + "戶" : s + " units";
+};
+
+/* ===== Projects – Live Preview（兩行 meta、gallery_images 支援） ===== */
 const ProjectPreview = createClass({
   render() {
     const entry = this.props.entry;
-    const data  = entry.getIn(["data"]);
-    const titleEn = data.get("title_en");
-    const titleZh = data.get("title_zh");
-    const year    = data.get("year");
-    const thumb   = data.get("thumbnail");
-    const gallery = data.get("gallery");
+    const get = (k) => entry.getIn(["data", k]);
+    const getList = (k) => entry.getIn(["data", k]) || [];
 
-    return h("div", { className: "preview-wrap" }, [
-      h("header", { className: "preview-hero" }, [
-        thumb ? h("img", { src: thumb, alt: "Project thumbnail" }) : null,
-        h("h1", {}, `${titleEn || ""} ${titleZh ? " / " + titleZh : ""}`),
-        year ? h("p", { className: "muted" }, String(year)) : null,
+    const title_en = ensureStr(get("title_en"));
+    const title_zh = ensureStr(get("title_zh"));
+    const year     = ensureStr(get("year"));
+    const loc_en   = ensureStr(get("location_en"));
+    const loc_zh   = ensureStr(get("location_zh"));
+    const type_zh  = ensureStr(get("type"));
+    const type_en  = TYPE_EN[type_zh] || "";
+
+    // 新 meta
+    const floor_area = get("floor_area"); // number or string
+    const units      = get("units");      // number or string
+
+    // 逗號安全化（視覺仍是逗號）
+    const loc_en_safe = loc_en.replace(/,/g, "&#44;");
+    const loc_zh_safe = loc_zh.replace(/，/g, "&#65292;").replace(/,/g, "&#44;");
+
+    // 兩行 meta
+    const line1_en = [type_en, loc_en_safe].filter(Boolean).join(SEP);
+    const line1_zh = [type_zh, loc_zh_safe].filter(Boolean).join(SEP);
+
+    const u_en = fmtUnits(units, "en");
+    const u_zh = fmtUnits(units, "zh");
+    const a_en = fmtArea(floor_area, "en");
+    const a_zh = fmtArea(floor_area, "zh");
+
+    const line2_en = [u_en, a_en, year].filter(Boolean).join(SEP);
+    const line2_zh = [u_zh, a_zh, year].filter(Boolean).join(SEP);
+
+    // 圖片
+    const thumbnail   = ensureStr(get("thumbnail"));
+    const heroSrc     = normSrc(thumbnail);
+    const gallery     = getList("gallery");
+    const galleryImgs = getList("gallery_images");
+
+    // 合併兩種相簿來源：優先進階（有 caption），否則多選圖片
+    let previewList = [];
+    const gArr = gallery.toJS?.() || [];
+    const giArr = galleryImgs.toJS?.() || [];
+    if (Array.isArray(gArr) && gArr.length) {
+      previewList = gArr
+        .map(it => ({
+          image: normSrc(it.image),
+          caption_en: ensureStr(it.caption_en),
+          caption_zh: ensureStr(it.caption_zh)
+        }))
+        .filter(it => it.image);
+    } else if (Array.isArray(giArr) && giArr.length) {
+      previewList = giArr
+        .map(src => ({ image: normSrc(src), caption_en: "", caption_zh: "" }))
+        .filter(it => it.image);
+    }
+    const first = previewList[0];
+
+    const body_en = this.props.widgetFor("body_en");
+    const body_zh = this.props.widgetFor("body_zh");
+
+    return h("div", { className: "cms-preview-content" }, [
+      // hero
+      heroSrc && h("div", { className: "project-hero" },
+        h("img", { src: heroSrc, alt: "Project thumbnail" })
+      ),
+
+      // title
+      h("h1", { className: "project-title" }, [
+        h("span", { className: "lang-en", style: { display: "block" } }, title_en),
+        h("span", { className: "lang-zh", style: { display: "block", fontWeight: "normal" } }, title_zh)
       ]),
-      h("section", { className: "preview-body" }, [
-        /* Render markdown bodies */
-        h("div", { className: "lang-en" },
-          this.props.widgetFor && this.props.widgetFor("body_en")
-        ),
-        h("div", { className: "lang-zh" },
-          this.props.widgetFor && this.props.widgetFor("body_zh")
-        ),
+
+      // meta line 1：類型｜地點
+      h("p", { className: "project-meta-line" }, [
+        h("span", { className: "lang-en", style: { display: "block" } }, line1_en),
+        h("span", { className: "lang-zh", style: { display: "block" } }, line1_zh)
       ]),
-      gallery && gallery.size
-        ? h("section", { className: "preview-gallery" },
-            gallery.toJS().map((item, i) =>
-              h("figure", { key: i }, [
-                h("img", { src: item.image, alt: item.caption_en || item.caption_zh || `Image ${i+1}` }),
-                h("figcaption", {}, item.caption_en || item.caption_zh || "")
-              ])
-            )
-          )
-        : null,
+
+      // meta line 2：戶數｜面積｜年份
+      h("p", { className: "project-meta-line" }, [
+        h("span", { className: "lang-en", style: { display: "block" } }, line2_en),
+        h("span", { className: "lang-zh", style: { display: "block" } }, line2_zh)
+      ]),
+
+      // body
+      h("div", { className: "project-content" }, [
+        h("div", { className: "lang-en" }, body_en),
+        h("div", { className: "lang-zh" }, body_zh)
+      ]),
+
+      // gallery（預覽只帶第一張，避免過重）
+      first && h("div", { className: "project-slider" }, [
+        h("div", { className: "slide-image-wrapper" },
+          h("img", { src: first.image, alt: "Preview image" })
+        ),
+        (first.caption_en || first.caption_zh) &&
+          h("div", { className: "gallery-caption" }, [
+            h("div", { className: "lang-en" }, first.caption_en),
+            h("div", { className: "lang-zh" }, first.caption_zh)
+          ])
+      ])
     ]);
   }
 });
 CMS.registerPreviewTemplate("projects", ProjectPreview);
 
-/* -------------- Optional: “About” / “Contact” previews ----------- */
+/* ===== About / Contact – 簡單預覽 ===== */
 const SimplePagePreview = createClass({
   render() {
     return h("article", { className: "preview-page" }, [
@@ -51,22 +165,20 @@ const SimplePagePreview = createClass({
       this.props.widgetFor("body_en"),
       h("hr"),
       h("h1", {}, this.props.entry.getIn(["data", "title_zh"])),
-      this.props.widgetFor("body_zh"),
+      this.props.widgetFor("body_zh")
     ]);
   }
 });
 CMS.registerPreviewTemplate("about", SimplePagePreview);
 CMS.registerPreviewTemplate("contact", SimplePagePreview);
 
-/* -------------- Optional: custom editor UI tweaks ----------------- */
-// Rename publish labels, enable editorial workflow labels, etc.
-CMS.registerLocale('en', {
+/* ===== Optional：介面字串調整（保留） ===== */
+CMS.registerLocale("en", {
   app: { header: { content: "Atelier3rd CMS" } },
   workflow: { workflow: { drafts: "草稿", inReview: "審核中", ready: "準備發布" } }
 });
 
-/* -------------- Optional: custom widget (example: year range) ----- */
-// A super-tiny display widget example—skip if not needed.
+/* ===== Optional：自訂小 widget（保留） ===== */
 const YearWidget = createClass({
   render() {
     return h("input", {
