@@ -12,6 +12,7 @@ media_library:
   config:
     cloud_name: dw6nekwxn
     api_key: 414678917212337
+    multiple: true
     default_transformations:
       - - fetch_format: auto
           quality: auto
@@ -131,6 +132,10 @@ collections:
 
       - { label: "內容（EN）", name: "body_en", widget: "markdown", required: false, hint: "英文敘述；支援 Markdown" }
       - { label: "內容（中文）", name: "body_zh", widget: "markdown", required: false, hint: "中文敘述；支援 Markdown" }
+
+ # 新增：Credits / 致謝（小字顯示）
+      - { label: "Credits (EN)", name: "credits_en", widget: "markdown", required: false, hint: "可用換行或無序清單" }
+      - { label: "致謝（中文）", name: "credits_zh", widget: "markdown", required: false, hint: "可用換行或無序清單" }
 
       - label: "影片連結（YouTube Embed URL）"
         name: "video"

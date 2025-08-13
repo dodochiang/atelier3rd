@@ -218,6 +218,23 @@
       max-height: 300px;
     }
 
+    /* Credits 小字 */
+    .project-credits {
+      max-width: 800px;
+      margin: 0 auto 1.5em;
+      font-size: 0.85em;
+      color: #777;
+      line-height: 1.5;
+    }
+    .project-credits h3 {
+      margin: 0 0 .4em;
+      font-size: 1em;
+      font-weight: 700;
+      color: #666;
+      text-align: left;
+    }
+    .project-credits p { margin: .2em 0; }
+    .project-credits ul { margin: .3em 0 .6em 1.2em; }
 </style>
 
 {% if heroSrc %}
@@ -296,6 +313,21 @@
     {{ body_zh | markdown | safe }}
   </div>
 </div>
+
+{% if credits_en or credits_zh %}
+  <div class="project-credits">
+    {# 可要可不要的抬頭；若不要，刪這兩行 h3 即可 #}
+    {# <h3 class="lang-en">Credits</h3> #}
+    {# <h3 class="lang-zh">致謝</h3> #}
+
+    <div class="lang-en">
+      {{ credits_en | markdown | safe }}
+    </div>
+    <div class="lang-zh">
+      {{ credits_zh | markdown | safe }}
+    </div>
+  </div>
+{% endif %}
 
 <hr class="section-divider">
 {% set gallery_list = [] %}

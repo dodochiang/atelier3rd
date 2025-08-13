@@ -2,16 +2,24 @@
    Decap CMS – Project & Pages Preview
    =============================== */
 
-/* 預覽區樣式：請維持與 admin/index.html 同步 */
-CMS.registerPreviewStyle("/admin/preview.css");
+/* -------- Register Cloudinary media library (robust) -------- */
+(function registerCloudinary(retries = 20) {
+  const ok = (window.CMS && (window.cloudinary || window.Cloudinary)) ? true : false;
+  if (ok) {
+    CMS.registerMediaLibrary(window.cloudinary || window.Cloudinary);
+  } else if (retries > 0) {
+    setTimeout(() => registerCloudinary(retries - 1), 150);
+  } else {
+    console.warn('[CMS] Cloudinary media library not found. Is the plugin script loaded in /admin/index.html?');
+  }
+})();
 
-/* 若你要在這邊註冊 Cloudinary（通常也可放 index.html） */
-// if (window.cloudinary) CMS.registerMediaLibrary(window.cloudinary);
+/* 預覽面板樣式（右側 preview） */
+CMS.registerPreviewStyle("/admin/preview.css");
 
 /* ===== Helpers ===== */
 const { createClass, h } = window;
 
-// 類型中英對照（與前台一致）
 const TYPE_EN = {
   "住宅": "Residential",
   "商業": "Commercial",
@@ -32,7 +40,6 @@ const normSrc = (src) => {
   return /^https?:\/\//i.test(s) ? s : (s.startsWith("/") ? s : "/" + s);
 };
 
-// 若是純數字，英文補 ' sqm'、中文補 '㎡'
 const fmtArea = (v, lang) => {
   const s = ensureStr(v).trim();
   if (!s) return "";
@@ -40,7 +47,6 @@ const fmtArea = (v, lang) => {
   return lang === "zh" ? s + "㎡" : s + " sqm";
 };
 
-// 若是純數字，英文補 ' units'、中文補 '戶'
 const fmtUnits = (v, lang) => {
   const s = ensureStr(v).trim();
   if (!s) return "";
@@ -48,7 +54,7 @@ const fmtUnits = (v, lang) => {
   return lang === "zh" ? s + "戶" : s + " units";
 };
 
-/* ===== Projects – Live Preview（兩行 meta、gallery_images 支援） ===== */
+/* ===== Projects – Live Preview（兩行 meta、gallery_images、credits） ===== */
 const ProjectPreview = createClass({
   render() {
     const entry = this.props.entry;
@@ -66,6 +72,10 @@ const ProjectPreview = createClass({
     // 新 meta
     const floor_area = get("floor_area"); // number or string
     const units      = get("units");      // number or string
+
+    // Credits（markdown）
+    const credits_en = this.props.widgetFor("credits_en");
+    const credits_zh = this.props.widgetFor("credits_zh");
 
     // 逗號安全化（視覺仍是逗號）
     const loc_en_safe = loc_en.replace(/,/g, "&#44;");
@@ -89,9 +99,9 @@ const ProjectPreview = createClass({
     const gallery     = getList("gallery");
     const galleryImgs = getList("gallery_images");
 
-    // 合併兩種相簿來源：優先進階（有 caption），否則多選圖片
+    // 合併相簿來源
     let previewList = [];
-    const gArr = gallery.toJS?.() || [];
+    const gArr  = gallery.toJS?.() || [];
     const giArr = galleryImgs.toJS?.() || [];
     if (Array.isArray(gArr) && gArr.length) {
       previewList = gArr
@@ -141,7 +151,13 @@ const ProjectPreview = createClass({
         h("div", { className: "lang-zh" }, body_zh)
       ]),
 
-      // gallery（預覽只帶第一張，避免過重）
+      // Credits（放在描述下、相簿前）
+      (credits_en || credits_zh) && h("div", { className: "project-credits" }, [
+        h("div", { className: "lang-en" }, credits_en || null),
+        h("div", { className: "lang-zh" }, credits_zh || null)
+      ]),
+
+      // gallery（預覽只帶第一張）
       first && h("div", { className: "project-slider" }, [
         h("div", { className: "slide-image-wrapper" },
           h("img", { src: first.image, alt: "Preview image" })
