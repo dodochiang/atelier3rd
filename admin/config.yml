@@ -110,18 +110,27 @@ collections:
         required: false
         hint: "建議 1200×900（4:3）JPG"
 
-      - label: "圖片集（Gallery）"
+      # 在 projects 的 fields 裡，加在原來 gallery 旁邊
+      - label: "簡易相簿（多選）"
+        name: "gallery_images"
+        widget: "image"
+        multiple: true          # 一次多選
+        required: false
+        hint: "可一次多選多張；若需要說明，改用下方的進階相簿"
+
+      # 你原本就有的進階相簿（保留）
+      - label: "圖片集（進階：含說明）"
         name: "gallery"
         widget: "list"
         label_singular: "圖片"
         collapsed: true
         fields:
-          - { label: "圖片", name: "image", widget: "image", required: false, hint: "建議 4:3 或 16:9" }
+          - { label: "圖片", name: "image", widget: "image", required: false }
           - { label: "說明（EN）", name: "caption_en", widget: "string", required: false }
           - { label: "說明（中文）", name: "caption_zh", widget: "string", required: false }
 
-      - { label: "介紹（EN）", name: "body_en", widget: "markdown", required: false, hint: "英文敘述；支援 Markdown" }
-      - { label: "介紹（中文）", name: "body_zh", widget: "markdown", required: false, hint: "中文敘述；支援 Markdown" }
+      - { label: "內容（EN）", name: "body_en", widget: "markdown", required: false, hint: "英文敘述；支援 Markdown" }
+      - { label: "內容（中文）", name: "body_zh", widget: "markdown", required: false, hint: "中文敘述；支援 Markdown" }
 
       - label: "影片連結（YouTube Embed URL）"
         name: "video"

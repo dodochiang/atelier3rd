@@ -1,7 +1,21 @@
+/* =========================
+   Compact Admin UI (Decap CMS v3)
+   ========================= */
 :root {
   --brand: #111;       /* brand primary */
   --brand-2: #666;     /* secondary text */
   --accent: #111;      /* buttons/links */
+
+  /* 全域字級與邊距縮小 */
+  --font-base: 14px;
+  --ctrl-font: 0.9rem;
+  --label-font: 0.85rem;
+  --muted: #6b7280;
+}
+
+/* 全域字級 */
+html, body, .nc-root, .nc-app {
+  font-size: var(--font-base);
 }
 
 /* App header */
@@ -12,42 +26,162 @@
 .nc-appHeader-branding {
   color: var(--brand);
   font-weight: 700;
+  font-size: 0.95rem;
+}
+
+/* Pane 寬度與間距 */
+.nc-entryEditor-controlPane {
+  max-width: 880px;              /* 收窄表單欄寬 */
+}
+.nc-controlPane {
+  padding: 10px 14px !important; /* 縮小內距 */
+}
+.nc-controlPane .field,
+.nc-controlPane .nc-field {
+  margin-bottom: 10px !important; /* 縮小欄位間距 */
+}
+
+/* Labels */
+.nc-controlPane label,
+.nc-label,
+label[for] {
+  font-size: var(--label-font) !important;
+  color: #374151;
+}
+
+/* Inputs / Selects / Textareas */
+.nc-controlPane input,
+.nc-controlPane textarea,
+.nc-controlPane select,
+.nc-controlPane .css-yk16xz-control, /* select (react-select v3 舊版) */
+.nc-controlPane .css-1pahdxg-control  /* select focus */
+{
+  font-size: var(--ctrl-font) !important;
+  padding: 6px 10px !important;
+  min-height: 34px !important;
+  border-radius: 10px !important;
+}
+.nc-controlPane input[type="number"] {
+  padding-right: 4px !important;
 }
 
 /* Buttons */
-.nc-btn, .nc-toolbar-button {
-  border-radius: 12px !important;
+.nc-btn, .nc-toolbar-button, .nc-button {
+  font-size: 0.9rem !important;
+  padding: 6px 10px !important;
+  border-radius: 10px !important;   /* 你的原設定保留、稍微縮小 */
+}
+.nc-button-group .nc-btn {
+  margin-right: 6px;
 }
 
-/* Inputs */
-.nc-controlPane input,
-.nc-controlPane textarea,
-.nc-controlPane .css-yk16xz-control, /* select */
-.nc-controlPane .css-1pahdxg-control {
-  border-radius: 10px !important;
+/* List widget（多項目） */
+.nc-listControl,
+.nc-listRow {
+  padding: 8px 10px !important;
+}
+.nc-listRow .nc-field {
+  margin-bottom: 8px !important;
+}
+.nc-listRow-actions .nc-btn {
+  padding: 4px 8px !important;
+  font-size: 0.85rem !important;
 }
 
-/* Preview area */
+/* Image/File widgets（縮小縮圖與格線） */
+.nc-imageControl .nc-imageGrid,
+.nc-fileControl .nc-fileGrid {
+  gap: 8px !important;
+}
+.nc-imageGrid .nc-imageGridItem,
+.nc-fileGrid .nc-fileGridItem {
+  --thumb-size: 86px;
+  width: var(--thumb-size);
+  min-width: var(--thumb-size);
+}
+.nc-imageGrid img,
+.nc-fileGrid img {
+  width: 100%;
+  height: var(--thumb-size);
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* Markdown widget：兩種引擎都盡量照顧到 */
+.nc-widgetMarkdown {
+  min-height: 240px !important;
+}
+.nc-widgetMarkdown .CodeMirror {
+  font-size: 0.9rem !important;
+  line-height: 1.45 !important;
+  min-height: 200px !important;
+}
+.nc-widgetMarkdown .CodeMirror pre {
+  font-size: inherit !important;
+}
+/* 若你的版本使用 MDEditor/ProseMirror，可一併縮小 */
+.nc-widgetMarkdown .MDEditor,
+.nc-widgetMarkdown .ProseMirror {
+  font-size: 0.9rem !important;
+}
+
+/* Relation widget（參照型） */
+.nc-relationControl input {
+  min-height: 34px !important;
+  font-size: var(--ctrl-font) !important;
+}
+
+/* Boolean/checkbox、radio */
+.nc-controlPane input[type="checkbox"],
+.nc-controlPane input[type="radio"] {
+  transform: scale(0.9);
+}
+
+/* 右側預覽 Pane 字級略縮 */
+.nc-entryEditor-previewPane {
+  font-size: 0.95rem;
+}
+
+/* Entries 列表頁（左側清單）縮小行高與字級 */
+.nc-collectionPage .nc-entries {
+  font-size: 0.95rem;
+}
+.nc-collectionPage .nc-entryListingCard,
+.nc-collectionPage .nc-entryListingRow {
+  padding: 10px 12px !important;
+}
+.nc-collectionPage .nc-entryListingCard h2,
+.nc-collectionPage .nc-entryListingRow h2 {
+  font-size: 1rem;
+  margin: 0 0 2px;
+}
+.nc-collectionPage .nc-entryMeta {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* ========== 你原本的 Preview 區塊樣式（保留並微調） ========== */
 .preview-wrap {
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.95rem;
 }
 .preview-hero img {
   width: 100%;
   aspect-ratio: 4/3;
   object-fit: cover;
   border-radius: 12px;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem; /* 更緊湊 */
 }
 .preview-hero h1 {
-  margin: .25rem 0;
-  font-size: 1.25rem;
+  margin: .2rem 0;
+  font-size: 1.1rem;     /* 縮小標題 */
 }
 .preview-hero .muted { color: var(--brand-2); }
 .preview-gallery {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: .75rem;
-  margin-top: 1rem;
+  gap: .5rem;            /* 更緊湊 */
+  margin-top: .75rem;
 }
 .preview-gallery img {
   width: 100%;
@@ -56,7 +190,23 @@
   border-radius: 10px;
 }
 .preview-gallery figcaption {
-  font-size: .8rem;
+  font-size: .78rem;
   color: var(--brand-2);
-  margin-top: .25rem;
+  margin-top: .2rem;
+}
+
+/* ========== 你原本的圓角設定（保留） ========== */
+.nc-btn, .nc-toolbar-button {
+  border-radius: 12px !important;
+}
+.nc-controlPane input,
+.nc-controlPane textarea,
+.nc-controlPane .css-yk16xz-control,
+.nc-controlPane .css-1pahdxg-control {
+  border-radius: 10px !important;
+}
+
+/* 額外：讓標籤與欄位更貼近 */
+.nc-field .nc-fieldLabel {
+  margin-bottom: 4px !important;
 }

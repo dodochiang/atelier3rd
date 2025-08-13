@@ -298,7 +298,14 @@
 </div>
 
 <hr class="section-divider">
-{% if gallery %}
+{% set gallery_list = [] %}
+{% if gallery and gallery | length %}
+  {% set gallery_list = gallery %}
+{% elif gallery_images and gallery_images | length %}
+  {% set gallery_list = gallery_images | map('string') %}
+{% endif %}
+
+{% if gallery_list and gallery_list | length %}
   <h2 class="project-section-title">
     <span class="lang-en">Project Gallery</span>
     <span class="lang-zh">項目照片</span>
@@ -306,9 +313,19 @@
 
   <div class="project-slider">
     <div class="slider-window" id="sliderWindow">
-      {% for item in gallery %}
-        {% set g = item %}
-        {% set _img = g.image or '' %}
+      {% for g in gallery_list %}
+        {% if g.image is defined %}
+          {# 進階相簿格式 #}
+          {% set _img = g.image or '' %}
+          {% set cap_en = g.caption_en or '' %}
+          {% set cap_zh = g.caption_zh or '' %}
+        {% else %}
+          {# 簡易相簿格式（只是一張圖片路徑） #}
+          {% set _img = g or '' %}
+          {% set cap_en = '' %}
+          {% set cap_zh = '' %}
+        {% endif %}
+
         {% set imgSrc = '' %}
         {% if _img %}
           {% if (_img | lower | slice(0,4)) == 'http' %}
@@ -329,8 +346,8 @@
             {% endif %}
           </div>
           <div class="gallery-caption">
-            <span class="lang-en">{{ g.caption_en }}</span>
-            <span class="lang-zh">{{ g.caption_zh }}</span>
+            <span class="lang-en">{{ cap_en }}</span>
+            <span class="lang-zh">{{ cap_zh }}</span>
           </div>
         </div>
       {% endfor %}
