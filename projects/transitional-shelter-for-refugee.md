@@ -45,51 +45,6 @@ body_en: >-
 
 
   The avarice and insatiable consumerism in today’s housing industry has made everyone a consumer who ought to pay a fortune simply for a place to live. Refugees may not have the financial ability to pay which may preclude them as ‘consumers’ of the housing market. By taking this collaborative, simplified and low-cost construction approach, refugees can apply their skillset and contribute their efforts not only for their own housing needs, but also for resolving any potential tensions and conflicts with the host communities.
-
-
-
-
-
-  Lead Architect: Hsieh Ying Chun
-
-
-  Team: Hsieh Ying Chun & Atelier-3
-
-
-  Contractors: Helsinki Design Week 2017
-
-
-  Co-Organizers: Aalto University, Finland
-
-
-    Aavaranta Reception Centre
-
-
-    Bilkent University, Turkey
-
-
-    Finnish Red Cross
-
-
-    Group X (Aalto University, Department of Architecture), Finland
-
-
-    Department of Architecture, Shih Chien University, Taiwan
-
-
-    Taiwanese in Finland
-
-
-  Sponsors: Pauian Archiland
-
-
-        China Airline
-
-
-  Photogarpher: Alexander Popkov
-
-
-  Pinja Nikki
 body_zh: >-
   #### 中繼屋，自建
 
@@ -119,10 +74,24 @@ body_zh: >-
 
 
   當今的房屋工業化生產體系，讓居住者淪爲付錢的消費者。對難民來講，他怎麽可能成爲消費者？此協力造屋系統，經過簡化工法的設計，使難民能發揮潛能，解決在異鄉暫時棲身的居住問題，不再是社會的負擔，從而化解目前的矛盾與衝突。
+credits_en: >-
+  Lead Architect: Hsieh Ying Chun
 
 
+  Team: Hsieh Ying Chun & Atelier-3
 
 
+  Contractors: Helsinki Design Week 2017
+
+
+  Co-Organizers: Aalto University, Finland, Aavaranta Reception Centre, Bilkent University, Finnish Red Cross, Group X (Aalto University, Department of Architecture), Department of Architecture, Shih Chien University, Taiwanese in Finland
+
+
+  Sponsors: Pauian Archiland, China Airline
+
+
+  Photogarpher: Alexander Popkov, Pinja Nikki
+credits_zh: >-
   總建築師：謝英俊
 
 
@@ -132,40 +101,12 @@ body_zh: >-
   承建商：2017芬蘭赫爾辛基設計周
 
 
-  合作夥伴：阿爾託大學, 芬蘭
+  合作夥伴：阿爾託大學, Aavaranta接待中心, 比爾肯特大學, 芬蘭紅十字會, Group X (阿爾託大學, 建築系), 實踐大學建築系, 芬蘭台灣人協會
 
 
-         Aavaranta接待中心
+  贊助人：桃園璞園建築籃球隊, 中華航空
 
 
-         比爾肯特大學, 土耳其
-
-
-         芬蘭紅十字會
-
-
-         Group
-
-  X (阿爾託大學, 建築系), 芬蘭
-
-
-         建築系, 實踐大學, 台灣
-
-
-         芬蘭台灣人協會
-
-
-  贊助人：桃園璞園建築籃球隊
-
-
-         中華航空
-
-
-  攝影師：
-
-
-  Alexander Popkov/ Pinja
-
-  Nikki
+  攝影師：Alexander Popkov, Pinja Nikki
 video: https://www.youtube.com/embed/uKP6LlWqPvM?si=7l7C9vJdNX13-V0D
 ---
