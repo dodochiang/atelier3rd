@@ -39,6 +39,11 @@
 {# 中文顯示：用英文鍵反查中文；找不到就退回原值 #}
 {% set type_zh_display = TYPE_ZH[type_en] or (TYPE_ZH[type_raw] or type_raw) %}
 
+
+{# ========= 先把 thumbnail 陣列轉成單值（只取第一張） ========= #}
+{% if thumbnail and (thumbnail[0] is defined) %}
+  {% set thumbnail = thumbnail[0] %}
+{% endif %}
 {# =========================================================
    取出並正規化 thumbnail（支援字串或 Cloudinary 物件）
    ======================================================= #}

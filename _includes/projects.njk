@@ -41,37 +41,9 @@
   .page-title {
     text-align: center;
     font-size: 1em;
-    font-weight: bold;
+    font-weight: normal;
     margin: 1em 0;
   }
-
-  /* Project title 英文靠左對齊 */
-  .project-title .lang-en {
-    display: block;       /* 讓英文獨佔一行，避免受中文影響 */
-    font-size: 0.8em;     /* 小一點 */
-  }
-
-  /* 中文維持原本對齊與大小 */
-  .project-title .lang-zh {
-    display: block;
-    font-size: 1em;
-  }
-  .project-meta {
-    text-align: center;
-    font-size: 0.9em;
-    color: #666;
-    margin-top: 0.5em;
-    font-variant-ligatures: none;
-  }
-
-  .project-meta .lang-en {
-    font-size: 0.8em;\ /* 英文再小一點 */
-  }
-  .project-meta .lang-zh {
-    font-size: 0.9em; /* 中文稍微大一點 */
-  }
-  .project-meta-line { text-align:center; font-size:0.9em; color:#666; }
-  .project-meta-line + .project-meta-line { margin-top:.1em; }
 
   .project-thumb {
     width: 100%;
@@ -80,6 +52,36 @@
     display: block;
     border: none;
   }
+
+  /* 標題（列表頁需求：英文小一點且靠左；中文正常） */
+  .project-title {
+    margin: .6em 0 0;
+    font-weight: normal;
+    color: #333;
+  }
+  .project-title .lang-en {
+    display: block;
+    font-size: 0.92em;   /* 英文小一點 */
+    text-align: left;     /* 英文靠左 */
+    color: #444;
+  }
+  .project-title .lang-zh {
+    display: block;
+    font-size: 1em;
+    text-align: center;
+    color: #555;
+  }
+
+  /* Meta：中文稍大、英文稍小 */
+  .project-meta {
+    margin-top: .25em;
+    text-align: center;
+    color: #666;
+    font-variant-ligatures: none;
+  }
+  .project-meta .project-meta-line { margin-top: .15em; }
+  .project-meta .lang-zh { display: block; font-size: 0.68em; }
+  .project-meta .lang-en { display: block; font-size: 0.58em; opacity: .95; }
 </style>
 
 <section class="projects-page">
@@ -96,30 +98,49 @@
 
       {# 類型/地點 #}
       {% set rawType = d.type or '' %}
+      {# 英文標準化：若原值是中文，轉英；否則保持 #}
       {% set type_en = TYPE_EN[rawType] or rawType %}
-      {% set type_zh = TYPE_ZH[type_en] or rawType %}
-      {% set loc_en  = d.location_en or '' %}
-      {% set loc_zh  = d.location_zh or '' %}
+      {% set type_zh = TYPE_ZH[type_en] or (TYPE_ZH[rawType] or rawType) %}
+      {% set loc_en  = d.location_en or d.location or '' %}
+      {% set loc_zh  = d.location_zh or d.location or '' %}
 
-      {# 取出縮圖（支援字串、Cloudinary 物件） #}
+      {# ---- region 推論（taiwan / china / overseas），用地點字串判斷 ---- #}
+      {% set _loc_zh = (loc_zh or '') | lower %}
+      {% set _loc_en = (loc_en or '') | lower %}
+      {% set region = '' %}
+      {% if '台灣' in _loc_zh or '臺灣' in _loc_zh or 'taiwan' in _loc_en %}
+        {% set region = 'taiwan' %}
+      {% elif '中國' in _loc_zh or 'china' in _loc_en %}
+        {% set region = 'china' %}
+      {% else %}
+        {% set region = 'overseas' %}
+      {% endif %}
+
+      {# --- 縮圖：先把可能的「陣列」轉單值（只取第一張） --- #}
+      {% set tn = d.thumbnail %}
+      {% if tn and (tn[0] is defined) %}
+        {% set tn = tn[0] %}
+      {% endif %}
+
+      {# --- 取出縮圖（支援字串、Cloudinary 物件） --- #}
       {% set thumb = '' %}
-      {% if d.thumbnail is string %}
-        {% set thumb = d.thumbnail %}
-      {% elseif d.thumbnail %}
-        {% if d.thumbnail.secure_url is defined and d.thumbnail.secure_url %}
-          {% set thumb = d.thumbnail.secure_url %}
-        {% elif d.thumbnail.url is defined and d.thumbnail.url %}
-          {% set thumb = d.thumbnail.url %}
-        {% elif d.thumbnail.path is defined and d.thumbnail.path %}
-          {% set thumb = d.thumbnail.path %}
-        {% elif d.thumbnail.public_id is defined and d.thumbnail.public_id %}
+      {% if tn is string %}
+        {% set thumb = tn %}
+      {% elseif tn %}
+        {% if tn.secure_url is defined and tn.secure_url %}
+          {% set thumb = tn.secure_url %}
+        {% elif tn.url is defined and tn.url %}
+          {% set thumb = tn.url %}
+        {% elif tn.path is defined and tn.path %}
+          {% set thumb = tn.path %}
+        {% elif tn.public_id is defined and tn.public_id %}
           {# 只有 public_id 才組一次 Cloudinary 前綴 #}
-          {% set ext = (d.thumbnail.extension is defined and d.thumbnail.extension) and ('.' ~ d.thumbnail.extension) or '' %}
-          {% set thumb = 'https://res.cloudinary.com/dw6nekwxn/image/upload/' ~ d.thumbnail.public_id ~ ext %}
+          {% set ext = (tn.extension is defined and tn.extension) and ('.' ~ tn.extension) or '' %}
+          {% set thumb = 'https://res.cloudinary.com/dw6nekwxn/image/upload/' ~ tn.public_id ~ ext %}
         {% endif %}
       {% endif %}
 
-      {# 正規化（不主動加 Cloudinary；只處理本地 uploads → 加一個/） #}
+      {# --- 正規化 thumb（不主動加 Cloudinary；只處理本地 uploads → 加一個/） --- #}
       {% set thumbSrc = (thumb or '') | trim %}
       {% if thumbSrc %}
         {% set low = thumbSrc | lower %}
@@ -160,20 +181,6 @@
         {% else %}
           {% set units_en = un_str ~ ' units' %}
           {% set units_zh = un_str ~ '戶' %}
-        {% endif %}
-      {% endif %}
-
-      {# data-region：先讀 d.region，其次用地點推論 #}
-      {% set region = (d.region or '') | lower %}
-      {% if not region %}
-        {% set name_zh = (d.location_zh or '') | lower %}
-        {% set name_en = (d.location_en or '') | lower %}
-        {% if '台灣' in name_zh or '臺灣' in name_zh or 'taiwan' in name_en %}
-          {% set region = 'taiwan' %}
-        {% elif '中國' in name_zh or 'china' in name_en %}
-          {% set region = 'china' %}
-        {% else %}
-          {% set region = 'overseas' %}
         {% endif %}
       {% endif %}
 
