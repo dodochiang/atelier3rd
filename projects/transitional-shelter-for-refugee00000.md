@@ -1,15 +1,15 @@
 ---
 layout: project.njk
-title_en: Transitional Shelter for Refugee
-title_zh: 難民中繼屋
+title_en: Mourning Tent
+title_zh: 大眾帳
 type: 裝置
-location_en: Helsinki, Finland
-location_zh: 赫爾辛基，芬蘭
-year: 2014
+location_en: Taipei, Taiwan
+location_zh: 台北，台灣
+year: 2022
 units: 1
 floor_area: 19
 thumbnail:
-  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1754983455/EX04_%E8%BF%91%E6%99%AF_0608_X-compressed_jxmyvv.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1755164789/Events_-_19939_zuu9dj.jpg
 gallery_images:
   - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1754983457/AfP_HDW_20170914_IMG_6112_qmvjw1.jpg
   - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1754983457/AfP_HDW_07092017_photo_by_pinja_nikki_27_ayxwpl.jpg
