@@ -8,8 +8,7 @@ location_zh: 山西，中國
 year: 2009
 units: 18
 floor_area: 195
-thumbnail:
-  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1755164790/Events_-_20344_iwp7pu.jpg
+thumbnail: https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1755164790/Events_-_20344_iwp7pu.jpg
 gallery_images:
   - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1755164790/Events_-_20344_iwp7pu.jpg
   - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1755164789/Events_-_19939_zuu9dj.jpg

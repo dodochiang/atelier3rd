@@ -110,6 +110,9 @@ collections:
         allow_multiple: false
         required: false
         hint: "建議 1200×900（4:3）JPG"
+        media_library:
+          config:
+            multiple: false
 
       # 在 projects 的 fields 裡，加在原來 gallery 旁邊
       - label: "簡易相簿（多選）"
