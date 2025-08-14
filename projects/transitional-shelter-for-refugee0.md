@@ -8,8 +8,8 @@ location_zh: 台東，台灣
 year: 2005
 units: 10
 floor_area: 200
-thumbnail: https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1754983458/AfP_HDW_08092017_photo_by_pinja_nikki_07_ochx6h.jpg
-
+thumbnail:
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1755164789/Events_-_19939_zuu9dj.jpg
 gallery_images:
   - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1755164791/Events_-_20347_eut10w.jpg
   - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1755164790/Events_-_20344_iwp7pu.jpg
