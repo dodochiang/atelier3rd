@@ -10,195 +10,98 @@
   <link rel="icon" type="image/png" href="/uploads/favicon.png?v=2">
 
   <style>
-    /* =========================================================
-     * 基本：語系顯示切換 / 字型 / 版身
-     * =======================================================*/
+    /* ================= 基本：語系/版身 ================= */
     html[data-lang='en'] .lang-zh { display: none !important; }
     html[data-lang='zh'] .lang-en { display: none !important; }
 
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      padding: 0;
-    }
+    body { font-family: sans-serif; margin: 0; padding: 0; }
 
-    .container {
-      max-width: 1000px;
-      margin: 2em auto;
-      padding: 1em;
-    }
+    .container { max-width: 1000px; margin: 2em auto; padding: 1em; }
 
-    /* =========================================================
-     * 第一層導覽 Navbar
-     * =======================================================*/
+    /* ================= 第一層 Navbar ================= */
     .navbar {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1em 2em;
-      background: #fff;
-      border-bottom: 1px solid #ddd;
+      position: sticky; top: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1em 2em; background: #fff; border-bottom: 1px solid #ddd;
     }
-
     .navbar-right a {
-      margin-left: 1em;
-      color: #000;
-      font-size: 1.1em;
-      font-weight: bold;
-      text-decoration: none;
-      transition: color 0.2s ease;
+      margin-left: 1em; color: #000; font-size: 1.1em; font-weight: bold;
+      text-decoration: none; transition: color .2s ease;
     }
-    .navbar-right a:hover {
-      color: #333;
-    }
+    .navbar-right a:hover { color: #333; }
 
-    .lang-toggle {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.9rem;
-    }
+    .lang-toggle { display: flex; align-items: center; gap: 6px; font-size: .9rem; }
     .lang-btn {
-      padding: 2px 4px;
-      background: none;
-      border: none;
-      color: gray;
-      font-weight: normal;
-      cursor: pointer;
-      transition: color 0.2s ease;
+      padding: 2px 4px; background: none; border: none; color: gray; font-weight: normal;
+      cursor: pointer; transition: color .2s ease;
     }
     .lang-btn.active { color: #000; font-weight: bold; }
     .lang-btn:hover  { color: #333; }
 
-    /* =========================================================
-     * 第二層導覽 Subnav（全站顯示；主要控制 projects 篩選/排序）
-     * =======================================================*/
+    /* ================= 第二層 Subnav（全站顯示） ================= */
     .subnav {
-      position: sticky;
-      top: 56px;              /* 貼在第一層 navbar 之下 */
-      z-index: 15;
-      background: #fff;
-      border-bottom: 1px solid #eee;
+      position: sticky; top: 56px; z-index: 15;
+      background: #fff; border-bottom: 1px solid #eee;
     }
     .subnav-inner {
+      max-width: 1000px; margin: 0 auto; padding: .6em 1em;
       display: grid;
-      grid-template-columns: 1.8fr auto 0.8fr; /* 左：類型；中：排序；右：區域 */
-      align-items: center;
-      gap: 1em;
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: .6em 1em;
+      grid-template-columns: 1.5fr 0.8fr auto; /* 左類型 / 中地區 / 右排序 */
+      gap: 1.5em; align-items: start;
     }
 
-    /* 類型／區域：chips（按鈕風格、可複選/單選） */
-    .chip-bar {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: .5em;
-    }
+    /* 標題小一點、在上方 */
     .chip-title {
-      font-size: 1em; /* 和按鈕一致 */
-      color: #666;
-      margin-right: .4em;
-      line-height: 1.4; /* 與按鈕垂直對齊 */
+      display: block; font-size: .8em; color: #666; line-height: 1.2;
+      margin-bottom: .2em;
     }
+
+    /* 類型/地區按鈕（chips） */
+    .chip-bar { display: flex; flex-wrap: wrap; align-items: center; gap: .5em; }
     .chip {
-      padding: 0;
-      background: none;
-      border: none;
-      color: #555;
-      cursor: pointer;
-      font: inherit;
-      text-decoration: none;
-      border-bottom: 1px solid transparent;
-      transition: color 0.2s ease, border-color 0.2s ease;
+      padding: 0; background: none; border: none; color: #555; cursor: pointer;
+      font: inherit; text-decoration: none; border-bottom: 1px solid transparent;
+      transition: color .2s ease, border-color .2s ease; font-size: .9em;
     }
     .chip:hover  { color: #000; }
     .chip.active { color: #000; border-bottom-color: #000; }
 
-    .region-bar { justify-self: end; } /* 右側對齊 */
+    /* 地區欄位：左對齊 */
+    .region-group { justify-self: start; }
+    .region-bar   { justify-content: flex-start; }
 
-    /* 排序：純文字＋箭頭 */
-    /* 第二層 navbar 年份排序文字大小 */
+    /* 排序（獨立一欄，標題在上，箭頭在下） */
+    .sort-group { display: flex; flex-direction: column; align-items: flex-start; }
     .sort-toggle {
-      font-size: 1em; /* 和按鈕一致 */
-      justify-self: center;
-      cursor: pointer;
-      user-select: none;
-      color: #333;
-      text-decoration: none;
-      border-bottom: 1px solid transparent;
+      margin-top: .1em;
+      background: none; border: none; cursor: pointer; font: inherit; color: #333;
+      border-bottom: 1px solid transparent; padding: 0; line-height: 1;
+      font-size: .9em;
     }
     .sort-toggle:hover { border-bottom-color: #333; }
-    /* 標題變小並獨佔一行 */
-    .chip-title {
-      display: block;         /* 讓標題在欄位最上方獨佔一行 */
-      font-size: 0.8em;       /* 比按鈕文字小 */
-      color: #666;            /* 淺灰色 */
-      margin-bottom: 0.2em;   /* 與按鈕的間距 */
-      line-height: 1.2;       /* 行距稍微緊縮 */
-    }
+    #sortArrow { display: inline-block; }
 
-    /* 按鈕保持原本樣式，但略縮字體避免英文擠行 */
-    .chip,
-    .sort-toggle {
-      font-size: 0.9em;
-    }
-    /* =========================================================
-     * Projects 卡片通用樣式（列表頁用）
-     * =======================================================*/
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 1em;
-    }
-    .project {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
+    /* ================= Projects 列表卡片 ================= */
+    .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1em; }
+    .project { margin: 0; padding: 0; list-style: none; }
     .project-thumb {
-      width: 100%;
-      aspect-ratio: 4 / 3;
-      object-fit: cover;
-      display: block;
-      border: none;
+      width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; border: none;
     }
-
-    /* 標題去粗體 */
     .project-title {
-      margin-top: .3em;
-      color: #666;
-      text-align: center;
-      font-size: 1em;
-      font-weight: normal; /* ← 保持一般字重 */
+      margin-top: .3em; color: #666; text-align: center;
+      font-size: 1em; font-weight: normal; /* 保持非粗體 */
     }
-
     .project-meta {
-      margin-top: .3em;
-      color: #666;
-      text-align: center;
-      font-size: .7em;
-      font-variant-ligatures: none;
+      margin-top: .3em; color: #666; text-align: center;
+      font-size: .7em; font-variant-ligatures: none;
     }
 
-    /* 內文區塊（一般頁面） */
-    .page-content h1,
-    .page-content h2,
-    .page-content h3,
-    .page-content p {
-      text-align: left;
-    }
+    /* 一般頁面文字對齊 */
+    .page-content h1, .page-content h2, .page-content h3, .page-content p { text-align: left; }
   </style>
 </head>
 <body>
-  <!-- =======================================================
-       第一層導覽
-  ======================================================== -->
+  <!-- ========= 第一層導覽 ========= -->
   <nav class="navbar">
     <div class="lang-toggle">
       <button class="lang-btn" data-lang-toggle="zh">中文</button> |
@@ -212,81 +115,86 @@
     </div>
   </nav>
 
-  <!-- =======================================================
-       第二層導覽（全站顯示；在 /project/* 點擊會導向 /projects/）
-  ======================================================== -->
+  <!-- ========= 第二層導覽 ========= -->
   <nav id="projectsSubnav" class="subnav">
     <div class="subnav-inner">
-      <!-- 左：類型（可複選） -->
-      <div class="chip-bar type-bar">
-        <span class="chip-title lang-en">Type:</span>
-        <span class="chip-title lang-zh">類型：</span>
-
-        <button class="chip type-chip" data-type="Residential">
-          <span class="lang-en">Residential</span><span class="lang-zh">住宅</span>
-        </button>
-        <button class="chip type-chip" data-type="Commercial">
-          <span class="lang-en">Commercial</span><span class="lang-zh">商業</span>
-        </button>
-        <button class="chip type-chip" data-type="Cultural">
-          <span class="lang-en">Cultural</span><span class="lang-zh">文化</span>
-        </button>
-        <button class="chip type-chip" data-type="Public">
-          <span class="lang-en">Public</span><span class="lang-zh">公共</span>
-        </button>
-        <button class="chip type-chip" data-type="Installation">
-          <span class="lang-en">Installation</span><span class="lang-zh">裝置</span>
-        </button>
-        <button class="chip type-chip" data-type="Workshop">
-          <span class="lang-en">Workshop</span><span class="lang-zh">工作營</span>
-        </button>
-        <button class="chip type-chip" data-type="Exhibition">
-          <span class="lang-en">Exhibition</span><span class="lang-zh">展覽</span>
-        </button>
-      </div>
-
-      <!-- 年份排序 -->
-      <div class="subgroup sort-group">
-        <div class="chip-title sort-title" id="sortToggle" data-order="desc">
-          <span class="lang-en">Sort by Year</span>
-          <span class="lang-zh">年份排序</span>
-          <span id="sortArrow">▼</span>
+      <!-- 第一欄：類型（可複選） -->
+      <div class="type-group">
+        <span class="chip-title">
+          <span class="lang-en">Type:</span>
+          <span class="lang-zh">類型：</span>
+        </span>
+        <div class="chip-bar type-bar">
+          <button class="chip type-chip" data-type="ALL">
+            <span class="lang-en">All</span><span class="lang-zh">全部</span>
+          </button>
+          <button class="chip type-chip" data-type="Residential">
+            <span class="lang-en">Residential</span><span class="lang-zh">住宅</span>
+          </button>
+          <button class="chip type-chip" data-type="Commercial">
+            <span class="lang-en">Commercial</span><span class="lang-zh">商業</span>
+          </button>
+          <button class="chip type-chip" data-type="Cultural">
+            <span class="lang-en">Cultural</span><span class="lang-zh">文化</span>
+          </button>
+          <button class="chip type-chip" data-type="Public">
+            <span class="lang-en">Public</span><span class="lang-zh">公共</span>
+          </button>
+          <button class="chip type-chip" data-type="Installation">
+            <span class="lang-en">Installation</span><span class="lang-zh">裝置</span>
+          </button>
+          <button class="chip type-chip" data-type="Workshop">
+            <span class="lang-en">Workshop</span><span class="lang-zh">工作營</span>
+          </button>
+          <button class="chip type-chip" data-type="Exhibition">
+            <span class="lang-en">Exhibition</span><span class="lang-zh">展覽</span>
+          </button>
         </div>
       </div>
 
-      <!-- 右：區域（單選） -->
-      <div class="chip-bar region-bar">
-        <span class="chip-title lang-en">Region:</span>
-        <span class="chip-title lang-zh">地區：</span>
+      <!-- 第二欄：地區（單選） -->
+      <div class="region-group">
+        <span class="chip-title">
+          <span class="lang-en">Region:</span>
+          <span class="lang-zh">地區：</span>
+        </span>
+        <div class="chip-bar region-bar">
+          <button class="chip region-chip active" data-region="all">
+            <span class="lang-en">All</span><span class="lang-zh">全部</span>
+          </button>
+          <button class="chip region-chip" data-region="taiwan">
+            <span class="lang-en">Taiwan</span><span class="lang-zh">台灣</span>
+          </button>
+          <button class="chip region-chip" data-region="china">
+            <span class="lang-en">China</span><span class="lang-zh">中國</span>
+          </button>
+          <button class="chip region-chip" data-region="overseas">
+            <span class="lang-en">Overseas</span><span class="lang-zh">海外</span>
+          </button>
+        </div>
+      </div>
 
-        <button class="chip region-chip active" data-region="all">
-          <span class="lang-en">All</span><span class="lang-zh">全部</span>
-        </button>
-        <button class="chip region-chip" data-region="taiwan">
-          <span class="lang-en">Taiwan</span><span class="lang-zh">台灣</span>
-        </button>
-        <button class="chip region-chip" data-region="china">
-          <span class="lang-en">China</span><span class="lang-zh">中國</span>
-        </button>
-        <button class="chip region-chip" data-region="overseas">
-          <span class="lang-en">Overseas</span><span class="lang-zh">海外</span>
+      <!-- 第三欄：年份排序（標題在上、箭頭在下） -->
+      <div class="sort-group">
+        <span class="chip-title sort-label">
+          <span class="lang-en">Sort by Year:</span>
+          <span class="lang-zh">按年排序：</span>
+        </span>
+        <button id="sortToggle" class="sort-toggle" data-order="desc">
+          <span id="sortArrow">↓</span>
         </button>
       </div>
     </div>
   </nav>
 
-  <!-- =======================================================
-       版身內容
-  ======================================================== -->
+  <!-- ========= 版身 ========= -->
   <div class="container">
     {% block content %}{{ content | safe }}{% endblock %}
   </div>
 
-  <!-- =======================================================
-       Scripts
-  ======================================================== -->
+  <!-- ========= Scripts ========= -->
   <script>
-    /* ===== 語系切換 ===== */
+    /* 語系切換 */
     function setLang(lang) {
       localStorage.setItem('lang', lang);
       document.documentElement.setAttribute('data-lang', lang);
@@ -294,34 +202,29 @@
         btn.classList.toggle('active', btn.getAttribute('data-lang-toggle') === lang);
       });
     }
-
     document.addEventListener("DOMContentLoaded", function () {
       const savedLang = localStorage.getItem('lang') || 'zh';
       setLang(savedLang);
-
       document.querySelectorAll('[data-lang-toggle]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const target = btn.getAttribute('data-lang-toggle');
-          setLang(target || 'zh');
-        });
+        btn.addEventListener('click', () => setLang(btn.getAttribute('data-lang-toggle') || 'zh'));
       });
     });
 
-    /* ===== 第二層 navbar 行為 ===== */
+    /* 第二層 navbar 行為 */
     (function(){
       const subnav = document.getElementById('projectsSubnav');
       if (!subnav) return;
 
       const onProjectsPage = !!location.pathname.match(/^\/projects\/?$/);
-
       const $  = (s, r=document)=>r.querySelector(s);
       const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
 
-      // 單一 project 頁：點任何控制 → 導向 /projects/ 並帶參數
+      // 單一 project 頁：點控制→導向 /projects/ 並帶參數
       if (!onProjectsPage) {
         $$('.type-chip', subnav).forEach(btn=>{
           btn.addEventListener('click', ()=>{
             const t = btn.dataset.type;
+            if (t === 'ALL') return window.location.assign('/projects/');
             window.location.assign(`/projects/?types=${encodeURIComponent(t)}`);
           });
         });
@@ -349,21 +252,27 @@
       const initRegion = params.get('region') || 'all';
       const initOrder  = params.get('order')  || 'desc';
 
-      // 類型 chips（多選）
+      // 類型（多選）
       const typeChips = $$('.type-chip', subnav);
       const selectedTypes = new Set(initTypes);
       typeChips.forEach(btn=>{
         const t = btn.dataset.type;
-        if (selectedTypes.has(t)) btn.classList.add('active');
+        if (t !== 'ALL' && selectedTypes.has(t)) btn.classList.add('active');
+
         btn.addEventListener('click', ()=>{
+          if (t === 'ALL') {
+            // 清空所有選擇
+            selectedTypes.clear();
+            typeChips.forEach(b=>b.classList.remove('active'));
+            applyFilters(); syncURL(); return;
+          }
           btn.classList.toggle('active');
-          if (btn.classList.contains('active')) selectedTypes.add(t);
-          else selectedTypes.delete(t);
+          if (btn.classList.contains('active')) selectedTypes.add(t); else selectedTypes.delete(t);
           applyFilters(); syncURL();
         });
       });
 
-      // 地區 chips（單選）
+      // 地區（單選）
       const regionChips = $$('.region-chip', subnav);
       let currentRegion = initRegion;
       regionChips.forEach(btn=>{
@@ -380,18 +289,18 @@
       const sortToggle = $('#sortToggle', subnav);
       const sortArrow  = $('#sortArrow', subnav);
       let currentOrder = (initOrder === 'asc') ? 'asc' : 'desc';
-      if (sortArrow) sortArrow.textContent = currentOrder === 'asc' ? '▲' : '▼';
+      if (sortArrow) sortArrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
       if (sortToggle) {
         sortToggle.dataset.order = currentOrder;
         sortToggle.addEventListener('click', ()=>{
           currentOrder = (currentOrder === 'asc') ? 'desc' : 'asc';
           sortToggle.dataset.order = currentOrder;
-          if (sortArrow) sortArrow.textContent = currentOrder === 'asc' ? '▲' : '▼';
+          if (sortArrow) sortArrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
           applyFilters(); syncURL();
         });
       }
 
-      // 篩選核心：配合 projects.njk => .project-grid > .project
+      // 篩選核心
       const list     = $('.project-grid');
       const itemsAll = $$('.project-grid > .project');
 
@@ -401,7 +310,7 @@
 
         const filtered = itemsAll.filter(li=>{
           const t  = li.dataset.typeEn;                   // 英文類型
-          const rg = li.dataset.region || 'overseas';     // 區域
+          const rg = li.dataset.region || 'overseas';     // 區域（由 projects.njk 推論）
           const okType   = showAllTypes ? true : typeActive.includes(t);
           const okRegion = (currentRegion === 'all') ? true : (rg === currentRegion);
           return okType && okRegion;
@@ -413,10 +322,7 @@
           return currentOrder === 'asc' ? (ay - by) : (by - ay);
         });
 
-        if (list) {
-          list.innerHTML = '';
-          filtered.forEach(el => list.appendChild(el));
-        }
+        if (list) { list.innerHTML = ''; filtered.forEach(el => list.appendChild(el)); }
       }
 
       function syncURL(){
