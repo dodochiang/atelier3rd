@@ -9,7 +9,7 @@ year: 2005
 units: 10
 floor_area: 200
 thumbnail:
-  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1755164791/Events_-_20347_eut10w.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1755164790/Events_-_20344_iwp7pu.jpg
 gallery_images:
   - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1755164791/Events_-_20347_eut10w.jpg
   - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1755164790/Events_-_20344_iwp7pu.jpg
