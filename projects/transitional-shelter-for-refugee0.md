@@ -1,23 +1,21 @@
 ---
 layout: project.njk
-title_en: Transitional Shelter for Refugee
-title_zh: 難民中繼屋
+title_en: Hsieh's House
+title_zh: 台東謝宅
 type: 住宅
-location_en: Helsinki, Finland
-location_zh: 赫爾辛基，芬蘭
-year: 2014
-units: 1
-floor_area: 19
-thumbnail: https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1754983455/EX04_%E8%BF%91%E6%99%AF_0608_X-compressed_jxmyvv.jpg
+location_en: Taitung, Taiwan
+location_zh: 台東，台灣
+year: 2005
+units: 10
+floor_area: 200
+thumbnail:
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1755164791/Events_-_20347_eut10w.jpg
 gallery_images:
-  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1754983457/AfP_HDW_20170914_IMG_6112_qmvjw1.jpg
-  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1754983457/AfP_HDW_07092017_photo_by_pinja_nikki_27_ayxwpl.jpg
-  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1754983457/WeChat_Image_20190709165841_n92wzl.jpg
-  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1754983457/AfP_HDW_Opening_20170917_photo_by_Alexander_Popkov_68_t2va88.jpg
-  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1754983457/WeChat_Image_20190709165901_dh99rw.jpg
-  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1754983458/AfP_HDW_construction_photo_by_Alexander_Popkov_36_cnk2rj.jpg
-  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1754983458/AfP_HDW_08092017_photo_by_pinja_nikki_07_ochx6h.jpg
-  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1754983458/AfP_HDW_construction_photo_by_Alexander_Popkov_19_cthyk9.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1755164791/Events_-_20347_eut10w.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1755164790/Events_-_20344_iwp7pu.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1755164789/Events_-_19939_zuu9dj.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1755164788/Events_-_19938_zlcm4w.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1755164788/Events_-_19792_rfftns.jpg
 gallery: []
 body_en: >-
   #### Transitional Shelter, Built by Users
