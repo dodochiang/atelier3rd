@@ -21,53 +21,76 @@
   "工作營": "Workshop",
   "展覽": "Exhibition"
 } %}
-{% set TYPE_OPTIONS = ["Residential","Commercial","Cultural","Public","Installation","Workshop","Exhibition"] %}
 
 <style>
   .project a { text-decoration: none; color: inherit; }
   .project a:hover { text-decoration: none; color: inherit; }
-  .projects-grid { max-width: 1000px; margin: 2em auto; padding: 1em; list-style: none; }
+
+  .projects-grid {
+    max-width: 1000px;
+    margin: 2em auto;
+    padding: 1em;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1em;
+  }
+
   .project-card { display: block; color: inherit; border: none; padding: 0; }
-  .filters { margin: 1em 0; text-align: center; }
-  .filters label, .filters select, .filters button { margin: 0 0.5em; }
-  .project-title { text-align: center; font-size: 1em; font-weight: normal; margin: 1em 0; }
-  .project-meta { text-align: center; font-size: 0.6em; color: #666; margin-top: 0.3em; font-variant-ligatures: none; }
-  .project-meta-line { text-align:center; font-size:0.6em; color:#666; }
-  .project-meta-line + .project-meta-line { margin-top:.2em; }
-  .project-thumb { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; border: none; }
+
+  .page-title {
+    text-align: center;
+    font-size: 0.9em;
+    font-weight: normal;
+    margin: 1em 0;
+  }
+
+  /* Project title 英文靠左對齊 */
+  .project-title .lang-en {
+    display: block;       /* 讓英文獨佔一行，避免受中文影響 */
+    font-size: 0.8em;     /* 小一點 */
+  }
+
+  /* 中文維持原本對齊與大小 */
+  .project-title .lang-zh {
+    display: block;
+    font-size: 1em;
+  }
+  .project-meta {
+    text-align: center;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+    font-variant-ligatures: none;
+  }
+
+  .project-meta .lang-en {
+    font-size: 0.8em;\ /* 英文再小一點 */
+  }
+  .project-meta .lang-zh {
+    font-size: 0.9em; /* 中文稍微大一點 */
+  }
+  .project-meta-line { text-align:center; font-size:0.9em; color:#666; }
+  .project-meta-line + .project-meta-line { margin-top:.1em; }
+
+  .project-thumb {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    display: block;
+    border: none;
+  }
 </style>
 
 <section class="projects-page">
-  <h1 class="project-title">
+  <h1 class="page-title">
     <span class="lang-en">{{ title_en or "Projects" }}</span>
     <span class="lang-zh">{{ title_zh or "作品" }}</span>
   </h1>
 
-  <div class="filters">
-    <label for="typeFilter" id="typeFilterLabel">
-      <span class="lang-en">Type:</span>
-      <span class="lang-zh">類型：</span>
-    </label>
+  {# 沒有任何本頁面的下拉/按鈕；由 layout.njk 的第二層 navbar 控制 #}
 
-    <select id="typeFilter">
-      <option value="all" data-en="All" data-zh="全部">All</option>
-      {% for t in TYPE_OPTIONS %}
-        {% set t_zh = TYPE_ZH[t] or t %}
-        <option value="{{ t }}" data-en="{{ t }}" data-zh="{{ t_zh }}">{{ t }}</option>
-      {% endfor %}
-    </select>
-
-    <button id="sortDesc">
-      <span class="lang lang-en">▼ Newest</span>
-      <span class="lang lang-zh">▼ 最新</span>
-    </button>
-    <button id="sortAsc">
-      <span class="lang lang-en">▲ Oldest</span>
-      <span class="lang lang-zh">▲ 最舊</span>
-    </button>
-  </div>
-
-  <ul class="grid projects-grid project-grid">
+  <ul class="projects-grid project-grid">
     {% for project in collections.projects %}
       {% set d = project.data %}
 
@@ -78,7 +101,7 @@
       {% set loc_en  = d.location_en or '' %}
       {% set loc_zh  = d.location_zh or '' %}
 
-      {# --- 取出縮圖（支援字串、Cloudinary 物件） --- #}
+      {# 取出縮圖（支援字串、Cloudinary 物件） #}
       {% set thumb = '' %}
       {% if d.thumbnail is string %}
         {% set thumb = d.thumbnail %}
@@ -90,41 +113,32 @@
         {% elif d.thumbnail.path is defined and d.thumbnail.path %}
           {% set thumb = d.thumbnail.path %}
         {% elif d.thumbnail.public_id is defined and d.thumbnail.public_id %}
-          {# 只在「只有 public_id」時才組一次完整網址 #}
+          {# 只有 public_id 才組一次 Cloudinary 前綴 #}
           {% set ext = (d.thumbnail.extension is defined and d.thumbnail.extension) and ('.' ~ d.thumbnail.extension) or '' %}
           {% set thumb = 'https://res.cloudinary.com/dw6nekwxn/image/upload/' ~ d.thumbnail.public_id ~ ext %}
         {% endif %}
       {% endif %}
 
-      {# --- 規則化（不主動加任何 Cloudinary 前綴） --- #}
+      {# 正規化（不主動加 Cloudinary；只處理本地 uploads → 加一個/） #}
       {% set thumbSrc = (thumb or '') | trim %}
       {% if thumbSrc %}
         {% set low = thumbSrc | lower %}
-        {% set is_http  = (low | slice(0,7)) == 'http://' %}
-        {% set is_https = (low | slice(0,8)) == 'https://' %}
-        {% set is_proto = (thumbSrc | slice(0,2)) == '//' %}
-        {% set is_data  = (low | slice(0,5)) == 'data:' %}
-
-        {% if is_http or is_https or is_proto or is_data %}
-          {# 完整網址或 data: → 原樣 #}
+        {% if (low | slice(0,7)) == 'http://' or (low | slice(0,8)) == 'https://' or (thumbSrc | slice(0,2)) == '//' or (low | slice(0,5)) == 'data:' %}
           {% set thumbSrc = thumbSrc %}
         {% elif (thumbSrc | slice(0,1)) == '/' %}
-          {# 站內絕對路徑 → 原樣 #}
           {% set thumbSrc = thumbSrc %}
         {% elif (low | slice(0,8)) == 'uploads/' or (low | slice(0,15)) == 'static/uploads/' %}
-          {# 站內相對 uploads → 補一個 / #}
           {% set thumbSrc = '/' ~ thumbSrc %}
         {% else %}
-          {# 其他情況（例如已是完整 Cloudinary 參數化 URL、公網 URL、或不需要補前綴的字串）→ 原樣 #}
           {% set thumbSrc = thumbSrc %}
         {% endif %}
 
-        {# ---- 防呆：剝掉意外的雙前綴、雙斜線 ---- #}
+        {# 防呆：去掉 Cloudinary 雙前綴、雙斜線 #}
         {% set cloudPrefix = 'https://res.cloudinary.com/dw6nekwxn/image/upload/' %}
-        {# 變成 image/upload/https://... → 把前面的 cloudPrefix 去掉 #}
-        {% set thumbSrc = thumbSrc | replace(cloudPrefix ~ 'https://', 'https://') | replace(cloudPrefix ~ 'http://', 'http://') %}
-        {# image/upload// → image/upload/ #}
-        {% set thumbSrc = thumbSrc | replace('image/upload//', 'image/upload/') %}
+        {% set thumbSrc = thumbSrc
+          | replace(cloudPrefix ~ 'https://', 'https://')
+          | replace(cloudPrefix ~ 'http://', 'http://')
+          | replace('image/upload//', 'image/upload/') %}
       {% endif %}
 
       {# 面積/戶數 #}
@@ -149,13 +163,28 @@
         {% endif %}
       {% endif %}
 
+      {# data-region：先讀 d.region，其次用地點推論 #}
+      {% set region = (d.region or '') | lower %}
+      {% if not region %}
+        {% set name_zh = (d.location_zh or '') | lower %}
+        {% set name_en = (d.location_en or '') | lower %}
+        {% if '台灣' in name_zh or '臺灣' in name_zh or 'taiwan' in name_en %}
+          {% set region = 'taiwan' %}
+        {% elif '中國' in name_zh or 'china' in name_en %}
+          {% set region = 'china' %}
+        {% else %}
+          {% set region = 'overseas' %}
+        {% endif %}
+      {% endif %}
+
       <li class="project"
           data-year="{{ d.year }}"
           data-type="{{ type_en }}"
           data-type-en="{{ type_en }}"
           data-type-zh="{{ type_zh }}"
           data-location-en="{{ loc_en }}"
-          data-location-zh="{{ loc_zh }}">
+          data-location-zh="{{ loc_zh }}"
+          data-region="{{ region }}">
         <a href="{{ project.url }}" class="project-card">
           {% if thumbSrc %}
             <img class="project-thumb"
@@ -193,69 +222,5 @@
     {% endfor %}
   </ul>
 </section>
-
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const $ = (s, r = document) => r.querySelector(s);
-    const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
-
-    const typeFilter = $("#typeFilter");
-    const projectList = $(".project-grid");
-    const projects = $$(".project-grid > .project");
-
-    function getLang() {
-      let v = (localStorage.getItem("lang") || "").toLowerCase();
-      if (v === "lang-en") v = "en";
-      if (v === "lang-zh") v = "zh";
-      if (v !== "en" && v !== "zh") {
-        if (document.documentElement.classList.contains("lang-zh") || document.body.classList.contains("lang-zh")) v = "zh";
-        else if (document.documentElement.classList.contains("lang-en") || document.body.classList.contains("lang-en")) v = "en";
-        else v = "en";
-      }
-      return v;
-    }
-
-    function applyTypeI18n() {
-      const lang = getLang();
-      const label = $("#typeFilterLabel");
-      if (label) {
-        $$(".lang-en", label).forEach(el => el.style.display = (lang === "en" ? "" : "none"));
-        $$(".lang-zh", label).forEach(el => el.style.display = (lang === "zh" ? "" : "none"));
-      }
-      $$("#typeFilter option").forEach(opt => {
-        const txt = opt.dataset[lang];
-        if (txt) opt.textContent = txt;
-      });
-    }
-
-    function filterAndSort(order = "desc") {
-      const selectedVal = typeFilter.value;
-      const filtered = projects.filter(project => selectedVal === "all" ? true : (project.dataset.typeEn === selectedVal));
-      filtered.sort((a, b) => {
-        const aYear = parseInt(a.dataset.year || "0", 10);
-        const bYear = parseInt(b.dataset.year || "0", 10);
-        return order === "asc" ? aYear - bYear : bYear - aYear;
-      });
-      projectList.innerHTML = "";
-      filtered.forEach(p => projectList.appendChild(p));
-    }
-
-    typeFilter.addEventListener("change", () => filterAndSort(currentOrder));
-    let currentOrder = "desc";
-    $("#sortAsc").addEventListener("click", () => { currentOrder = "asc"; filterAndSort("asc"); });
-    $("#sortDesc").addEventListener("click", () => { currentOrder = "desc"; filterAndSort("desc"); });
-
-    applyTypeI18n();
-    filterAndSort("desc");
-
-    const observer = new MutationObserver(() => { applyTypeI18n(); filterAndSort(currentOrder); });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-    observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
-
-    window.addEventListener("storage", (e) => {
-      if (e.key === "lang") { applyTypeI18n(); filterAndSort(currentOrder); }
-    });
-  });
-</script>
 
 {% endblock %}

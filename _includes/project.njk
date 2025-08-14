@@ -22,11 +22,18 @@
   "展覽": "Exhibition"
 } %}
 
-{# ========= 扁平欄位 ========= #}
+{# ========= 扁平欄位（修正：確保英文顯示為英文） ========= #}
 {% set loc_en = location_en or location %}
 {% set loc_zh = location_zh or location %}
-{% set type_en = type %}
-{% set type_zh_display = TYPE_ZH[type_en] or type_en %}
+
+{# 先拿到原始 type（可能是中文或英文） #}
+{% set type_raw = type or '' %}
+
+{# 英文標準化：若是中文就映射成英文，否則保持原值 #}
+{% set type_en = TYPE_EN[type_raw] or type_raw %}
+
+{# 中文顯示：優先用英文鍵反查到中文；若原本就是中文也可 fallback #}
+{% set type_zh_display = TYPE_ZH[type_en] or (TYPE_ZH[type_raw] or type_raw) %}
 
 {# ========= 取出並規則化 thumbnail（不使用巨集） ========= #}
 {% set thumb = '' %}
