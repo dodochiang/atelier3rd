@@ -1,7 +1,7 @@
 ---
 layout: project.njk
-title_en: Transitional Shelter for Refugee
-title_zh: 難民中繼屋
+title_en: Macy's Department Store
+title_zh: 梅西百貨
 type: 商業
 location_en: Shanxi, China
 location_zh: 山西，中國
@@ -9,7 +9,7 @@ year: 2009
 units: 18
 floor_area: 195
 thumbnail:
-  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1755164790/Events_-_20344_iwp7pu.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1755164788/Events_-_19938_zlcm4w.jpg
 gallery_images:
   - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1755164790/Events_-_20344_iwp7pu.jpg
   - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1755164789/Events_-_19939_zuu9dj.jpg
