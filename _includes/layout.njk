@@ -15,9 +15,11 @@
      * 全域基礎（不碰 .project*）
      * =======================*/
     :root{
-      --nav-h: 64px;      /* 第一層 navbar 高度 */
-      --subnav-h: 64px;   /* 第二層 subnav 高度（桌機固定） */
-      --container-w: 1000px;
+      --nav-h: 64px;                  /* 第一層 navbar 高度 */
+      --subnav-h: 64px;               /* 第二層 subnav 高度（桌機/手機都鎖定） */
+      --container-w: 1000px;          /* 版身寬度上限 */
+      --drawer-w: 24vw;               /* 手機抽屜寬度（相對視窗） */
+      --drawer-w-max: 320px;          /* 手機抽屜最大寬度 */
     }
 
     html[data-lang='en'] .lang-zh { display: none !important; }
@@ -67,38 +69,35 @@
     .subnav{
       position: sticky; top: var(--nav-h); z-index: 15;
       background: #fff; border-bottom: 1px solid #eee;
-      height: var(--subnav-h);              /* 桌機固定高度 */
+      height: var(--subnav-h);             /* 固定高度 */
       min-height: var(--subnav-h);
-      display: flex; align-items: center;   /* 內容垂直置中 */
+      display: flex; align-items: center;  /* 內容垂直置中 */
+      overflow: hidden;                    /* 禁止內容撐高 */
     }
-
     .subnav-inner{
       max-width: var(--container-w);
       margin: 0 auto;
       padding: .6em 1em;
       width: 100%;
-
-      /* 3 欄 Grid，欄位可縮、整體靠左 */
       display: grid;
+
+      /* 桌機：加大 Type 欄位，避免換行擠壓右側 */
       grid-template-columns:
-        minmax(0, 1.4fr)   /* Type */
+        minmax(0, 1.6fr)   /* Type */
         minmax(0, 0.5fr)   /* Region */
-        minmax(0, 0.3fr);  /* Sort */
+        minmax(0, 0.4fr);  /* Sort */
       column-gap: 1.25em;
-      align-items: center;     /* 讓每格內容在固定高內垂直置中 */
+
+      align-items: center;     /* 垂直置中在 64px 內 */
       justify-items: start;    /* 內容靠左 */
       justify-content: start;  /* 整個 grid 靠左 */
-      grid-auto-rows: min-content;
     }
     .subnav-inner > *{ min-width: 0; } /* 允許欄位縮，避免把後兩欄擠走 */
 
-    /* 標題（每欄上方） */
     .chip-title{
       display: block; font-size: .8em; color: #666; line-height: 1.2;
       margin-bottom: .2em;
     }
-
-    /* 共用 chip 按鈕（僅限 subnav） */
     .chip-bar{ display: flex; flex-wrap: wrap; gap: .5em; align-items: center; }
     .chip{
       padding: 0; background: none; border: none; color: #555; cursor: pointer;
@@ -108,42 +107,27 @@
     .chip:hover{ color: #000; }
     .chip.active{ color: #000; border-bottom-color: #000; }
 
-    /* ========== TYPE（桌機：標題一行 + 選項一行；單行顯示避免撐高） ========== */
+    /* -------- Type：桌機單列，不換行（溢出隱藏，避免增加高度） -------- */
     .type-group{ position: relative; }
     .type-inline{
-      display: flex;
-      flex-wrap: nowrap;    /* 不換行 → subnav 不會被撐高 */
-      overflow: hidden;     /* 多的隱藏 */
-      gap: .5em;
+      display: flex; flex-wrap: nowrap; gap: .5em; align-items: center;
+      overflow: hidden;       /* 多的隱藏，不會撐到右邊去 */
       min-width: 0;
     }
-    /* 讓「Type: / 類型：」獨佔一行，chips 在下一行 */
-    .type-inline .chip-title{
-      display: block;
-      width: 100%;
-      margin: 0 0 .2em 0;
-      line-height: 1.2;
-      color: #666;
-      font-size: .8em;
-      flex: 0 0 100%;
-    }
-    .type-inline .chip{
-      flex: 0 0 auto;       /* chip 不被壓縮 */
-      white-space: nowrap;  /* 單字不換行 */
-    }
+    /* 「Type: / 類型：」置前，chips 接在後面（同一行） */
+    .type-inline .chip-title{ margin: 0 .4em 0 0; }
 
-    /* ========== REGION（同樣單行） ========== */
+    .type-toggle-mobile{ display: none; } /* 僅手機顯示 */
+    .type-mobile{ display: none; }        /* 僅手機顯示 */
+
+    /* -------- Region：桌機單列，不換行（同樣溢出隱藏） -------- */
     .region-group{ justify-self: start; }
     .region-bar{
       display: flex; flex-wrap: nowrap; gap: .5em; align-items: center;
       overflow: hidden;
     }
-    .region-bar .chip{
-      flex: 0 0 auto;
-      white-space: nowrap;
-    }
 
-    /* ========== SORT ========== */
+    /* -------- Sort -------- */
     .sort-group{
       display: flex; flex-direction: column; align-items: flex-start; justify-self: start;
     }
@@ -154,45 +138,135 @@
     .sort-toggle:hover{ border-bottom-color:#333; }
     #sortArrow{ display: inline-block; }
 
-    /* ========== 手機（< 900px）：改用折疊面板，subnav 高度自適應 ========== */
-    .type-toggle{
+    /* =========================
+     * 手機（≤900px）
+     * - Subnav 仍固定 64px 高
+     * - Type 變成小按鈕 → 左側窄抽屜
+     * - Region 放中間給更多寬度
+     * =======================*/
+     @media (max-width: 900px){
+       /* 1) 三欄一律頂端對齊，不要置中 */
+       .subnav-inner{
+         grid-template-columns: auto 1fr auto;  /* [Type 按鈕][Region][Sort] */
+         align-items: start;                     /* ← 改這個 */
+       }
+
+       /* 2) 顯示手機版 Type，隱藏桌機 chips */
+       .type-inline{ display: none; }
+       .type-mobile{
+         display: flex;
+         flex-direction: column;
+         align-items: flex-start;
+         /* 同 Region 的垂直間距由下面兩行控制 */
+       }
+       .type-mobile .chip-title{
+         margin: 0;               /* 跟 Region 一樣，標題本身不加底 margin */
+         line-height: 1.2;
+         font-size: .8em;
+       }
+       .type-toggle-mobile{
+         display: inline-flex;
+         align-items: center;
+         gap: .4em;
+         background: none;
+         border: 0;               /* 不要透明底線，避免多出 1px 高度 */
+         padding: 0;
+         color: #333;
+         font: inherit;
+         white-space: nowrap;
+         cursor: pointer;
+         margin-top: .25em;       /* ← 與 Region 的 .region-bar 上緣距一致 */
+       }
+
+       /* 3) 讓 Region 跟 Type 的結構一致：標題無 margin，內容用上邊距撐開 */
+       .region-group{
+         display: flex;           /* 跟 .type-mobile 一樣，用 column */
+         flex-direction: column;
+         align-items: flex-start;
+       }
+       .region-group .chip-title{
+         margin: 0;               /* 標題不加底 margin，改由內容加上邊距 */
+         line-height: 1.2;
+         font-size: .8em;
+       }
+       .region-bar{
+         flex-wrap: nowrap;
+         gap: .6em;
+         margin-top: .25em;       /* ← 與 .type-toggle-mobile 的 margin-top 對齊 */
+       }
+     }
+
+    /* =========================
+     * 手機抽屜（Type）— 從左側滑出，窄寬，保留下方內容可見
+     * =======================*/
+    .drawer-backdrop{
       display: none;
-      align-items: center; gap:.5em;
-      background: none; border: none; cursor: pointer; padding: 0;
-      color:#333; font: inherit; border-bottom:1px solid transparent;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.15);       /* 淡淡的，仍看得到底下內容 */
+      z-index: 40;
     }
-    .type-toggle:hover{ border-bottom-color:#333; }
-    .type-toggle .caret{ font-size: 1.1em; line-height: 1; }
+    .drawer-backdrop.is-open{ display: block; }
 
-    .type-panel-backdrop{
-      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.2); z-index: 20;
+    .type-drawer{
+      position:fixed;
+      top: var(--nav-h);
+      bottom: 0;
+      left: 0;
+      width: min(var(--drawer-w), var(--drawer-w-max));  /* 用變數控寬 */
+      background: rgba(255,255,255,0.72);                /* 半透明白底 */
+      backdrop-filter: blur(4px);                        /* 讓底下內容微糊 */
+      z-index: 41;
+      transform: translateX(-100%);                      /* 預設隱藏在左邊 */
+      transition: transform .25s ease;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+      padding: 1rem 1rem 1.25rem;
+      display:flex;
+      flex-direction:column;
+      gap:1rem;
     }
-    .type-panel{
-      display: none; position: absolute; left: 0; top: calc(100% + .5em);
-      width: min(90vw, 720px);
-      background: #fff; border: 1px solid #ddd; border-radius: 10px;
-      box-shadow: 0 8px 30px rgba(0,0,0,.12);
-      padding: .9em; z-index: 21;
+    .type-drawer.is-open{ transform: translateX(0); }
+
+    .drawer-header{
+      display: flex; align-items: center; justify-content: space-between;
+      padding-bottom: .25rem; border-bottom: 1px solid #eee;
     }
-    .type-panel .chip-title{ margin-bottom: .5em; }
-    .type-panel .chip-bar{ max-height: 45vh; overflow: auto; }
+    .drawer-close{
+      background: none; border: none; font-size: 1.5rem; line-height: 1; cursor: pointer;
+    }
 
-    .type-group.is-open .type-panel,
-    .type-group.is-open ~ .type-panel-backdrop{ display: block; }
+    /* drawer 選單：一列一個 */
+    .drawer-list{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-start;
+      gap:.2em;
+    }
+    .drawer-list .chip-title{ margin: 0 0 .5em 0; }
 
-    @media (max-width: 900px){
-      .subnav{ height: auto; min-height: var(--subnav-h); }  /* 改為自適應高度 */
-      .subnav-inner{
-        align-items: start;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        row-gap: .6em;
-      }
-      .type-inline{ display: none; }     /* 改用切換鈕 + 浮層 */
-      .type-toggle{ display: inline-flex; }
+    /* chips：用 inline-block，底線只到文字 */
+    .drawer-list .chip{
+      display:inline-block;
+      width:auto;
+      text-align:left;
+      padding:.35em 0;
+      border-bottom:1px solid transparent;
+      white-space:nowrap;
+    }
+    /* active：底線顯示（與桌機一致） */
+    .drawer-list .chip.active{
+      color:#000;
+      border-bottom-color:#000;
+    }
+    .drawer-list .chip + .chip{ margin-top: .1em; }
+
+    /* 抽屜只在手機有意義；桌機時確保不顯示 */
+    @media (min-width: 901px){
+      .type-drawer{ display: none; }
+      .drawer-backdrop{ display: none !important; }
     }
   </style>
-
 </head>
+
 <body>
   <!-- ========= 第一層導覽 ========= -->
   <nav class="navbar">
@@ -208,117 +282,74 @@
     </div>
   </nav>
 
+  <!-- ========= 第二層導覽 ========= -->
   <nav id="projectsSubnav" class="subnav">
     <div class="subnav-inner">
-      <!-- 第一欄：Type -->
+      <!-- ① TYPE（桌機：inline；手機：按鈕開抽屜） -->
       <div class="type-group" id="typeGroup">
-        <!-- 桌機：標題 + chips（排列方式與 Region 一致） -->
-        <span class="chip-title">
-          <span class="lang-en">Type:</span>
-          <span class="lang-zh">類型：</span>
-        </span>
-        <div class="chip-bar type-inline">
-          <button class="chip type-chip" data-type="ALL">
-            <span class="lang-en">All</span><span class="lang-zh">全部</span>
-          </button>
-          <button class="chip type-chip" data-type="Residential">
-            <span class="lang-en">Residential</span><span class="lang-zh">住宅</span>
-          </button>
-          <button class="chip type-chip" data-type="Commercial">
-            <span class="lang-en">Commercial</span><span class="lang-zh">商業</span>
-          </button>
-          <button class="chip type-chip" data-type="Cultural">
-            <span class="lang-en">Cultural</span><span class="lang-zh">文化</span>
-          </button>
-          <button class="chip type-chip" data-type="Public">
-            <span class="lang-en">Public</span><span class="lang-zh">公共</span>
-          </button>
-          <button class="chip type-chip" data-type="Installation">
-            <span class="lang-en">Installation</span><span class="lang-zh">裝置</span>
-          </button>
-          <button class="chip type-chip" data-type="Workshop">
-            <span class="lang-en">Workshop</span><span class="lang-zh">工作營</span>
-          </button>
-          <button class="chip type-chip" data-type="Exhibition">
-            <span class="lang-en">Exhibition</span><span class="lang-zh">展覽</span>
-          </button>
+        <!-- 桌機 inline chips（單行、溢出隱藏） -->
+        <div class="type-inline">
+          <span class="chip-title lang-en">Type:</span>
+          <span class="chip-title lang-zh">類型：</span>
+          <button class="chip type-chip" data-type="ALL"><span class="lang-en">All</span><span class="lang-zh">全部</span></button>
+          <button class="chip type-chip" data-type="Residential"><span class="lang-en">Residential</span><span class="lang-zh">住宅</span></button>
+          <button class="chip type-chip" data-type="Commercial"><span class="lang-en">Commercial</span><span class="lang-zh">商業</span></button>
+          <button class="chip type-chip" data-type="Cultural"><span class="lang-en">Cultural</span><span class="lang-zh">文化</span></button>
+          <button class="chip type-chip" data-type="Public"><span class="lang-en">Public</span><span class="lang-zh">公共</span></button>
+          <button class="chip type-chip" data-type="Installation"><span class="lang-en">Installation</span><span class="lang-zh">裝置</span></button>
+          <button class="chip type-chip" data-type="Workshop"><span class="lang-en">Workshop</span><span class="lang-zh">工作營</span></button>
+          <button class="chip type-chip" data-type="Exhibition"><span class="lang-en">Exhibition</span><span class="lang-zh">展覽</span></button>
         </div>
 
-        <!-- 手機：切換鈕 + 浮層（維持原互動） -->
-        <button class="type-toggle" id="typeToggle" aria-expanded="false" aria-controls="typePanel">
-          <span class="caret">▾</span>
-        </button>
-        <div class="type-panel" id="typePanel" role="dialog" aria-modal="true" aria-label="Filter by type">
-          <div class="chip-title">
+        <!-- 手機：小標籤 + 按鈕 -->
+        <div class="type-mobile">
+          <span class="chip-title">
             <span class="lang-en">Type:</span>
             <span class="lang-zh">類型：</span>
-          </div>
-          <div class="chip-bar">
-            <button class="chip type-chip" data-type="ALL">
-              <span class="lang-en">All</span><span class="lang-zh">全部</span>
-            </button>
-            <button class="chip type-chip" data-type="Residential">
-              <span class="lang-en">Residential</span><span class="lang-zh">住宅</span>
-            </button>
-            <button class="chip type-chip" data-type="Commercial">
-              <span class="lang-en">Commercial</span><span class="lang-zh">商業</span>
-            </button>
-            <button class="chip type-chip" data-type="Cultural">
-              <span class="lang-en">Cultural</span><span class="lang-zh">文化</span>
-            </button>
-            <button class="chip type-chip" data-type="Public">
-              <span class="lang-en">Public</span><span class="lang-zh">公共</span>
-            </button>
-            <button class="chip type-chip" data-type="Installation">
-              <span class="lang-en">Installation</span><span class="lang-zh">裝置</span>
-            </button>
-            <button class="chip type-chip" data-type="Workshop">
-              <span class="lang-en">Workshop</span><span class="lang-zh">工作營</span>
-            </button>
-            <button class="chip type-chip" data-type="Exhibition">
-              <span class="lang-en">Exhibition</span><span class="lang-zh">展覽</span>
-            </button>
-          </div>
+          </span>
+          <button id="typeToggleMobile" class="type-toggle-mobile" aria-expanded="false" aria-controls="typeDrawer">
+             ▾
+          </button>
         </div>
-      </div>
+      </div> <!-- ←← 修正：關閉 type-group 容器 -->
 
-      <!-- 第二欄：Region -->
+      <!-- ② REGION（一直 inline；手機給較寬中欄） -->
       <div class="region-group">
-        <span class="chip-title">
-          <span class="lang-en">Region:</span>
-          <span class="lang-zh">地區：</span>
-        </span>
+        <span class="chip-title"><span class="lang-en">Region:</span><span class="lang-zh">地區：</span></span>
         <div class="chip-bar region-bar">
-          <button class="chip region-chip active" data-region="all">
-            <span class="lang-en">All</span><span class="lang-zh">全部</span>
-          </button>
-          <button class="chip region-chip" data-region="taiwan">
-            <span class="lang-en">Taiwan</span><span class="lang-zh">台灣</span>
-          </button>
-          <button class="chip region-chip" data-region="china">
-            <span class="lang-en">China</span><span class="lang-zh">中國</span>
-          </button>
-          <button class="chip region-chip" data-region="overseas">
-            <span class="lang-en">Others</span><span class="lang-zh">其他</span>
-          </button>
+          <button class="chip region-chip active" data-region="all"><span class="lang-en">All</span><span class="lang-zh">全部</span></button>
+          <button class="chip region-chip" data-region="taiwan"><span class="lang-en">Taiwan</span><span class="lang-zh">台灣</span></button>
+          <button class="chip region-chip" data-region="china"><span class="lang-en">China</span><span class="lang-zh">中國</span></button>
+          <button class="chip region-chip" data-region="overseas"><span class="lang-en">Others</span><span class="lang-zh">其他</span></button>
         </div>
       </div>
 
-      <!-- 第三欄：Sort -->
+      <!-- ③ SORT -->
       <div class="sort-group">
-        <span class="chip-title sort-label">
-          <span class="lang-en">Sort by Year:</span>
-          <span class="lang-zh">按年排序：</span>
-        </span>
-        <button id="sortToggle" class="sort-toggle" data-order="desc">
-          <span id="sortArrow">↓</span>
-        </button>
+        <span class="chip-title"><span class="lang-en">Sort by Year:</span><span class="lang-zh">按年排序：</span></span>
+        <button id="sortToggle" class="sort-toggle" data-order="desc"><span id="sortArrow">↓</span></button>
       </div>
-
-      <!-- Backdrop 要留在 .subnav-inner 裡，同層級於三欄 -->
-      <div class="type-panel-backdrop" id="typeBackdrop"></div>
-    </div><!-- ← 補齊這個 .subnav-inner 的收尾 -->
+    </div>
   </nav>
+
+  <!-- TYPE：手機左側窄抽屜（垂直清單，一行一個） -->
+  <aside id="typeDrawer" class="type-drawer" aria-hidden="true">
+    <div class="drawer-header">
+      <button id="typeDrawerClose" class="drawer-close" aria-label="Close">×</button>
+    </div>
+    <div class="drawer-list">
+      <div class="chip-title"><span class="lang-en">Choose types</span><span class="lang-zh">選擇類型</span></div>
+      <button class="chip type-chip" data-type="ALL"><span class="lang-en">All</span><span class="lang-zh">全部</span></button>
+      <button class="chip type-chip" data-type="Residential"><span class="lang-en">Residential</span><span class="lang-zh">住宅</span></button>
+      <button class="chip type-chip" data-type="Commercial"><span class="lang-en">Commercial</span><span class="lang-zh">商業</span></button>
+      <button class="chip type-chip" data-type="Cultural"><span class="lang-en">Cultural</span><span class="lang-zh">文化</span></button>
+      <button class="chip type-chip" data-type="Public"><span class="lang-en">Public</span><span class="lang-zh">公共</span></button>
+      <button class="chip type-chip" data-type="Installation"><span class="lang-en">Installation</span><span class="lang-zh">裝置</span></button>
+      <button class="chip type-chip" data-type="Workshop"><span class="lang-en">Workshop</span><span class="lang-zh">工作營</span></button>
+      <button class="chip type-chip" data-type="Exhibition"><span class="lang-en">Exhibition</span><span class="lang-zh">展覽</span></button>
+    </div>
+  </aside>
+  <div id="typeBackdrop" class="drawer-backdrop" aria-hidden="true"></div>
 
   <!-- ========= 版身 ========= -->
   <div class="container">
@@ -352,38 +383,32 @@
       const $  = (s, r=document)=>r.querySelector(s);
       const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
 
+      // TYPE drawer (mobile)
       (function(){
-        const group    = document.getElementById('typeGroup');
-        const toggle   = document.getElementById('typeToggle');
-        const panel    = document.getElementById('typePanel');
+        const btn      = document.getElementById('typeToggleMobile');
+        const drawer   = document.getElementById('typeDrawer');
+        const closeBtn = document.getElementById('typeDrawerClose');
         const backdrop = document.getElementById('typeBackdrop');
 
-        if (!group || !toggle || !panel || !backdrop) return;
+        if (!btn || !drawer || !closeBtn || !backdrop) return;
 
-        function openPanel(){
-          group.classList.add('is-open');
-          toggle.setAttribute('aria-expanded', 'true');
+        function openDrawer(){
+          drawer.classList.add('is-open');
+          backdrop.classList.add('is-open');
+          btn.setAttribute('aria-expanded', 'true');
+          document.body.style.overflow = 'hidden';
         }
-        function closePanel(){
-          group.classList.remove('is-open');
-          toggle.setAttribute('aria-expanded', 'false');
+        function closeDrawer(){
+          drawer.classList.remove('is-open');
+          backdrop.classList.remove('is-open');
+          btn.setAttribute('aria-expanded', 'false');
+          document.body.style.overflow = '';
         }
-        function isMobile(){ return window.matchMedia('(max-width: 900px)').matches; }
 
-        // Toggle open/close only on mobile
-        toggle.addEventListener('click', (e)=>{
-          if (!isMobile()) return;
-          e.preventDefault();
-          group.classList.toggle('is-open');
-          toggle.setAttribute('aria-expanded', group.classList.contains('is-open') ? 'true' : 'false');
-        });
-
-        // Close when clicking backdrop or pressing Escape
-        backdrop.addEventListener('click', closePanel);
-        document.addEventListener('keydown', (e)=>{ if (e.key === 'Escape') closePanel(); });
-
-        // Auto-close when resizing back to desktop
-        window.addEventListener('resize', ()=>{ if (!isMobile()) closePanel(); });
+        btn.addEventListener('click', (e)=>{ e.preventDefault(); openDrawer(); });
+        closeBtn.addEventListener('click', closeDrawer);
+        backdrop.addEventListener('click', closeDrawer);
+        document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeDrawer(); });
       })();
 
       // 單一 project 頁：點控制→導向 /projects/ 並帶參數
@@ -419,32 +444,49 @@
       const initRegion = params.get('region') || 'all';
       const initOrder  = params.get('order')  || 'desc';
 
-      // 類型（多選）
-      const typeChips = $$('.type-chip', subnav);
+      // === 類型（多選）— 同步桌機/抽屜的 active 狀態 ===
+      const typeChips = Array.from(document.querySelectorAll('.type-chip')); // both desktop + drawer
       const selectedTypes = new Set(initTypes);
-      typeChips.forEach(btn=>{
-        const t = btn.dataset.type;
-        if (t !== 'ALL' && selectedTypes.has(t)) btn.classList.add('active');
 
-        btn.addEventListener('click', ()=>{
+      function refreshAllChipActives(){
+        const hasAny = selectedTypes.size > 0;
+        typeChips.forEach(btn=>{
+          const t = btn.dataset.type;
           if (t === 'ALL') {
-            // 清空所有選擇
-            selectedTypes.clear();
-            typeChips.forEach(b=>b.classList.remove('active'));
-            applyFilters(); syncURL(); return;
+            btn.classList.toggle('active', !hasAny);
+          } else {
+            btn.classList.toggle('active', selectedTypes.has(t));
           }
-          btn.classList.toggle('active');
-          if (btn.classList.contains('active')) selectedTypes.add(t); else selectedTypes.delete(t);
+        });
+      }
+      refreshAllChipActives();
+
+      typeChips.forEach(btn=>{
+        btn.addEventListener('click', (e)=>{
+          e.preventDefault();
+          const t = btn.dataset.type;
+
+          if (t === 'ALL') {
+            selectedTypes.clear();
+            refreshAllChipActives();
+            applyFilters(); syncURL();
+            return;
+          }
+          if (selectedTypes.has(t)) selectedTypes.delete(t);
+          else selectedTypes.add(t);
+
+          refreshAllChipActives();
           applyFilters(); syncURL();
         });
       });
 
-      // 地區（單選）
-      const regionChips = $$('.region-chip', subnav);
+      // === 地區（單選） ===
+      const regionChips = Array.from(document.querySelectorAll('.region-chip'));
       let currentRegion = initRegion;
       regionChips.forEach(btn=>{
         if (btn.dataset.region === initRegion) btn.classList.add('active');
-        btn.addEventListener('click', ()=>{
+        btn.addEventListener('click', (e)=>{
+          e.preventDefault();
           regionChips.forEach(b=>b.classList.remove('active'));
           btn.classList.add('active');
           currentRegion = btn.dataset.region;
@@ -452,14 +494,15 @@
         });
       });
 
-      // 排序（年分）
-      const sortToggle = $('#sortToggle', subnav);
-      const sortArrow  = $('#sortArrow', subnav);
+      // === 排序（年分） ===
+      const sortToggle = document.getElementById('sortToggle');
+      const sortArrow  = document.getElementById('sortArrow');
       let currentOrder = (initOrder === 'asc') ? 'asc' : 'desc';
       if (sortArrow) sortArrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
       if (sortToggle) {
         sortToggle.dataset.order = currentOrder;
-        sortToggle.addEventListener('click', ()=>{
+        sortToggle.addEventListener('click', (e)=>{
+          e.preventDefault();
           currentOrder = (currentOrder === 'asc') ? 'desc' : 'asc';
           sortToggle.dataset.order = currentOrder;
           if (sortArrow) sortArrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
@@ -467,17 +510,17 @@
         });
       }
 
-      // 篩選核心
-      const list     = $('.project-grid');
-      const itemsAll = $$('.project-grid > .project');
+      // === 篩選核心 ===
+      const list     = document.querySelector('.project-grid');
+      const itemsAll = Array.from(document.querySelectorAll('.project-grid > .project'));
 
       function applyFilters(){
         const typeActive = [...selectedTypes];
         const showAllTypes = typeActive.length === 0;
 
         const filtered = itemsAll.filter(li=>{
-          const t  = li.dataset.typeEn;                   // 英文類型
-          const rg = li.dataset.region || 'overseas';     // 區域（由 projects.njk 推論）
+          const t  = li.dataset.typeEn;
+          const rg = li.dataset.region || 'overseas';
           const okType   = showAllTypes ? true : typeActive.includes(t);
           const okRegion = (currentRegion === 'all') ? true : (rg === currentRegion);
           return okType && okRegion;
