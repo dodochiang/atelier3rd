@@ -10,58 +10,92 @@
   <link rel="icon" type="image/png" href="/uploads/favicon.png?v=2">
 
   <style>
-    /* ================= 基本：語系/版身 ================= */
+    /* ================= 共同設定：語系/版身 ================= */
     html[data-lang='en'] .lang-zh { display: none !important; }
     html[data-lang='zh'] .lang-en { display: none !important; }
 
-    body { font-family: sans-serif; margin: 0; padding: 0; }
+    :root{
+      /* 統一兩層導覽列高度（依需求可調整 56/60/64px） */
+      --bar-h: 64px;
+    }
 
+    body { font-family: sans-serif; margin: 0; padding: 0; }
     .container { max-width: 1000px; margin: 2em auto; padding: 1em; }
 
-    /* ================= 第一層 Navbar ================= */
-    .navbar {
+    /* ================= 第一層 Navbar（與第二層同高） ================= */
+    .navbar{
       position: sticky; top: 0; z-index: 20;
       display: flex; align-items: center; justify-content: space-between;
-      padding: 1em 2em; background: #fff; border-bottom: 1px solid #ddd;
+      height: var(--bar-h);
+      padding: 0 2em;                 /* 取消上下 padding，以高度為準 */
+      background: #fff; border-bottom: 1px solid #ddd;
+      box-sizing: border-box;
     }
-    .navbar-right a {
+
+    /* 讓內部元素也吃滿高度，垂直置中、避免換行造成高度跳動 */
+    .navbar-right a,
+    .lang-toggle,
+    .lang-toggle *{
+      height: 100%;
+      display: inline-flex; align-items: center;
+      white-space: nowrap;
+    }
+
+    .navbar-right a{
       margin-left: 1em; color: #000; font-size: 1.1em; font-weight: bold;
       text-decoration: none; transition: color .2s ease;
     }
     .navbar-right a:hover { color: #333; }
 
-    .lang-toggle { display: flex; align-items: center; gap: 6px; font-size: .9rem; }
-    .lang-btn {
-      padding: 2px 4px; background: none; border: none; color: gray; font-weight: normal;
+    .lang-toggle { gap: 6px; font-size: .9rem; }
+    .lang-btn{
+      padding: 0 4px; background: none; border: none; color: gray; font-weight: normal;
       cursor: pointer; transition: color .2s ease;
     }
     .lang-btn.active { color: #000; font-weight: bold; }
     .lang-btn:hover  { color: #333; }
 
-    /* ================= 第二層 Subnav（全站顯示） ================= */
-    .subnav {
-      position: sticky; top: 56px; z-index: 15;
+    /* ================= 第二層 Subnav（與第一層同高） ================= */
+    .subnav{
+      position: sticky; top: var(--bar-h); z-index: 15;
+      height: var(--bar-h);
       background: #fff; border-bottom: 1px solid #eee;
     }
-    .subnav-inner {
-      max-width: 1000px; margin: 0 auto; padding: .6em 1em;
+    .subnav-inner{
+      max-width: 1000px; margin: 0 auto; height: 100%;
+      padding: 0 1em;                  /* 取消上下 padding，以高度為準 */
       display: grid;
       grid-template-columns: 1.5fr 0.8fr auto; /* 左類型 / 中地區 / 右排序 */
-      gap: 1.5em; align-items: start;
+      gap: 1.5em;
+      align-items: center;             /* 整列垂直置中 */
+      box-sizing: border-box;
     }
 
-    /* 標題小一點、在上方 */
-    .chip-title {
-      display: block; font-size: .8em; color: #666; line-height: 1.2;
-      margin-bottom: .2em;
+    /* 欄位群組：標題在上、按鈕在下，但整體仍垂直置中於固定高度內 */
+    .type-group,
+    .region-group,
+    .sort-group{
+      display: grid;
+      grid-auto-rows: min-content;
+      align-content: center;           /* 在固定高度中置中兩行內容 */
+    }
+
+    /* 標題：小一點、置於上方；避免換行使高度穩定 */
+    .chip-title{
+      display: block; font-size: .8em; color: #666; line-height: 1.1;
+      margin: 0 0 .25em 0; white-space: nowrap;
     }
 
     /* 類型/地區按鈕（chips） */
-    .chip-bar { display: flex; flex-wrap: wrap; align-items: center; gap: .5em; }
-    .chip {
+    .chip-bar{
+      display: flex; flex-wrap: nowrap; /* 不換行，避免高度被撐開 */
+      align-items: center; gap: .5em; min-height: 1.6em;
+    }
+    .chip{
       padding: 0; background: none; border: none; color: #555; cursor: pointer;
       font: inherit; text-decoration: none; border-bottom: 1px solid transparent;
       transition: color .2s ease, border-color .2s ease; font-size: .9em;
+      white-space: nowrap;             /* 文字不換行 */
     }
     .chip:hover  { color: #000; }
     .chip.active { color: #000; border-bottom-color: #000; }
@@ -70,35 +104,41 @@
     .region-group { justify-self: start; }
     .region-bar   { justify-content: flex-start; }
 
-    /* 排序（獨立一欄，標題在上，箭頭在下） */
-    .sort-group { display: flex; flex-direction: column; align-items: flex-start; }
-    .sort-toggle {
-      margin-top: .1em;
+    /* 排序（標題在上，箭頭在下） */
+    .sort-toggle{
       background: none; border: none; cursor: pointer; font: inherit; color: #333;
       border-bottom: 1px solid transparent; padding: 0; line-height: 1;
-      font-size: .9em;
+      font-size: .9em; white-space: nowrap;
     }
     .sort-toggle:hover { border-bottom-color: #333; }
-    #sortArrow { display: inline-block; }
+    #sortArrow{ display: inline-block; }
 
     /* ================= Projects 列表卡片 ================= */
     .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1em; }
     .project { margin: 0; padding: 0; list-style: none; }
-    .project-thumb {
+    .project-thumb{
       width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; border: none;
     }
-    .project-title {
+    .project-title{
       margin-top: .3em; color: #666; text-align: center;
-      font-size: 1em; font-weight: normal; /* 保持非粗體 */
+      font-size: 1em; font-weight: normal;
     }
-    .project-meta {
+    .project-meta{
       margin-top: .3em; color: #666; text-align: center;
       font-size: .7em; font-variant-ligatures: none;
     }
 
     /* 一般頁面文字對齊 */
     .page-content h1, .page-content h2, .page-content h3, .page-content p { text-align: left; }
+
+    /* ============== 小尺寸保護（避免過小螢幕溢出） ============== */
+    @media (max-width: 720px){
+      :root{ --bar-h: 64px; } /* 行內內容較擁擠時，稍微加高避免擠壓 */
+      .subnav-inner{ gap: .8em; }
+      .chip{ font-size: .85em; }
+    }
   </style>
+
 </head>
 <body>
   <!-- ========= 第一層導覽 ========= -->
