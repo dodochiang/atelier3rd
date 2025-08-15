@@ -10,132 +10,184 @@
   <link rel="icon" type="image/png" href="/uploads/favicon.png?v=2">
 
   <style>
-    /* ================= 共同設定：語系/版身 ================= */
+    /* =========================
+     * 全域基礎（不碰 .project*）
+     * =======================*/
+    :root{
+      --nav-h: 64px;      /* 第一層 navbar 高度 */
+      --subnav-h: 64px;   /* 第二層 subnav 高度（桌機固定） */
+      --container-w: 1000px;
+    }
+
     html[data-lang='en'] .lang-zh { display: none !important; }
     html[data-lang='zh'] .lang-en { display: none !important; }
 
-    :root{
-      /* 統一兩層導覽列高度（依需求可調整 56/60/64px） */
-      --bar-h: 64px;
+    body{
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #111;
+      background: #fff;
     }
 
-    body { font-family: sans-serif; margin: 0; padding: 0; }
-    .container { max-width: 1000px; margin: 2em auto; padding: 1em; }
+    .container{
+      max-width: var(--container-w);
+      margin: 2em auto;
+      padding: 1em;
+    }
 
-    /* ================= 第一層 Navbar（與第二層同高） ================= */
+    /* =========================
+     * 第一層 Navbar（僅控制導覽列）
+     * =======================*/
     .navbar{
       position: sticky; top: 0; z-index: 20;
       display: flex; align-items: center; justify-content: space-between;
-      height: var(--bar-h);
-      padding: 0 2em;                 /* 取消上下 padding，以高度為準 */
+      height: var(--nav-h);
+      padding: 0 2em;
       background: #fff; border-bottom: 1px solid #ddd;
-      box-sizing: border-box;
     }
-
-    /* 讓內部元素也吃滿高度，垂直置中、避免換行造成高度跳動 */
-    .navbar-right a,
-    .lang-toggle,
-    .lang-toggle *{
-      height: 100%;
-      display: inline-flex; align-items: center;
-      white-space: nowrap;
-    }
-
     .navbar-right a{
       margin-left: 1em; color: #000; font-size: 1.1em; font-weight: bold;
       text-decoration: none; transition: color .2s ease;
     }
-    .navbar-right a:hover { color: #333; }
+    .navbar-right a:hover{ color: #333; }
 
-    .lang-toggle { gap: 6px; font-size: .9rem; }
+    .lang-toggle{ display: flex; align-items: center; gap: 6px; font-size: .9rem; }
     .lang-btn{
-      padding: 0 4px; background: none; border: none; color: gray; font-weight: normal;
+      padding: 2px 4px; background: none; border: none; color: gray; font-weight: normal;
       cursor: pointer; transition: color .2s ease;
     }
-    .lang-btn.active { color: #000; font-weight: bold; }
-    .lang-btn:hover  { color: #333; }
+    .lang-btn.active{ color: #000; font-weight: bold; }
+    .lang-btn:hover{ color: #333; }
 
-    /* ================= 第二層 Subnav（與第一層同高） ================= */
+    /* =========================
+     * 第二層 Subnav（Type / Region / Sort）
+     * =======================*/
     .subnav{
-      position: sticky; top: var(--bar-h); z-index: 15;
-      height: var(--bar-h);
+      position: sticky; top: var(--nav-h); z-index: 15;
       background: #fff; border-bottom: 1px solid #eee;
+      height: var(--subnav-h);              /* 桌機固定高度 */
+      min-height: var(--subnav-h);
+      display: flex; align-items: center;   /* 內容垂直置中 */
     }
+
     .subnav-inner{
-      max-width: 1000px; margin: 0 auto; height: 100%;
-      padding: 0 1em;                  /* 取消上下 padding，以高度為準 */
-      display: grid;
-      grid-template-columns: 1.5fr 0.8fr auto; /* 左類型 / 中地區 / 右排序 */
-      gap: 1.5em;
-      align-items: center;             /* 整列垂直置中 */
-      box-sizing: border-box;
-    }
+      max-width: var(--container-w);
+      margin: 0 auto;
+      padding: .6em 1em;
+      width: 100%;
 
-    /* 欄位群組：標題在上、按鈕在下，但整體仍垂直置中於固定高度內 */
-    .type-group,
-    .region-group,
-    .sort-group{
+      /* 3 欄 Grid，欄位可縮、整體靠左 */
       display: grid;
+      grid-template-columns:
+        minmax(0, 1.4fr)   /* Type */
+        minmax(0, 0.5fr)   /* Region */
+        minmax(0, 0.3fr);  /* Sort */
+      column-gap: 1.25em;
+      align-items: center;     /* 讓每格內容在固定高內垂直置中 */
+      justify-items: start;    /* 內容靠左 */
+      justify-content: start;  /* 整個 grid 靠左 */
       grid-auto-rows: min-content;
-      align-content: center;           /* 在固定高度中置中兩行內容 */
     }
+    .subnav-inner > *{ min-width: 0; } /* 允許欄位縮，避免把後兩欄擠走 */
 
-    /* 標題：小一點、置於上方；避免換行使高度穩定 */
+    /* 標題（每欄上方） */
     .chip-title{
-      display: block; font-size: .8em; color: #666; line-height: 1.1;
-      margin: 0 0 .25em 0; white-space: nowrap;
+      display: block; font-size: .8em; color: #666; line-height: 1.2;
+      margin-bottom: .2em;
     }
 
-    /* 類型/地區按鈕（chips） */
-    .chip-bar{
-      display: flex; flex-wrap: nowrap; /* 不換行，避免高度被撐開 */
-      align-items: center; gap: .5em; min-height: 1.6em;
-    }
+    /* 共用 chip 按鈕（僅限 subnav） */
+    .chip-bar{ display: flex; flex-wrap: wrap; gap: .5em; align-items: center; }
     .chip{
       padding: 0; background: none; border: none; color: #555; cursor: pointer;
       font: inherit; text-decoration: none; border-bottom: 1px solid transparent;
-      transition: color .2s ease, border-color .2s ease; font-size: .9em;
-      white-space: nowrap;             /* 文字不換行 */
+      transition: color .2s, border-color .2s; font-size: .9em;
     }
-    .chip:hover  { color: #000; }
-    .chip.active { color: #000; border-bottom-color: #000; }
+    .chip:hover{ color: #000; }
+    .chip.active{ color: #000; border-bottom-color: #000; }
 
-    /* 地區欄位：左對齊 */
-    .region-group { justify-self: start; }
-    .region-bar   { justify-content: flex-start; }
+    /* ========== TYPE（桌機：標題一行 + 選項一行；單行顯示避免撐高） ========== */
+    .type-group{ position: relative; }
+    .type-inline{
+      display: flex;
+      flex-wrap: nowrap;    /* 不換行 → subnav 不會被撐高 */
+      overflow: hidden;     /* 多的隱藏 */
+      gap: .5em;
+      min-width: 0;
+    }
+    /* 讓「Type: / 類型：」獨佔一行，chips 在下一行 */
+    .type-inline .chip-title{
+      display: block;
+      width: 100%;
+      margin: 0 0 .2em 0;
+      line-height: 1.2;
+      color: #666;
+      font-size: .8em;
+      flex: 0 0 100%;
+    }
+    .type-inline .chip{
+      flex: 0 0 auto;       /* chip 不被壓縮 */
+      white-space: nowrap;  /* 單字不換行 */
+    }
 
-    /* 排序（標題在上，箭頭在下） */
+    /* ========== REGION（同樣單行） ========== */
+    .region-group{ justify-self: start; }
+    .region-bar{
+      display: flex; flex-wrap: nowrap; gap: .5em; align-items: center;
+      overflow: hidden;
+    }
+    .region-bar .chip{
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+
+    /* ========== SORT ========== */
+    .sort-group{
+      display: flex; flex-direction: column; align-items: flex-start; justify-self: start;
+    }
     .sort-toggle{
-      background: none; border: none; cursor: pointer; font: inherit; color: #333;
-      border-bottom: 1px solid transparent; padding: 0; line-height: 1;
-      font-size: .9em; white-space: nowrap;
+      margin-top: .1em; background: none; border: none; cursor: pointer; font: inherit; color: #333;
+      border-bottom: 1px solid transparent; padding: 0; line-height: 1; font-size: .9em;
     }
-    .sort-toggle:hover { border-bottom-color: #333; }
+    .sort-toggle:hover{ border-bottom-color:#333; }
     #sortArrow{ display: inline-block; }
 
-    /* ================= Projects 列表卡片 ================= */
-    .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1em; }
-    .project { margin: 0; padding: 0; list-style: none; }
-    .project-thumb{
-      width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; border: none;
+    /* ========== 手機（< 900px）：改用折疊面板，subnav 高度自適應 ========== */
+    .type-toggle{
+      display: none;
+      align-items: center; gap:.5em;
+      background: none; border: none; cursor: pointer; padding: 0;
+      color:#333; font: inherit; border-bottom:1px solid transparent;
     }
-    .project-title{
-      margin-top: .3em; color: #666; text-align: center;
-      font-size: 1em; font-weight: normal;
-    }
-    .project-meta{
-      margin-top: .3em; color: #666; text-align: center;
-      font-size: .7em; font-variant-ligatures: none;
-    }
+    .type-toggle:hover{ border-bottom-color:#333; }
+    .type-toggle .caret{ font-size: 1.1em; line-height: 1; }
 
-    /* 一般頁面文字對齊 */
-    .page-content h1, .page-content h2, .page-content h3, .page-content p { text-align: left; }
+    .type-panel-backdrop{
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.2); z-index: 20;
+    }
+    .type-panel{
+      display: none; position: absolute; left: 0; top: calc(100% + .5em);
+      width: min(90vw, 720px);
+      background: #fff; border: 1px solid #ddd; border-radius: 10px;
+      box-shadow: 0 8px 30px rgba(0,0,0,.12);
+      padding: .9em; z-index: 21;
+    }
+    .type-panel .chip-title{ margin-bottom: .5em; }
+    .type-panel .chip-bar{ max-height: 45vh; overflow: auto; }
 
-    /* ============== 小尺寸保護（避免過小螢幕溢出） ============== */
-    @media (max-width: 720px){
-      :root{ --bar-h: 64px; } /* 行內內容較擁擠時，稍微加高避免擠壓 */
-      .subnav-inner{ gap: .8em; }
-      .chip{ font-size: .85em; }
+    .type-group.is-open .type-panel,
+    .type-group.is-open ~ .type-panel-backdrop{ display: block; }
+
+    @media (max-width: 900px){
+      .subnav{ height: auto; min-height: var(--subnav-h); }  /* 改為自適應高度 */
+      .subnav-inner{
+        align-items: start;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        row-gap: .6em;
+      }
+      .type-inline{ display: none; }     /* 改用切換鈕 + 浮層 */
+      .type-toggle{ display: inline-flex; }
     }
   </style>
 
@@ -155,16 +207,16 @@
     </div>
   </nav>
 
-  <!-- ========= 第二層導覽 ========= -->
   <nav id="projectsSubnav" class="subnav">
     <div class="subnav-inner">
-      <!-- 第一欄：類型（可複選） -->
-      <div class="type-group">
+      <!-- 第一欄：Type -->
+      <div class="type-group" id="typeGroup">
+        <!-- 桌機：標題 + chips（排列方式與 Region 一致） -->
         <span class="chip-title">
           <span class="lang-en">Type:</span>
           <span class="lang-zh">類型：</span>
         </span>
-        <div class="chip-bar type-bar">
+        <div class="chip-bar type-inline">
           <button class="chip type-chip" data-type="ALL">
             <span class="lang-en">All</span><span class="lang-zh">全部</span>
           </button>
@@ -190,9 +242,46 @@
             <span class="lang-en">Exhibition</span><span class="lang-zh">展覽</span>
           </button>
         </div>
+
+        <!-- 手機：切換鈕 + 浮層（維持原互動） -->
+        <button class="type-toggle" id="typeToggle" aria-expanded="false" aria-controls="typePanel">
+          <span class="caret">▾</span>
+        </button>
+        <div class="type-panel" id="typePanel" role="dialog" aria-modal="true" aria-label="Filter by type">
+          <div class="chip-title">
+            <span class="lang-en">Type:</span>
+            <span class="lang-zh">類型：</span>
+          </div>
+          <div class="chip-bar">
+            <button class="chip type-chip" data-type="ALL">
+              <span class="lang-en">All</span><span class="lang-zh">全部</span>
+            </button>
+            <button class="chip type-chip" data-type="Residential">
+              <span class="lang-en">Residential</span><span class="lang-zh">住宅</span>
+            </button>
+            <button class="chip type-chip" data-type="Commercial">
+              <span class="lang-en">Commercial</span><span class="lang-zh">商業</span>
+            </button>
+            <button class="chip type-chip" data-type="Cultural">
+              <span class="lang-en">Cultural</span><span class="lang-zh">文化</span>
+            </button>
+            <button class="chip type-chip" data-type="Public">
+              <span class="lang-en">Public</span><span class="lang-zh">公共</span>
+            </button>
+            <button class="chip type-chip" data-type="Installation">
+              <span class="lang-en">Installation</span><span class="lang-zh">裝置</span>
+            </button>
+            <button class="chip type-chip" data-type="Workshop">
+              <span class="lang-en">Workshop</span><span class="lang-zh">工作營</span>
+            </button>
+            <button class="chip type-chip" data-type="Exhibition">
+              <span class="lang-en">Exhibition</span><span class="lang-zh">展覽</span>
+            </button>
+          </div>
+        </div>
       </div>
 
-      <!-- 第二欄：地區（單選） -->
+      <!-- 第二欄：Region -->
       <div class="region-group">
         <span class="chip-title">
           <span class="lang-en">Region:</span>
@@ -214,7 +303,7 @@
         </div>
       </div>
 
-      <!-- 第三欄：年份排序（標題在上、箭頭在下） -->
+      <!-- 第三欄：Sort -->
       <div class="sort-group">
         <span class="chip-title sort-label">
           <span class="lang-en">Sort by Year:</span>
@@ -224,7 +313,10 @@
           <span id="sortArrow">↓</span>
         </button>
       </div>
-    </div>
+
+      <!-- Backdrop 要留在 .subnav-inner 裡，同層級於三欄 -->
+      <div class="type-panel-backdrop" id="typeBackdrop"></div>
+    </div><!-- ← 補齊這個 .subnav-inner 的收尾 -->
   </nav>
 
   <!-- ========= 版身 ========= -->
@@ -258,6 +350,40 @@
       const onProjectsPage = !!location.pathname.match(/^\/projects\/?$/);
       const $  = (s, r=document)=>r.querySelector(s);
       const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
+
+      (function(){
+        const group    = document.getElementById('typeGroup');
+        const toggle   = document.getElementById('typeToggle');
+        const panel    = document.getElementById('typePanel');
+        const backdrop = document.getElementById('typeBackdrop');
+
+        if (!group || !toggle || !panel || !backdrop) return;
+
+        function openPanel(){
+          group.classList.add('is-open');
+          toggle.setAttribute('aria-expanded', 'true');
+        }
+        function closePanel(){
+          group.classList.remove('is-open');
+          toggle.setAttribute('aria-expanded', 'false');
+        }
+        function isMobile(){ return window.matchMedia('(max-width: 900px)').matches; }
+
+        // Toggle open/close only on mobile
+        toggle.addEventListener('click', (e)=>{
+          if (!isMobile()) return;
+          e.preventDefault();
+          group.classList.toggle('is-open');
+          toggle.setAttribute('aria-expanded', group.classList.contains('is-open') ? 'true' : 'false');
+        });
+
+        // Close when clicking backdrop or pressing Escape
+        backdrop.addEventListener('click', closePanel);
+        document.addEventListener('keydown', (e)=>{ if (e.key === 'Escape') closePanel(); });
+
+        // Auto-close when resizing back to desktop
+        window.addEventListener('resize', ()=>{ if (!isMobile()) closePanel(); });
+      })();
 
       // 單一 project 頁：點控制→導向 /projects/ 並帶參數
       if (!onProjectsPage) {
