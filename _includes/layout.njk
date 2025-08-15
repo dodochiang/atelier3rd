@@ -55,10 +55,10 @@
     }
     .navbar-right a:hover{ color: #333; }
 
-    .lang-toggle{ display: flex; align-items: center; gap: 6px; font-size: 1.1rem; }
+    .lang-toggle{ display: flex; align-items: center; gap: 6px; font-size: 0.9rem; }
     .lang-btn{
       padding: 2px 4px; background: none; border: none; color: gray; font-weight: normal;
-      cursor: pointer; transition: color .2s ease;
+      cursor: pointer; transition: color .2s ease; font-size: inherit;
     }
     .lang-btn.active{ color: #000; font-weight: bold; }
     .lang-btn:hover{ color: #333; }
@@ -193,9 +193,6 @@
          flex-wrap: nowrap;
          gap: .6em;
          margin-top: .25em;       /* ← 與 .type-toggle-mobile 的 margin-top 對齊 */
-       }
-       .lang-toggle {
-         font-size: 1.2rem;
        }
      }
 
