@@ -412,29 +412,40 @@
       })();
 
       // 單一 project 頁：點控制→導向 /projects/ 並帶參數
+      // 單一 project 頁：點控制→導向 /projects/ 並帶參數
       if (!onProjectsPage) {
-        $$('.type-chip', subnav).forEach(btn=>{
-          btn.addEventListener('click', ()=>{
+        // 綁「所有地方」的 type chips（含手機抽屜與桌機列）
+        Array.from(document.querySelectorAll('.type-chip')).forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
             const t = btn.dataset.type;
-            if (t === 'ALL') return window.location.assign('/projects/');
-            window.location.assign(`/projects/?types=${encodeURIComponent(t)}`);
+            const url = (t === 'ALL') ? '/projects/' : `/projects/?types=${encodeURIComponent(t)}`;
+            window.location.assign(url);
           });
         });
-        $$('.region-chip', subnav).forEach(btn=>{
-          btn.addEventListener('click', ()=>{
+
+        // Region（為了一致，這裡也抓整頁，不只 subnav）
+        Array.from(document.querySelectorAll('.region-chip')).forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
             const r = btn.dataset.region;
             const url = (r && r !== 'all') ? `/projects/?region=${encodeURIComponent(r)}` : '/projects/';
             window.location.assign(url);
           });
         });
-        const sortToggle = $('#sortToggle', subnav);
+
+        // Sort（保持原本邏輯）
+        const sortToggle = document.getElementById('sortToggle');
         if (sortToggle) {
-          sortToggle.addEventListener('click', ()=>{
+          sortToggle.addEventListener('click', (e) => {
+            e.preventDefault();
             const current = (sortToggle.dataset.order === 'asc') ? 'asc' : 'desc';
             const next = current === 'asc' ? 'desc' : 'asc';
             window.location.assign(`/projects/?order=${next}`);
           });
         }
+
+        // 非 /projects/ 頁就到此為止
         return;
       }
 
