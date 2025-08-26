@@ -24,40 +24,30 @@
           else document.addEventListener('DOMContentLoaded', fn);
         }
 
-        // ➤ 把任意型態（Array / Immutable.List / Immutable.Map / Object / String）
-        //    統一轉成「乾淨的 URL 字串」
-        function normalizeThumbValue(v) {
+        // 把任意型態（Array / Immutable.List / Immutable.Map / Object / String）
+        // 統一轉成乾淨的 URL 字串
+        function normalizeUrl(v) {
           try {
-            // 1) 原生 Array（發布後常出現）
-            if (Array.isArray(v)) {
-              v = v.length ? v[0] : '';
-            }
-
-            // 2) Immutable List
+            if (Array.isArray(v)) v = v.length ? v[0] : '';
+            // Immutable List
             if (v && typeof v.get === 'function' && typeof v.size === 'number') {
               v = v.size > 0 ? v.get(0) : '';
             }
-
-            // 3) Immutable Map
+            // Immutable Map
             if (v && typeof v.get === 'function' && typeof v.size !== 'number') {
               v = v.get('secure_url') || v.get('url') || v.get('path') || v.get('src') || '';
             }
-
-            // 4) 一般物件（Cloudinary 可能是 {secure_url, url, path, src}）
+            // 一般物件（Cloudinary 物件）
             if (v && typeof v === 'object') {
               v = v.secure_url || v.url || v.path || v.src || '';
             }
-
-            // 5) 字串：去掉 ["..."] 與殘字元，並擋掉 List[...] 汙染
+            // 字串清理 ["..."] / 收尾雜字元與 List[...] 汙染
             if (typeof v === 'string') {
               v = v.replace(/^[\[\s"]+/, '').replace(/[\s"\]]+$/, '');
               if (/\bList\b|\[|\]/.test(v)) return '';
             }
-
             return (typeof v === 'string') ? v : '';
-          } catch (e) {
-            return '';
-          }
+          } catch { return ''; }
         }
 
         function installGuards() {
@@ -67,22 +57,20 @@
           try { CMS.registerMediaLibrary(cloudinary); } catch (e) {}
           try { CMS.registerPreviewStyle('/admin/preview.css'); } catch (e) {}
 
-          // ➤ 把某次事件中的 entry 寫回「單一字串 URL」
+          // 在各事件點把 projects.cover 正規化為單一字串 URL
           function normalizeOnEvent({ entry, collection }) {
             if (!collection || collection.get('name') !== 'projects') return;
 
             const data = entry.get('data');
-            const raw  = data && data.get && data.get('thumbnail');
-            const norm = normalizeThumbValue(raw);
+            const raw  = data && data.get && data.get('cover');
+            const norm = normalizeUrl(raw);
 
-            // 總是寫回（包含空字串的情況），確保前一次壞格式被覆蓋
-            return { entry: entry.set('data', data.set('thumbnail', norm)) };
+            return { entry: entry.set('data', data.set('cover', norm)) };
           }
 
-          // 存稿、發佈前都正規化；編輯過程中也即時正規化
-          CMS.registerEventListener({ name: 'preSave',    handler: normalizeOnEvent });
-          CMS.registerEventListener({ name: 'prePublish', handler: normalizeOnEvent });
           CMS.registerEventListener({ name: 'entryChange', handler: normalizeOnEvent });
+          CMS.registerEventListener({ name: 'preSave',     handler: normalizeOnEvent });
+          CMS.registerEventListener({ name: 'prePublish',  handler: normalizeOnEvent });
         }
 
         ready(installGuards);

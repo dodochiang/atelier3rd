@@ -105,7 +105,7 @@ collections:
         hint: "平方公尺；可小數，例如 3820.5"
 
       - label: "縮圖"
-        name: "thumbnail"
+        name: "cover"
         widget: "image"
         choose_url: false
         required: false
@@ -115,8 +115,8 @@ collections:
           config:
             multiple: false
         pattern:
-            - '^[^\[\]]*$'
-            - "此欄位只允許單一圖片；請勿一次插入多張"
+          - '^[^\[\]]*$'
+          - "此欄位只允許單一圖片；請勿一次插入多張"
 
       # 在 projects 的 fields 裡，加在原來 gallery 旁邊
       - label: "簡易相簿（多選）"
