@@ -49,3 +49,21 @@ html, body, .nc-root, .nc-app { font-size: var(--font-base); }
 .nc-collectionPage .nc-entryListingCard, .nc-collectionPage .nc-entryListingRow { padding: 8px 10px !important; }
 .nc-collectionPage .nc-entryListingCard h2, .nc-collectionPage .nc-entryListingRow h2 { font-size: 0.95rem; margin: 0 0 2px; }
 .nc-collectionPage .nc-entryMeta { font-size: 0.75rem; color: #6b7280; }
+
+/* 🔹 Sidebar 與欄位間距調整 */
+.cms-editor-collections .nc-collectionPage-sidebar {
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+  padding: 6px 8px !important;
+}
+
+.cms-editor-collections label {
+  font-size: 13px !important;
+  margin-bottom: 2px !important;
+}
+
+.cms-editor-collections input,
+.cms-editor-collections textarea {
+  font-size: 13px !important;
+  padding: 4px 6px !important;
+}
