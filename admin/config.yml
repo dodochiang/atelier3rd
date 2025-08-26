@@ -156,35 +156,12 @@ collections:
     editor:
       preview: true
     files:
-      # Home
-      - file: "index.md"
-        label: "Home 首頁"
-        name: "home"
-        preview_path: "/"
-        fields:
-          - { label: "Layout", name: "layout", widget: "hidden", default: "layout.njk" }
-          - { label: "Title (EN)", name: "title_en", widget: "string", required: false }
-          - { label: "Title (ZH)", name: "title_zh", widget: "string", required: false }
-          - { label: "Body (EN)", name: "body_en", widget: "markdown", required: false }
-          - { label: "Body (ZH)", name: "body_zh", widget: "markdown", required: false }
 
       # About
       - file: "page/about.md"
         label: "About 關於"
         name: "about"
         preview_path: "/about/"
-        fields:
-          - { label: "Layout", name: "layout", widget: "hidden", default: "layout.njk" }
-          - { label: "Title (EN)", name: "title_en", widget: "string", required: false }
-          - { label: "Title (ZH)", name: "title_zh", widget: "string", required: false }
-          - { label: "Body (EN)", name: "body_en", widget: "markdown", required: false }
-          - { label: "Body (ZH)", name: "body_zh", widget: "markdown", required: false }
-
-      # Contact
-      - file: "page/contact.md"
-        label: "Contact 聯絡"
-        name: "contact"
-        preview_path: "/contact/"
         fields:
           - { label: "Layout", name: "layout", widget: "hidden", default: "layout.njk" }
           - { label: "Title (EN)", name: "title_en", widget: "string", required: false }
