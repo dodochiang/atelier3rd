@@ -18,8 +18,7 @@
     <script src="https://unpkg.com/decap-cms-media-library-cloudinary@^3.0.0/dist/decap-cms-media-library-cloudinary.js"></script>
 
     <script>
-      // 確保等 Decap 載入後再註冊
-      (function () {
+    (function () {
         function ready(fn){
           if (document.readyState !== 'loading') fn();
           else document.addEventListener('DOMContentLoaded', fn);
@@ -28,16 +27,11 @@
         ready(function () {
           if (!window.CMS) return;
 
-          // 介面語系鎖 en，避免缺字典造成奇怪文案
           try { CMS.setLocale && CMS.setLocale('en'); } catch (e) {}
-
-          // Cloudinary 媒體庫註冊（如已用 config.yml 設定，保留也沒關係）
           try { CMS.registerMediaLibrary(cloudinary); } catch (e) {}
-
-          // 預覽樣式（可選）
           try { CMS.registerPreviewStyle('/admin/preview.css'); } catch (e) {}
 
-          // ✅ A. 存檔前把 projects.thumbnail 強制轉成「單一字串」
+          // ✅ 只留這段：存檔前把 projects.thumbnail 轉成「單一字串」
           CMS.registerEventListener({
             name: 'preSave',
             handler: ({ entry, collection }) => {
@@ -46,14 +40,12 @@
               const data = entry.get('data');
               const tn = data && data.get && data.get('thumbnail');
 
-              // 若是 Immutable List（多選殘留）→ 取第一個
               const isList = tn && typeof tn.get === 'function' && typeof tn.size === 'number';
               if (isList && tn.size > 0) {
                 const first = tn.get(0);
                 return { entry: entry.set('data', data.set('thumbnail', first)) };
               }
 
-              // 若是字串但帶 ["..."] 或尾巴有 ] 之類髒字元 → 清理
               if (typeof tn === 'string') {
                 const cleaned = tn.replace(/^[\[\s"]+/, '').replace(/[\s"\]]+$/, '');
                 if (cleaned !== tn) {
@@ -62,35 +54,6 @@
               }
             }
           });
-
-          // ✅ B. 預覽模板：用 Preact 的 h（沒有 React 也能跑）
-          const h = window.h; // Preact createElement
-          const ProjectPreview = (props) => {
-            const entry = props.entry;
-            let tn = entry.getIn(['data','thumbnail']);
-
-            // 若為 List，取第 1 張；若為字串，原樣帶入
-            if (tn && typeof tn.get === 'function' && typeof tn.size === 'number') {
-              tn = tn.size > 0 ? tn.get(0) : '';
-            }
-
-            const title =
-              entry.getIn(['data','title_zh']) ||
-              entry.getIn(['data','title_en']) ||
-              'Untitled';
-
-            return h(
-              'div',
-              { style: { fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif', padding: 16, lineHeight: 1.5 } },
-              tn ? h('img', { src: tn, alt: title, style: { maxWidth: '100%', display: 'block', marginBottom: 12, borderRadius: 6 } }) : null,
-              h('h1', { style: { fontSize: '20px', margin: '0 0 8px' } }, title),
-              h('div', { style: { opacity: 0.9 } },
-                // 兩個 body 任一存在就顯示
-                props.widgetFor('body_zh') || props.widgetFor('body_en') || ''
-              )
-            );
-          };
-          try { CMS.registerPreviewTemplate('projects', ProjectPreview); } catch (e) {}
         });
       })();
     </script>
