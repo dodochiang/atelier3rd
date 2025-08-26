@@ -17,45 +17,81 @@
     <!-- Cloudinary media library plugin -->
     <script src="https://unpkg.com/decap-cms-media-library-cloudinary@^3.0.0/dist/decap-cms-media-library-cloudinary.js"></script>
 
-    <!-- ✅ 建議新增：先把語系鎖成官方英文，避免殘缺字典造成 editor.* 文案外漏 -->
     <script>
+      // 確保等 Decap 載入後再註冊
       (function () {
-        function ready(fn){ if (document.readyState !== 'loading') fn(); else document.addEventListener('DOMContentLoaded', fn); }
+        function ready(fn){
+          if (document.readyState !== 'loading') fn();
+          else document.addEventListener('DOMContentLoaded', fn);
+        }
+
         ready(function () {
-          if (window.CMS && CMS.setLocale) {
-            CMS.setLocale('en'); // 不覆蓋字典，只選用官方 en
-          }
-          // 如果你想預覽面板也吃到樣式，可選擇這裡先註冊（或維持在 cms.js 內）
+          if (!window.CMS) return;
+
+          // 介面語系鎖 en，避免缺字典造成奇怪文案
+          try { CMS.setLocale && CMS.setLocale('en'); } catch (e) {}
+
+          // Cloudinary 媒體庫註冊（若你用的是 config.yml 的 media_library，也可保留雙保險）
+          try { CMS.registerMediaLibrary(cloudinary); } catch (e) {}
+
+          // 預覽樣式（可選）
           try { CMS.registerPreviewStyle('/admin/preview.css'); } catch (e) {}
+
+          // ✅ A. 存檔前把 projects.thumbnail 強制轉成「單一字串」
+          CMS.registerEventListener({
+            name: 'preSave',
+            handler: ({ entry, collection }) => {
+              if (!collection || collection.get('name') !== 'projects') return;
+
+              const data = entry.get('data');
+              const tn = data && data.get && data.get('thumbnail');
+
+              // 若是 Immutable List（多選殘留）→ 取第一個
+              const isList = tn && typeof tn.get === 'function' && typeof tn.size === 'number';
+              if (isList && tn.size > 0) {
+                const first = tn.get(0);
+                return { entry: entry.set('data', data.set('thumbnail', first)) };
+              }
+
+              // 若是字串但帶 ["..."] 或尾巴有 ] 之類髒字元 → 清理
+              if (typeof tn === 'string') {
+                const cleaned = tn.replace(/^[\[\s"]+/, '').replace(/[\s"\]]+$/, '');
+                if (cleaned !== tn) {
+                  return { entry: entry.set('data', data.set('thumbnail', cleaned)) };
+                }
+              }
+            }
+          });
+
+          // ✅ B. 預覽模板：在右側預覽面板即時容錯（List → 取第一張）
+          const ProjectPreview = (props) => {
+            const entry = props.entry;
+            let tn = entry.getIn(['data','thumbnail']);
+
+            // 若為 List，取第 1 張；若為字串，原樣帶入
+            if (tn && typeof tn.get === 'function' && typeof tn.size === 'number') {
+              tn = tn.size > 0 ? tn.get(0) : '';
+            }
+
+            const title =
+              entry.getIn(['data','title_zh']) ||
+              entry.getIn(['data','title_en']) ||
+              'Untitled';
+
+            return React.createElement(
+              'div',
+              { style: { fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif', padding: 16, lineHeight: 1.5 } },
+              tn ? React.createElement('img', { src: tn, alt: title, style: { maxWidth: '100%', display: 'block', marginBottom: 12, borderRadius: 6 } }) : null,
+              React.createElement('h1', { style: { fontSize: '20px', margin: '0 0 8px' } }, title),
+              // 兩個 body 任一存在就顯示
+              React.createElement('div', { style: { opacity: 0.9 } },
+                props.widgetFor('body_zh') || props.widgetFor('body_en') || ''
+              )
+            );
+          };
+          try { CMS.registerPreviewTemplate('projects', ProjectPreview); } catch (e) {}
         });
       })();
-      // 讓「縮圖」欄位永遠存成單一字串（即便 Cloudinary UI 附加了多張）
-CMS.registerEventListener({
-  name: 'preSave',
-  handler: ({ entry, collection }) => {
-    if (!collection || collection.get('name') !== 'projects') return;
-
-    const data = entry.get('data');
-    const tn = data && data.get && data.get('thumbnail');
-
-    // 判斷是不是 Immutable List（被多選附加時常出現）
-    const looksLikeList = tn && typeof tn.get === 'function' && typeof tn.size === 'number';
-    if (looksLikeList && tn.size > 0) {
-      const first = tn.get(0); // 取第一張
-      const nextData = data.set('thumbnail', first);
-      return { entry: entry.set('data', nextData) };
-    }
-
-    // 有些情況會變成字串但帶 ["..."] 或尾巴帶 "] 之類髒字元，一併清理
-    if (typeof tn === 'string') {
-      const cleaned = tn.replace(/^[\[\s"]+/, '').replace(/[\s"\]]+$/, '');
-      if (cleaned !== tn) {
-        const nextData = data.set('thumbnail', cleaned);
-        return { entry: entry.set('data', nextData) };
-      }
-    }
-  }
-});
     </script>
 
     <!-- 你的 CMS 初始化（Cloudinary 註冊、Preview 樣式、Project/Pages 預覽模板…） -->
