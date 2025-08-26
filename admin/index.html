@@ -29,6 +29,33 @@
           try { CMS.registerPreviewStyle('/admin/preview.css'); } catch (e) {}
         });
       })();
+      // 讓「縮圖」欄位永遠存成單一字串（即便 Cloudinary UI 附加了多張）
+CMS.registerEventListener({
+  name: 'preSave',
+  handler: ({ entry, collection }) => {
+    if (!collection || collection.get('name') !== 'projects') return;
+
+    const data = entry.get('data');
+    const tn = data && data.get && data.get('thumbnail');
+
+    // 判斷是不是 Immutable List（被多選附加時常出現）
+    const looksLikeList = tn && typeof tn.get === 'function' && typeof tn.size === 'number';
+    if (looksLikeList && tn.size > 0) {
+      const first = tn.get(0); // 取第一張
+      const nextData = data.set('thumbnail', first);
+      return { entry: entry.set('data', nextData) };
+    }
+
+    // 有些情況會變成字串但帶 ["..."] 或尾巴帶 "] 之類髒字元，一併清理
+    if (typeof tn === 'string') {
+      const cleaned = tn.replace(/^[\[\s"]+/, '').replace(/[\s"\]]+$/, '');
+      if (cleaned !== tn) {
+        const nextData = data.set('thumbnail', cleaned);
+        return { entry: entry.set('data', nextData) };
+      }
+    }
+  }
+});
     </script>
 
     <!-- 你的 CMS 初始化（Cloudinary 註冊、Preview 樣式、Project/Pages 預覽模板…） -->

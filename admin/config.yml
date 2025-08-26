@@ -107,7 +107,6 @@ collections:
       - label: "縮圖"
         name: "thumbnail"
         widget: "image"
-        allow_multiple: false
         required: false
         hint: "建議 1200×900（4:3）JPG"
         media_library:
