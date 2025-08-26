@@ -31,7 +31,7 @@
           // 介面語系鎖 en，避免缺字典造成奇怪文案
           try { CMS.setLocale && CMS.setLocale('en'); } catch (e) {}
 
-          // Cloudinary 媒體庫註冊（若你用的是 config.yml 的 media_library，也可保留雙保險）
+          // Cloudinary 媒體庫註冊（如已用 config.yml 設定，保留也沒關係）
           try { CMS.registerMediaLibrary(cloudinary); } catch (e) {}
 
           // 預覽樣式（可選）
@@ -63,7 +63,8 @@
             }
           });
 
-          // ✅ B. 預覽模板：在右側預覽面板即時容錯（List → 取第一張）
+          // ✅ B. 預覽模板：用 Preact 的 h（沒有 React 也能跑）
+          const h = window.h; // Preact createElement
           const ProjectPreview = (props) => {
             const entry = props.entry;
             let tn = entry.getIn(['data','thumbnail']);
@@ -78,13 +79,13 @@
               entry.getIn(['data','title_en']) ||
               'Untitled';
 
-            return React.createElement(
+            return h(
               'div',
               { style: { fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif', padding: 16, lineHeight: 1.5 } },
-              tn ? React.createElement('img', { src: tn, alt: title, style: { maxWidth: '100%', display: 'block', marginBottom: 12, borderRadius: 6 } }) : null,
-              React.createElement('h1', { style: { fontSize: '20px', margin: '0 0 8px' } }, title),
-              // 兩個 body 任一存在就顯示
-              React.createElement('div', { style: { opacity: 0.9 } },
+              tn ? h('img', { src: tn, alt: title, style: { maxWidth: '100%', display: 'block', marginBottom: 12, borderRadius: 6 } }) : null,
+              h('h1', { style: { fontSize: '20px', margin: '0 0 8px' } }, title),
+              h('div', { style: { opacity: 0.9 } },
+                // 兩個 body 任一存在就顯示
                 props.widgetFor('body_zh') || props.widgetFor('body_en') || ''
               )
             );
