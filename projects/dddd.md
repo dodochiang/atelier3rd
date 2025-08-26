@@ -9,7 +9,7 @@ year: 2022
 units: 122
 floor_area: 222222222
 thumbnail:
-  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1754983458/AfP_HDW_construction_photo_by_Alexander_Popkov_19_cthyk9.jpg
+  https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1754983458/AfP_HDW_construction_photo_by_Alexander_Popkov_19_cthyk9.jpg
 gallery_images:
   - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1755164790/Events_-_20344_iwp7pu.jpg
   - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1755164791/Events_-_20347_eut10w.jpg

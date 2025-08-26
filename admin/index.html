@@ -24,84 +24,68 @@
           else document.addEventListener('DOMContentLoaded', fn);
         }
 
-        // 將任何型態（List / Map / Object / String）正規化為乾淨字串 URL
+        // ➤ 把任意型態（Array / Immutable.List / Immutable.Map / Object / String）
+        //    統一轉成「乾淨的 URL 字串」
         function normalizeThumbValue(v) {
           try {
-            // Immutable List: 取第一個
+            // 1) 原生 Array（發布後常出現）
+            if (Array.isArray(v)) {
+              v = v.length ? v[0] : '';
+            }
+
+            // 2) Immutable List
             if (v && typeof v.get === 'function' && typeof v.size === 'number') {
               v = v.size > 0 ? v.get(0) : '';
             }
-            // Immutable Map: 取 url/path/src
+
+            // 3) Immutable Map
             if (v && typeof v.get === 'function' && typeof v.size !== 'number') {
-              v = v.get('url') || v.get('path') || v.get('src') || '';
+              v = v.get('secure_url') || v.get('url') || v.get('path') || v.get('src') || '';
             }
-            // 一般物件
+
+            // 4) 一般物件（Cloudinary 可能是 {secure_url, url, path, src}）
             if (v && typeof v === 'object') {
-              v = v.url || v.path || v.src || '';
+              v = v.secure_url || v.url || v.path || v.src || '';
             }
-            // 字串：去掉 ["..."] / 收尾雜字元
+
+            // 5) 字串：去掉 ["..."] 與殘字元，並擋掉 List[...] 汙染
             if (typeof v === 'string') {
               v = v.replace(/^[\[\s"]+/, '').replace(/[\s"\]]+$/, '');
-              // 防呆：若還殘留 List[...] 之類污染，乾脆清空避免 404
               if (/\bList\b|\[|\]/.test(v)) return '';
             }
+
             return (typeof v === 'string') ? v : '';
           } catch (e) {
             return '';
           }
         }
 
-        function addGuards() {
+        function installGuards() {
           if (!window.CMS) return;
 
-          // 介面語系鎖 en，避免缺字典的奇怪文案
           try { CMS.setLocale && CMS.setLocale('en'); } catch (e) {}
-
-          // 媒體庫（與 config.yml 相符即可；重複註冊無害）
           try { CMS.registerMediaLibrary(cloudinary); } catch (e) {}
-
-          // 讓預覽吃到你的樣式（你已在 cms.js 內可再補充）
           try { CMS.registerPreviewStyle('/admin/preview.css'); } catch (e) {}
 
-          // ✅ 存檔前與發布前：把 projects.thumbnail 正規化為「單一字串 URL」
+          // ➤ 把某次事件中的 entry 寫回「單一字串 URL」
           function normalizeOnEvent({ entry, collection }) {
             if (!collection || collection.get('name') !== 'projects') return;
 
             const data = entry.get('data');
-            let tn = data && data.get && data.get('thumbnail');
-            const normalized = normalizeThumbValue(tn);
+            const raw  = data && data.get && data.get('thumbnail');
+            const norm = normalizeThumbValue(raw);
 
-            if (normalized) {
-              return { entry: entry.set('data', data.set('thumbnail', normalized)) };
-            }
-            // 若被清成空字串也一併寫回，避免殘留壞格式
-            if (tn && normalized === '') {
-              return { entry: entry.set('data', data.set('thumbnail', '')) };
-            }
+            // 總是寫回（包含空字串的情況），確保前一次壞格式被覆蓋
+            return { entry: entry.set('data', data.set('thumbnail', norm)) };
           }
 
+          // 存稿、發佈前都正規化；編輯過程中也即時正規化
           CMS.registerEventListener({ name: 'preSave',    handler: normalizeOnEvent });
           CMS.registerEventListener({ name: 'prePublish', handler: normalizeOnEvent });
-
-          // （可選）編輯期間即時把欄位值清乾淨：避免右側預覽在存檔前顯示 List%20[…]
-          // 註：這段僅影響編輯器內部 state，不碰你的前台。
-          try {
-            CMS.registerEventListener({
-              name: 'entryChange',
-              handler: ({ entry, collection }) => {
-                if (!collection || collection.get('name') !== 'projects') return;
-                const data = entry.get('data');
-                let tn = data && data.get && data.get('thumbnail');
-                const normalized = normalizeThumbValue(tn);
-                if (typeof tn !== 'string' || tn !== normalized) {
-                  return { entry: entry.set('data', data.set('thumbnail', normalized)) };
-                }
-              }
-            });
-          } catch (e) {}
+          CMS.registerEventListener({ name: 'entryChange', handler: normalizeOnEvent });
         }
 
-        ready(addGuards);
+        ready(installGuards);
       })();
     </script>
 
