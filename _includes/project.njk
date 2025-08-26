@@ -39,57 +39,11 @@
 {# 中文顯示：用英文鍵反查中文；找不到就退回原值 #}
 {% set type_zh_display = TYPE_ZH[type_en] or (TYPE_ZH[type_raw] or type_raw) %}
 
-
-{# ========= 先把 thumbnail 陣列轉成單值（只取第一張） ========= #}
-{% if thumbnail and (thumbnail[0] is defined) %}
-  {% set thumbnail = thumbnail[0] %}
-{% endif %}
 {# =========================================================
-   取出並正規化 thumbnail（支援字串或 Cloudinary 物件）
+   Hero：優先 cover，其次 thumbnail，再退到第一張 gallery
    ======================================================= #}
-{% set thumb = '' %}
-{% if thumbnail is string %}
-  {% set thumb = thumbnail %}
-{% elif thumbnail %}
-  {% if thumbnail.secure_url is defined and thumbnail.secure_url %}
-    {% set thumb = thumbnail.secure_url %}
-  {% elif thumbnail.url is defined and thumbnail.url %}
-    {% set thumb = thumbnail.url %}
-  {% elif thumbnail.path is defined and thumbnail.path %}
-    {% set thumb = thumbnail.path %}
-  {% elif thumbnail.public_id is defined and thumbnail.public_id %}
-    {# 只有 public_id → 補一次完整 Cloudinary URL #}
-    {% set ext = (thumbnail.extension is defined and thumbnail.extension) and ('.' ~ thumbnail.extension) or '' %}
-    {% set thumb = 'https://res.cloudinary.com/dw6nekwxn/image/upload/' ~ thumbnail.public_id ~ ext %}
-  {% endif %}
-{% endif %}
-
-{% set heroSrc = (thumb or '') | trim %}
-{% if heroSrc %}
-  {% set low     = heroSrc | lower %}
-  {% set is_http = (low | slice(0,7))  == 'http://' %}
-  {% set is_https= (low | slice(0,8))  == 'https://' %}
-  {% set is_proto= (heroSrc | slice(0,2)) == '//' %}
-  {% set is_data = (low | slice(0,5))  == 'data:' %}
-
-  {# 完整網址 / 站內絕對 / 上傳相對 → 正規化 #}
-  {% if is_http or is_https or is_proto or is_data %}
-    {% set heroSrc = heroSrc %}
-  {% elif (heroSrc | slice(0,1)) == '/' %}
-    {% set heroSrc = heroSrc %}
-  {% elif (low | slice(0,8)) == 'uploads/' or (low | slice(0,15)) == 'static/uploads/' %}
-    {% set heroSrc = '/' ~ heroSrc %}
-  {% else %}
-    {% set heroSrc = heroSrc %}
-  {% endif %}
-
-  {# 防呆：剝掉意外雙前綴/雙斜線 #}
-  {% set cloudPrefix = 'https://res.cloudinary.com/dw6nekwxn/image/upload/' %}
-  {% set heroSrc = heroSrc
-    | replace(cloudPrefix ~ 'https://', 'https://')
-    | replace(cloudPrefix ~ 'http://',  'http://')
-    | replace('image/upload//', 'image/upload/') %}
-{% endif %}
+{% set heroRaw = cover or thumbnail or (gallery and gallery[0] and (gallery[0].image or gallery[0])) %}
+{% set heroSrc = heroRaw | imageUrlSafe %}
 
 {# =========================================================
    樣式
@@ -320,47 +274,9 @@
   <div class="project-slider">
     <div class="slider-window" id="sliderWindow">
       {% for g in gallery_list %}
-        {# 取出每張圖的原始值（字串或物件），規則同列表頁 #}
+        {# 取出每張圖的原始值（字串或物件）→ 過濾器統一轉成 URL #}
         {% set raw = (g.image is defined) and g.image or g %}
-        {% set img = '' %}
-        {% if raw is string %}
-          {% set img = raw %}
-        {% elif raw %}
-          {% if raw.secure_url is defined and raw.secure_url %}
-            {% set img = raw.secure_url %}
-          {% elif raw.url is defined and raw.url %}
-            {% set img = raw.url %}
-          {% elif raw.path is defined and raw.path %}
-            {% set img = raw.path %}
-          {% elif raw.public_id is defined and raw.public_id %}
-            {% set ext = (raw.extension is defined and raw.extension) and ('.' ~ raw.extension) or '' %}
-            {% set img = 'https://res.cloudinary.com/dw6nekwxn/image/upload/' ~ raw.public_id ~ ext %}
-          {% endif %}
-        {% endif %}
-
-        {# 正規化 URL + 防呆 #}
-        {% set imgSrc = (img or '') | trim %}
-        {% if imgSrc %}
-          {% set lowI   = imgSrc | lower %}
-          {% set i_http = (lowI | slice(0,7)) == 'http://' %}
-          {% set i_https= (lowI | slice(0,8)) == 'https://' %}
-          {% set i_proto= (imgSrc | slice(0,2)) == '//' %}
-          {% set i_data = (lowI | slice(0,5)) == 'data:' %}
-          {% if i_http or i_https or i_proto or i_data %}
-            {% set imgSrc = imgSrc %}
-          {% elif (imgSrc | slice(0,1)) == '/' %}
-            {% set imgSrc = imgSrc %}
-          {% elif (lowI | slice(0,8)) == 'uploads/' or (lowI | slice(0,15)) == 'static/uploads/' %}
-            {% set imgSrc = '/' ~ imgSrc %}
-          {% else %}
-            {% set imgSrc = imgSrc %}
-          {% endif %}
-
-          {% set imgSrc = imgSrc
-            | replace('https://res.cloudinary.com/dw6nekwxn/image/upload/https://', 'https://')
-            | replace('https://res.cloudinary.com/dw6nekwxn/image/upload/http://',  'http://')
-            | replace('image/upload//', 'image/upload/') %}
-        {% endif %}
+        {% set imgSrc = raw | imageUrlSafe %}
 
         {% set cap_en = (g.caption_en is defined) and (g.caption_en or '') or '' %}
         {% set cap_zh = (g.caption_zh is defined) and (g.caption_zh or '') or '' %}

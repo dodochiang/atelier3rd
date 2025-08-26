@@ -145,8 +145,6 @@
   }
 </style>
 
-
-
 <section class="projects-page">
   <ul class="projects-grid project-grid">
     {% for project in collections.projects %}
@@ -171,47 +169,12 @@
         {% set region = 'overseas' %}
       {% endif %}
 
-      {# 縮圖：若是陣列取第一張；支援字串/Cloudinary 物件 #}
-      {% set tn = d.thumbnail %}
-      {% if tn and (tn[0] is defined) %}
-        {% set tn = tn[0] %}
-      {% endif %}
-
-      {% set thumb = '' %}
-      {% if tn is string %}
-        {% set thumb = tn %}
-      {% elseif tn %}
-        {% if tn.secure_url is defined and tn.secure_url %}
-          {% set thumb = tn.secure_url %}
-        {% elif tn.url is defined and tn.url %}
-          {% set thumb = tn.url %}
-        {% elif tn.path is defined and tn.path %}
-          {% set thumb = tn.path %}
-        {% elif tn.public_id is defined and tn.public_id %}
-          {% set ext = (tn.extension is defined and tn.extension) and ('.' ~ tn.extension) or '' %}
-          {% set thumb = 'https://res.cloudinary.com/dw6nekwxn/image/upload/' ~ tn.public_id ~ ext %}
-        {% endif %}
-      {% endif %}
-
-      {# 正規化（不主動加 Cloudinary；僅本地 uploads 前加 /） #}
-      {% set thumbSrc = (thumb or '') | trim %}
-      {% if thumbSrc %}
-        {% set low = thumbSrc | lower %}
-        {% if (low | slice(0,7)) == 'http://' or (low | slice(0,8)) == 'https://' or (thumbSrc | slice(0,2)) == '//' or (low | slice(0,5)) == 'data:' %}
-          {% set thumbSrc = thumbSrc %}
-        {% elif (thumbSrc | slice(0,1)) == '/' %}
-          {% set thumbSrc = thumbSrc %}
-        {% elif (low | slice(0,8)) == 'uploads/' or (low | slice(0,15)) == 'static/uploads/' %}
-          {% set thumbSrc = '/' ~ thumbSrc %}
-        {% else %}
-          {% set thumbSrc = thumbSrc %}
-        {% endif %}
-        {% set cloudPrefix = 'https://res.cloudinary.com/dw6nekwxn/image/upload/' %}
-        {% set thumbSrc = thumbSrc
-          | replace(cloudPrefix ~ 'https://', 'https://')
-          | replace(cloudPrefix ~ 'http://', 'http://')
-          | replace('image/upload//', 'image/upload/') %}
-      {% endif %}
+      {# 縮圖來源：優先 cover，其次 thumbnail，再退到第一張 gallery #}
+      {% set rawImg = d.cover
+                      or d.thumbnail
+                      or (d.gallery and d.gallery[0] and (d.gallery[0].image or d.gallery[0]))
+                      or (d.gallery_images and d.gallery_images[0]) %}
+      {% set thumbSrc = rawImg | imageUrlSafe %}
 
       {# 面積/戶數（中英後綴） #}
       {% set _fa = d.floor_area %}
