@@ -109,10 +109,11 @@ collections:
         widget: "image"
         choose_url: false
         required: false
+        allow_multiple: false
         hint: "建議 1200×900（4:3）JPG"
         media_library:
           config:
-            { multiple: false }
+            multiple: false
         pattern:
             - '^[^\[\]]*$'
             - "此欄位只允許單一圖片；請勿一次插入多張"
