@@ -2,9 +2,9 @@
 layout: project.njk
 title_en: dddd
 title_zh: dddd
-type: 住宅
-location_en: dddd
-location_zh: ddd
+type: 商業
+location_en: Taichung, Taiwan
+location_zh: 台中，台灣
 year: 2022
 units: 122
 floor_area: 222222222
