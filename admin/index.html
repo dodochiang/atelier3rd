@@ -15,118 +15,136 @@
     <script src="https://unpkg.com/decap-cms-media-library-cloudinary@^3.0.0/dist/decap-cms-media-library-cloudinary.js"></script>
 
     <script>
-    (function () {
-      function ready(fn){ document.readyState !== 'loading' ? fn() : document.addEventListener('DOMContentLoaded', fn); }
-
-      // 你現有的 normalizeUrl() 請保留
-
-      function install() {
-        if (!window.CMS) return;
-
-        try { CMS.setLocale && CMS.setLocale('en'); } catch {}
-        try { CMS.registerMediaLibrary(cloudinary); } catch {}
-        try { CMS.registerPreviewStyle('/admin/preview.css'); } catch {}
-
-        // ★ 儲存/發布前，把 cover 轉為單一字串（避免 YAML 陣列的 dash）
-        function normalizeOnEvent({ entry, collection }) {
-          if (!collection || collection.get('name') !== 'projects') return;
-          const data = entry.get('data');
-          const clean = normalizeUrl(data && data.get && data.get('cover'));
-          return { entry: entry.set('data', data.set('cover', clean)) };
+      // --- 只貼這段：覆蓋 ProjectPreview（用 preact h） ---
+      (function () {
+        function hCompat() {
+          return (window.h) || (window.preact && window.preact.h) || (CMS && CMS.lib && CMS.lib.h);
         }
-        CMS.registerEventListener({ name: 'preSave',    handler: normalizeOnEvent });
-        CMS.registerEventListener({ name: 'prePublish', handler: normalizeOnEvent });
 
-        // ★ 用 React（不是 Preact 的 h）
-        const React = (window.React) || (CMS && CMS.lib && CMS.lib.React);
-        if (!React) return;
-        const h = React.createElement;
+        function text(el, str) { return el ? str : ''; }
 
-        const ProjectPreview = (props) => {
-          const e = props.entry;
-          const get = (path) => e.getIn(path);
-
-          const titleEn = get(['data','title_en']) || '';
-          const titleZh = get(['data','title_zh']) || '';
-          const title   = titleZh || titleEn || 'Untitled';
-
-          const type  = get(['data','type']) || '';
-          const locEn = get(['data','location_en']) || get(['data','location']) || '';
-          const locZh = get(['data','location_zh']) || get(['data','location']) || '';
-          const year  = get(['data','year']) || '';
-          const units = get(['data','units']) || '';
-          const floor = get(['data','floor_area']) || '';
-
-          const cover = normalizeUrl(get(['data','cover']));
-          const video = (get(['data','video']) || '').toString();
-
-          const bodyNode      = (props.widgetFor && (props.widgetFor('body_zh') || props.widgetFor('body_en'))) || null;
-          const creditsEnNode = props.widgetFor && props.widgetFor('credits_en');
-          const creditsZhNode = props.widgetFor && props.widgetFor('credits_zh');
-
-          return h('div', { className: 'cms-preview-content' },
-            // hero
-            cover ? h('div', { className: 'project-hero' },
-              h('img', { src: cover, alt: title })
-            ) : null,
-
-            // title
-            h('h1', { className: 'project-title' },
-              titleEn ? h('span', { className:'lang-en' }, titleEn) : null,
-              titleZh ? h('span', { className:'lang-zh' }, titleZh) : null
-            ),
-
-            // meta 兩行
-            h('div', { className: 'project-meta' },
-              h('div', { className: 'project-meta-line' },
-                h('span', { className:'lang-en' }, [
-                  String(type || ''),
-                  locEn ? ' ｜ ' + String(locEn) : ''
-                ]),
-                h('span', { className:'lang-zh' }, [
-                  String(type || ''),
-                  locZh ? ' ｜ ' + String(locZh) : ''
-                ])
-              ),
-              h('div', { className: 'project-meta-line' },
-                h('span', { className:'lang-en' }, [
-                  units ? String(units) + ' units' : '',
-                  floor ? (units ? ' ｜ ' : '') + String(floor) + ' sqm' : '',
-                  year  ? ((units || floor) ? ' ｜ ' : '') + String(year) : ''
-                ]),
-                h('span', { className:'lang-zh' }, [
-                  units ? String(units) + '戶' : '',
-                  floor ? (units ? ' ｜ ' : '') + String(floor) + '㎡' : '',
-                  year  ? ((units || floor) ? ' ｜ ' : '') + String(year) : ''
-                ])
-              )
-            ),
-
-            // body
-            h('div', { className: 'project-content' }, bodyNode),
-
-            // credits
-            (creditsEnNode || creditsZhNode) ?
-              h('div', { className: 'project-credits' },
-                creditsEnNode || null,
-                creditsZhNode || null
-              ) : null,
-
-            // YouTube
-            (video && /^https?:\/\/.+/.test(video)) ?
-              h('div', { className: 'project-video', style: { textAlign:'center', marginTop:'2em' } },
-                h('div', { className: 'video-container' },
-                  h('iframe', { src: video, title: 'YouTube video', frameBorder: 0, allowFullScreen: true })
-                )
-              ) : null
-          );
+        // 取你前面已經定義的 normalizeUrl，如果沒有就定義個最小版：
+        var normalizeUrl = window.normalizeUrl || function (v) {
+          try {
+            if (Array.isArray(v)) v = v.length ? v[v.length - 1] : '';
+            if (v && typeof v.get === 'function' && typeof v.size === 'number') v = v.size ? v.get(v.size - 1) : '';
+            if (v && typeof v.get === 'function' && typeof v.size !== 'number') v = v.get('secure_url') || v.get('url') || v.get('path') || v.get('src') || '';
+            if (v && typeof v === 'object') v = v.secure_url || v.url || v.path || v.src || '';
+            if (typeof v === 'string') {
+              let s = v.trim().replace(/^[\[\s"]+/, '').replace(/[\s"\]]+$/, '').replace(/%22/g,'');
+              const urls = s.match(/https?:\/\/[^\s"'\]]+/g);
+              if (urls && urls.length) s = urls[urls.length - 1];
+              if (/\bList\b|\[|\]/.test(s)) return '';
+              return s;
+            }
+            return '';
+          } catch { return ''; }
         };
 
-        try { CMS.registerPreviewTemplate('projects', ProjectPreview); } catch {}
-      }
+        function ProjectPreview(props) {
+          var h = hCompat();
+          if (!h) return null;
 
-      ready(install);
-    })();
+          const e = props.entry;
+          const get = (k) => e.getIn(['data', k]);
+          const titleEn = get('title_en') || '';
+          const titleZh = get('title_zh') || '';
+          const type     = get('type') || '';
+          const locEn    = get('location_en') || '';
+          const locZh    = get('location_zh') || '';
+          const year     = get('year') || '';
+          const units    = get('units');
+          const fa       = get('floor_area');
+          const creditsEn= get('credits_en') || '';
+          const creditsZh= get('credits_zh') || '';
+          const video    = get('video') || '';
+          const cover    = normalizeUrl(get('cover')) || normalizeUrl(get('thumbnail'));
+
+          // body_zh / body_en 對應 Markdown widget
+          const bodyEn = props.widgetFor && props.widgetFor('body_en');
+          const bodyZh = props.widgetFor && props.widgetFor('body_zh');
+
+          // gallery（只取第一張展示即可，避免預覽太複雜）
+          let gallery = get('gallery');
+          let galleryImages = get('gallery_images');
+          let galleryFirst = '';
+          if (gallery && typeof gallery.toJS === 'function') {
+            const arr = gallery.toJS();
+            const raw = (arr[0] && (arr[0].image || arr[0])) || '';
+            galleryFirst = normalizeUrl(raw);
+          } else if (galleryImages && typeof galleryImages.toJS === 'function') {
+            const arr = galleryImages.toJS();
+            galleryFirst = normalizeUrl(arr[0] || '');
+          }
+
+          // 小工具：單位/面積字樣
+          const unitsEn = (typeof units === 'number' || (units||'').toString().trim()) ? `${units} units` : '';
+          const unitsZh = (typeof units === 'number' || (units||'').toString().trim()) ? `${units}戶` : '';
+          let faEn = '', faZh = '';
+          if (fa !== undefined && fa !== null && (fa+'').trim() !== '') {
+            const s = (fa+'');
+            if (/㎡|m²|sqm/i.test(s)) { faEn = s; faZh = s; }
+            else { faEn = s + ' sqm'; faZh = s + '㎡'; }
+          }
+
+          return h('div', { class: 'cms-preview-content' },
+            // Hero
+            cover ? h('div', { class: 'project-hero' },
+              h('img', { src: cover, alt: (titleEn || titleZh || 'Cover'), loading: 'lazy', decoding: 'async' })
+            ) : null,
+
+            // Title
+            h('h1', { class: 'project-title' },
+              h('span', { class: 'lang-en' }, titleEn || ''),
+              ' ',
+              h('span', { class: 'lang-zh' }, titleZh || '')
+            ),
+
+            // Meta line 1：類型｜地點
+            h('p', { class: 'project-meta-line' },
+              h('span', { class: 'lang-en' }, [type || '', (locEn ? ' ｜ ' + locEn : '')]),
+              h('span', { class: 'lang-zh' }, [type || '', (locZh ? ' ｜ ' + locZh : '')])
+            ),
+
+            // Meta line 2：戶數｜面積｜年份
+            h('p', { class: 'project-meta-line' },
+              h('span', { class: 'lang-en' }, [unitsEn, (faEn ? ' ｜ ' + faEn : ''), (year ? ' ｜ ' + year : '')]),
+              h('span', { class: 'lang-zh' }, [unitsZh, (faZh ? ' ｜ ' + faZh : ''), (year ? ' ｜ ' + year : '')])
+            ),
+
+            // 內文
+            h('div', { class: 'project-content' },
+              h('div', { class: 'lang-en' }, bodyEn || ''),
+              h('div', { class: 'lang-zh' }, bodyZh || '')
+            ),
+
+            // Credits
+            (creditsEn || creditsZh) ? h('div', { class: 'project-credits' },
+              h('div', { class: 'lang-en' }, props.widgetFor && props.widgetFor('credits_en')),
+              h('div', { class: 'lang-zh' }, props.widgetFor && props.widgetFor('credits_zh'))
+            ) : null,
+
+            // Gallery（預覽只顯示第一張）
+            galleryFirst ? h('div', { class: 'project-slider' },
+              h('div', { class: 'slide-image-wrapper' },
+                h('img', { src: galleryFirst, alt: 'gallery image' })
+              )
+            ) : null,
+
+            // YouTube（embed URL）
+            (typeof video === 'string' && /^https:\/\/www\.youtube\.com\/embed\//.test(video))
+              ? h('div', { class: 'project-video', style: { textAlign: 'center', marginTop: '20px' } },
+                  h('div', { class: 'video-container' },
+                    h('iframe', { src: video, title: 'YouTube video', frameBorder: '0', allowFullScreen: true })
+                  )
+                )
+              : null
+          );
+        }
+
+        // 重新註冊
+        try { CMS.registerPreviewTemplate('projects', ProjectPreview); } catch (e) {}
+      })();
     </script>
 
     <script src="/admin/cms.js"></script>
