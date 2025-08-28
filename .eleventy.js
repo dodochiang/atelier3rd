@@ -48,7 +48,7 @@ module.exports = function (eleventyConfig) {
 
         // ✅ 從字串抓出所有完整 URL，取最後一個
         //    （不會被 f_auto,q_auto 的逗號影響）
-        const urls = s.match(/https?:\/\/[^\s,"'\]]+/g);
+        const urls = s.match(/https?:\/\/[^\s"'\]]+/g);
         if (urls && urls.length) {
           s = urls[urls.length - 1];
         }
