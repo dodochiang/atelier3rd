@@ -22,44 +22,71 @@
           else document.addEventListener('DOMContentLoaded', fn);
         }
 
-        // 統一把任何型態轉為乾淨 URL 字串
+        // 把任何型態 → 乾淨 URL 字串；若是多值（Array / 逗號或空白分隔字串）→ 取「最後一張」
         function normalizeUrl(v) {
           try {
-            if (Array.isArray(v)) v = v[0] || '';
-            // Immutable.List
-            if (v && typeof v.get === 'function' && typeof v.size === 'number') v = v.size > 0 ? v.get(0) : '';
-            // Immutable.Map
-            if (v && typeof v.get === 'function' && typeof v.size !== 'number') v = v.get('secure_url') || v.get('url') || v.get('path') || v.get('src') || '';
-            // Plain object (Cloudinary)
-            if (v && typeof v === 'object') v = v.secure_url || v.url || v.path || v.src || '';
-            // String cleanup
-            if (typeof v === 'string') {
-              v = v.replace(/^[\[\s"]+/, '').replace(/[\s"\]]+$/, '');
-              if (/\bList\b|\[|\]/.test(v)) return '';
+            // Array / Immutable.List
+            if (Array.isArray(v)) v = v.length ? v[v.length - 1] : '';
+            if (v && typeof v.get === 'function' && typeof v.size === 'number') {
+              v = v.size > 0 ? v.get(v.size - 1) : '';
             }
+
+            // Immutable.Map / 一般物件（Cloudinary 物件）
+            if (v && typeof v.get === 'function' && typeof v.size !== 'number') {
+              v = v.get('secure_url') || v.get('url') || v.get('path') || v.get('src') || '';
+            } else if (v && typeof v === 'object') {
+              v = v.secure_url || v.url || v.path || v.src || '';
+            }
+
+            // String：清雜訊 + 處理多值（逗號/空白/換行）
+            if (typeof v === 'string') {
+              let s = v.trim()
+                .replace(/^[\[\s"]+/, '')
+                .replace(/[\s"\]]+$/, '');
+
+              // 多值情況 → 以逗號或空白切開，挑最後一段
+              if (s.includes(',') || /\shttps?:\/\//i.test(s)) {
+                const parts = s.split(/[,\s]+/).filter(Boolean);
+                s = parts.length ? parts[parts.length - 1] : '';
+              }
+
+              // 去除殘餘的 URL-encoded 雜字（例如 %22）
+              s = s.replace(/%22/g, '').replace(/\]$/, '');
+
+              // 防呆
+              if (/\bList\b|\[|\]/.test(s)) return '';
+
+              v = s;
+            }
+
             return (typeof v === 'string') ? v : '';
           } catch { return ''; }
         }
-
         function install() {
           if (!window.CMS) return;
 
           try { CMS.setLocale && CMS.setLocale('en'); } catch {}
           try { CMS.registerMediaLibrary(cloudinary); } catch {}
+          try { CMS.registerPreviewStyle('/admin/preview.css'); } catch {}
 
-          // 任一變更/存檔/發布前，把 projects.cover 清成「單一字串」
+          // 任一變更/存檔/發布前：把 cover → 單值，並同步到 thumbnail（只供 CMS Grid 用）
           function normalizeOnEvent({ entry, collection }) {
             if (!collection || collection.get('name') !== 'projects') return;
             const data = entry.get('data');
-            const raw  = data && data.get && data.get('cover');
-            const norm = normalizeUrl(raw);
-            return { entry: entry.set('data', data.set('cover', norm)) };
+
+            const rawCover = data && data.get && data.get('cover');
+            const coverUrl = normalizeUrl(rawCover);
+
+            // 同步一份到 thumbnail，讓 Grid 一定有圖
+            const next = data.set('cover', coverUrl).set('thumbnail', coverUrl);
+            return { entry: entry.set('data', next) };
           }
+
           CMS.registerEventListener({ name: 'entryChange', handler: normalizeOnEvent });
           CMS.registerEventListener({ name: 'preSave',     handler: normalizeOnEvent });
           CMS.registerEventListener({ name: 'prePublish',  handler: normalizeOnEvent });
 
-          // 右側 Preview：用清過的 cover 直接渲染
+          // 右側 Preview：用清過的 cover 顯示
           const h = window.h; // preact
           const ProjectPreview = (props) => {
             const e = props.entry;
@@ -68,9 +95,7 @@
             return h('div', { class: 'project-preview', style: { maxWidth: '900px', margin: '0 auto', padding: '12px' } },
               cover ? h('img', { src: cover, alt: title, style:{maxWidth:'100%',display:'block',marginBottom:'12px',objectFit:'cover'} }) : null,
               h('h1', { style:{fontSize:'20px',margin:'8px 0'} }, title),
-              h('div', null,
-                props.widgetFor && (props.widgetFor('body_zh') || props.widgetFor('body_en')) || ''
-              )
+              h('div', null, props.widgetFor && (props.widgetFor('body_zh') || props.widgetFor('body_en')) || '')
             );
           };
           try { CMS.registerPreviewTemplate('projects', ProjectPreview); } catch {}

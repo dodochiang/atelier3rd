@@ -33,7 +33,7 @@ collections:
     identifier_field: "title_zh"
     summary: "{{title_zh}} / {{title_en}} — {{year}} · {{type}}"
     sortable_fields: ["year", "title_zh", "title_en", "commit_date"]
-    thumbnail: "cover"
+    thumbnail: "thumbnail"
     preview_path: "projects/{{slug}}/"
     fields:
       - label: "Layout"
@@ -89,7 +89,6 @@ collections:
         required: true
         hint: "四位數；例如 2024"
 
-      # --- 新增的兩個 meta ---
       - label: "戶數"
         name: "units"
         widget: "number"
@@ -104,6 +103,11 @@ collections:
         value_type: "float"
         required: false
         hint: "平方公尺；可小數，例如 3820.5"
+
+      - label: "Card Thumbnail (auto)"
+        name: "thumbnail"
+        widget: "hidden"
+        default: ""
 
       - label: "縮圖"
         name: "cover"

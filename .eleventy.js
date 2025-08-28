@@ -9,19 +9,27 @@ module.exports = function (eleventyConfig) {
     markdownIt.render(content || "")
   );
 
-  // ✅ 圖片 URL 容錯：陣列取第一個、物件取 url/path/src、字串清除殘字元（如 ["…"]、尾巴的 ] ）
+  // ✅ 圖片 URL 容錯：
+  // - Array / 逗號或空白分隔字串：取「最後一張」（通常是你最後選的那張）
+  // - 物件：取 secure_url/url/path/src
+  // - 字串：清除 ["…"] / 殘字元（], %22 等）
   eleventyConfig.addFilter("imageUrlSafe", (v) => {
     try {
-      // Array -> 第一個
-      if (Array.isArray(v)) v = v[0] || "";
+      // Array -> 取最後一張
+      if (Array.isArray(v)) v = v.length ? v[v.length - 1] : "";
 
-      // 常見物件（例如 Cloudinary 回傳物件）
+      // 逗號 / 空白分隔的多值字串 -> 取最後一段
+      if (typeof v === "string" && (v.includes(",") || /\shttps?:\/\//i.test(v))) {
+        const parts = v.trim().replace(/^[\[\s"]+/, "").replace(/[\s"\]]+$/, "").split(/[,\s]+/).filter(Boolean);
+        v = parts.length ? parts[parts.length - 1] : "";
+      }
+
+      // 常見物件（例如 Cloudinary 回傳物件）與 Immutable 結構
       if (v && typeof v === "object") {
-        // 若是 Immutable 結構（保險處理，typeof function）
         if (typeof v.get === "function") {
-          // Immutable.List
+          // Immutable.List -> 取最後一張（修正重點：由 get(0) 改成 get(size-1)）
           if (typeof v.size === "number") {
-            v = v.size > 0 ? v.get(0) : "";
+            v = v.size > 0 ? v.get(v.size - 1) : "";
           } else {
             // Immutable.Map
             v = v.get("secure_url") || v.get("url") || v.get("path") || v.get("src") || "";
@@ -33,9 +41,7 @@ module.exports = function (eleventyConfig) {
 
       // 字串清理
       if (typeof v === "string") {
-        // 去掉開頭的 [ " 空白，與尾端的 " ] 空白
-        v = v.replace(/^[\[\s"]+/, "").replace(/[\s"\]]+$/, "");
-        // 若仍殘留 List[...] 等污染，直接判定為空，避免 404
+        v = v.replace(/^[\[\s"]+/, "").replace(/[\s"\]]+$/, "").replace(/%22/g, "").replace(/\]$/, "");
         if (/\bList\b|\[|\]/.test(v)) return "";
       }
 
