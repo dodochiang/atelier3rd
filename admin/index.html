@@ -44,11 +44,13 @@
                 .replace(/^[\[\s"]+/, '')
                 .replace(/[\s"\]]+$/, '');
 
-              // 多值情況 → 以逗號或空白切開，挑最後一段
-              if (s.includes(',') || /\shttps?:\/\//i.test(s)) {
-                const parts = s.split(/[,\s]+/).filter(Boolean);
-                s = parts.length ? parts[parts.length - 1] : '';
-              }
+                // ✅ 從字串中抓出「所有完整 URL」，只取最後一個
+                // （不會被 f_auto,q_auto 的逗號影響）
+                const urls = s.match(/https?:\/\/[^\s,"'\]]+/g);
+                if (urls && urls.length) {
+                  s = urls[urls.length - 1];
+                }
+
 
               // 去除殘餘的 URL-encoded 雜字（例如 %22）
               s = s.replace(/%22/g, '').replace(/\]$/, '');
