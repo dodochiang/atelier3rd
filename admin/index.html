@@ -88,12 +88,19 @@
           CMS.registerEventListener({ name: 'preSave',     handler: normalizeOnEvent });
           CMS.registerEventListener({ name: 'prePublish',  handler: normalizeOnEvent });
 
-          // 右側 Preview：用清過的 cover 顯示
-          const h = window.h; // preact
+          // ✅ 更穩的 h 來源（preact）
+          const h =
+            (window.h) ||
+            (window.preact && window.preact.h) ||
+            (CMS && CMS.lib && CMS.lib.h);
+
+          // 如果 h 仍不可用，就先不註冊預覽，避免报錯中斷
+          if (!h) return;
+
           const ProjectPreview = (props) => {
             const e = props.entry;
             const title = e.getIn(['data','title_zh']) || e.getIn(['data','title_en']) || 'Untitled';
-            const cover = normalizeUrl(e.getIn(['data','cover']));
+            const cover = normalizeUrl(e.getIn(['data','cover'])) || normalizeUrl(e.getIn(['data','thumbnail']));
             return h('div', { class: 'project-preview', style: { maxWidth: '900px', margin: '0 auto', padding: '12px' } },
               cover ? h('img', { src: cover, alt: title, style:{maxWidth:'100%',display:'block',marginBottom:'12px',objectFit:'cover'} }) : null,
               h('h1', { style:{fontSize:'20px',margin:'8px 0'} }, title),
