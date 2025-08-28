@@ -15,124 +15,118 @@
     <script src="https://unpkg.com/decap-cms-media-library-cloudinary@^3.0.0/dist/decap-cms-media-library-cloudinary.js"></script>
 
     <script>
-      (function () {
-        function ready(fn){ document.readyState !== 'loading' ? fn() : document.addEventListener('DOMContentLoaded', fn); }
+    (function () {
+      function ready(fn){ document.readyState !== 'loading' ? fn() : document.addEventListener('DOMContentLoaded', fn); }
 
-        // 任何型態 -> 乾淨 URL（若是多值一律取「最後一張」）
-        function normalizeUrl(v) {
-          try {
-            if (Array.isArray(v)) v = v.length ? v[v.length - 1] : '';
-            if (v && typeof v.get === 'function' && typeof v.size === 'number') { // Immutable.List
-              v = v.size > 0 ? v.get(v.size - 1) : '';
-            }
-            if (v && typeof v.get === 'function' && typeof v.size !== 'number') { // Immutable.Map
-              v = v.get('secure_url') || v.get('url') || v.get('path') || v.get('src') || '';
-            } else if (v && typeof v === 'object') { // Plain object
-              v = v.secure_url || v.url || v.path || v.src || '';
-            }
-            if (typeof v === 'string') {
-              let s = v.trim().replace(/^[\[\s"]+/, '').replace(/[\s"\]]+$/, '');
-              // 抓字串中的「所有完整 URL」，只取最後一個（不會被 f_auto,q_auto 的逗號影響）
-              const urls = s.match(/https?:\/\/[^\s"'\]]+/g);
-              if (urls && urls.length) s = urls[urls.length - 1];
-              s = s.replace(/%22/g, '').replace(/\]$/, '');
-              if (/\bList\b|\[|\]/.test(s)) return '';
-              return s;
-            }
-            return (typeof v === 'string') ? v : '';
-          } catch { return ''; }
+      // 你現有的 normalizeUrl() 請保留
+
+      function install() {
+        if (!window.CMS) return;
+
+        try { CMS.setLocale && CMS.setLocale('en'); } catch {}
+        try { CMS.registerMediaLibrary(cloudinary); } catch {}
+        try { CMS.registerPreviewStyle('/admin/preview.css'); } catch {}
+
+        // ★ 儲存/發布前，把 cover 轉為單一字串（避免 YAML 陣列的 dash）
+        function normalizeOnEvent({ entry, collection }) {
+          if (!collection || collection.get('name') !== 'projects') return;
+          const data = entry.get('data');
+          const clean = normalizeUrl(data && data.get && data.get('cover'));
+          return { entry: entry.set('data', data.set('cover', clean)) };
         }
+        CMS.registerEventListener({ name: 'preSave',    handler: normalizeOnEvent });
+        CMS.registerEventListener({ name: 'prePublish', handler: normalizeOnEvent });
 
-        function install() {
-          if (!window.CMS) return;
+        // ★ 用 React（不是 Preact 的 h）
+        const React = (window.React) || (CMS && CMS.lib && CMS.lib.React);
+        if (!React) return;
+        const h = React.createElement;
 
-          try { CMS.setLocale && CMS.setLocale('en'); } catch {}
-          try { CMS.registerMediaLibrary(cloudinary); } catch {}
-          try { CMS.registerPreviewStyle('/admin/preview.css'); } catch {}
+        const ProjectPreview = (props) => {
+          const e = props.entry;
+          const get = (path) => e.getIn(path);
 
-          // ★ 關鍵：儲存/發布前，強制把 cover 轉為「單一字串」
-          function normalizeOnEvent({ entry, collection }) {
-            if (!collection || collection.get('name') !== 'projects') return;
-            const data = entry.get('data');
-            const clean = normalizeUrl(data && data.get && data.get('cover'));
-            // 只寫回 cover（Grid 也以 cover 為縮圖欄位）
-            return { entry: entry.set('data', data.set('cover', clean)) };
-          }
-          CMS.registerEventListener({ name: 'preSave',    handler: normalizeOnEvent });
-          CMS.registerEventListener({ name: 'prePublish', handler: normalizeOnEvent });
+          const titleEn = get(['data','title_en']) || '';
+          const titleZh = get(['data','title_zh']) || '';
+          const title   = titleZh || titleEn || 'Untitled';
 
-          // Preact h（多版本容錯）
-          const h = (window.h) || (window.preact && window.preact.h) || (CMS && CMS.lib && CMS.lib.h);
-          if (!h) return;
+          const type  = get(['data','type']) || '';
+          const locEn = get(['data','location_en']) || get(['data','location']) || '';
+          const locZh = get(['data','location_zh']) || get(['data','location']) || '';
+          const year  = get(['data','year']) || '';
+          const units = get(['data','units']) || '';
+          const floor = get(['data','floor_area']) || '';
 
-          // ★ 補齊 Preview：cover / meta / 內文 / credits / YouTube
-          const ProjectPreview = (props) => {
-            const e = props.entry;
-            const get = (path) => e.getIn(path);
-            const titleEn = get(['data','title_en']) || '';
-            const titleZh = get(['data','title_zh']) || '';
-            const title   = titleZh || titleEn || 'Untitled';
+          const cover = normalizeUrl(get(['data','cover']));
+          const video = (get(['data','video']) || '').toString();
 
-            const type  = get(['data','type']) || '';
-            const locEn = get(['data','location_en']) || get(['data','location']) || '';
-            const locZh = get(['data','location_zh']) || get(['data','location']) || '';
-            const year  = get(['data','year']) || '';
-            const units = get(['data','units']) || '';
-            const floor = get(['data','floor_area']) || '';
+          const bodyNode      = (props.widgetFor && (props.widgetFor('body_zh') || props.widgetFor('body_en'))) || null;
+          const creditsEnNode = props.widgetFor && props.widgetFor('credits_en');
+          const creditsZhNode = props.widgetFor && props.widgetFor('credits_zh');
 
-            const cover = normalizeUrl(get(['data','cover']));
-            const video = (get(['data','video']) || '').toString();
+          return h('div', { className: 'cms-preview-content' },
+            // hero
+            cover ? h('div', { className: 'project-hero' },
+              h('img', { src: cover, alt: title })
+            ) : null,
 
-            const bodyNode      = (props.widgetFor && (props.widgetFor('body_zh') || props.widgetFor('body_en'))) || '';
-            const creditsEnNode = props.widgetFor && props.widgetFor('credits_en');
-            const creditsZhNode = props.widgetFor && props.widgetFor('credits_zh');
+            // title
+            h('h1', { className: 'project-title' },
+              titleEn ? h('span', { className:'lang-en' }, titleEn) : null,
+              titleZh ? h('span', { className:'lang-zh' }, titleZh) : null
+            ),
 
-            return h('div', { class: 'cms-preview-content' }, [
-              cover && h('div', { class: 'project-hero' }, h('img', { src: cover, alt: title })),
-
-              h('h1', { class: 'project-title' }, [
-                titleEn && h('span', { class: 'lang-en' }, titleEn),
-                titleZh && h('span', { class: 'lang-zh' }, titleZh),
-              ]),
-
-              h('div', { class: 'project-meta' }, [
-                h('div', { class: 'project-meta-line' }, [
-                  h('span', { class: 'lang-en' }, [ String(type || ''), locEn ? ' ｜ ' + String(locEn) : '' ]),
-                  h('span', { class: 'lang-zh' }, [ String(type || ''), locZh ? ' ｜ ' + String(locZh) : '' ]),
+            // meta 兩行
+            h('div', { className: 'project-meta' },
+              h('div', { className: 'project-meta-line' },
+                h('span', { className:'lang-en' }, [
+                  String(type || ''),
+                  locEn ? ' ｜ ' + String(locEn) : ''
                 ]),
-                h('div', { class: 'project-meta-line' }, [
-                  h('span', { class: 'lang-en' }, [
-                    units ? String(units) + ' units' : '',
-                    floor ? (units ? ' ｜ ' : '') + String(floor) + ' sqm' : '',
-                    year  ? ((units || floor) ? ' ｜ ' : '') + String(year) : ''
-                  ]),
-                  h('span', { class: 'lang-zh' }, [
-                    units ? String(units) + '戶' : '',
-                    floor ? (units ? ' ｜ ' : '') + String(floor) + '㎡' : '',
-                    year  ? ((units || floor) ? ' ｜ ' : '') + String(year) : ''
-                  ])
+                h('span', { className:'lang-zh' }, [
+                  String(type || ''),
+                  locZh ? ' ｜ ' + String(locZh) : ''
                 ])
-              ]),
+              ),
+              h('div', { className: 'project-meta-line' },
+                h('span', { className:'lang-en' }, [
+                  units ? String(units) + ' units' : '',
+                  floor ? (units ? ' ｜ ' : '') + String(floor) + ' sqm' : '',
+                  year  ? ((units || floor) ? ' ｜ ' : '') + String(year) : ''
+                ]),
+                h('span', { className:'lang-zh' }, [
+                  units ? String(units) + '戶' : '',
+                  floor ? (units ? ' ｜ ' : '') + String(floor) + '㎡' : '',
+                  year  ? ((units || floor) ? ' ｜ ' : '') + String(year) : ''
+                ])
+              )
+            ),
 
-              h('div', { class: 'project-content' }, bodyNode),
+            // body
+            h('div', { className: 'project-content' }, bodyNode),
 
-              (creditsEnNode || creditsZhNode) &&
-                h('div', { class: 'project-credits' }, [ creditsEnNode || null, creditsZhNode || null ]),
+            // credits
+            (creditsEnNode || creditsZhNode) ?
+              h('div', { className: 'project-credits' },
+                creditsEnNode || null,
+                creditsZhNode || null
+              ) : null,
 
-              (video && /^https?:\/\/.+/.test(video)) &&
-                h('div', { class: 'project-video', style: 'text-align:center; margin-top: 2em;' },
-                  h('div', { class: 'video-container' },
-                    h('iframe', { src: video, title: 'YouTube video', frameBorder: 0, allowFullScreen: true })
-                  )
+            // YouTube
+            (video && /^https?:\/\/.+/.test(video)) ?
+              h('div', { className: 'project-video', style: { textAlign:'center', marginTop:'2em' } },
+                h('div', { className: 'video-container' },
+                  h('iframe', { src: video, title: 'YouTube video', frameBorder: 0, allowFullScreen: true })
                 )
-            ]);
-          };
+              ) : null
+          );
+        };
 
-          try { CMS.registerPreviewTemplate('projects', ProjectPreview); } catch {}
-        }
+        try { CMS.registerPreviewTemplate('projects', ProjectPreview); } catch {}
+      }
 
-        ready(install);
-      })();
+      ready(install);
+    })();
     </script>
 
     <script src="/admin/cms.js"></script>
