@@ -12,7 +12,7 @@ media_library:
   config:
     cloud_name: dw6nekwxn
     api_key: 414678917212337
-    multiple: true
+    multiple: false
     default_transformations:
       - - fetch_format: auto
           quality: auto
@@ -129,6 +129,9 @@ collections:
         widget: "file"
         multiple: true          # 一次多選
         required: false
+        media_library:
+          config:
+            multiple: true
         hint: "可一次多選多張；若需要說明，改用下方的進階相簿"
 
       # 你原本就有的進階相簿（保留）
