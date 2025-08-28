@@ -84,6 +84,7 @@
             return { entry: entry.set('data', next) };
           }
 
+
           CMS.registerEventListener({ name: 'preSave',     handler: normalizeOnEvent });
           CMS.registerEventListener({ name: 'prePublish',  handler: normalizeOnEvent });
 
@@ -100,7 +101,7 @@
             const e = props.entry;
             const title = e.getIn(['data','title_zh']) || e.getIn(['data','title_en']) || 'Untitled';
             const cover = normalizeUrl(e.getIn(['data','cover'])) || normalizeUrl(e.getIn(['data','thumbnail']));
-            return h('div', { class: 'project-preview', style: { maxWidth: '900px', margin: '0 auto', padding: '12px' } },
+            return h('div', { class: 'cms-preveiw-content', style: { maxWidth: '900px', margin: '0 auto', padding: '12px' } },
               cover ? h('img', { src: cover, alt: title, style:{maxWidth:'100%',display:'block',marginBottom:'12px',objectFit:'cover'} }) : null,
               h('h1', { style:{fontSize:'20px',margin:'8px 0'} }, title),
               h('div', null, props.widgetFor && (props.widgetFor('body_zh') || props.widgetFor('body_en')) || '')
