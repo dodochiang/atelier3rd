@@ -9,7 +9,11 @@ year: 2014
 units: 1
 floor_area: 19
 cover:
-  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1754983455/EX04_%E8%BF%91%E6%99%AF_0608_X-compressed_jxmyvv.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1754983458/AfP_HDW_construction_photo_by_Alexander_Popkov_19_cthyk9.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1754983458/AfP_HDW_08092017_photo_by_pinja_nikki_07_ochx6h.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1754983458/AfP_HDW_construction_photo_by_Alexander_Popkov_36_cnk2rj.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1754983457/WeChat_Image_20190709165901_dh99rw.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1754983457/AfP_HDW_Opening_20170917_photo_by_Alexander_Popkov_68_t2va88.jpg
 gallery_images:
   - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1754983457/AfP_HDW_20170914_IMG_6112_qmvjw1.jpg
   - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1754983457/AfP_HDW_07092017_photo_by_pinja_nikki_27_ayxwpl.jpg
