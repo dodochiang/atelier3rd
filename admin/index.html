@@ -75,12 +75,10 @@
           function normalizeOnEvent({ entry, collection }) {
             if (!collection || collection.get('name') !== 'projects') return;
             const data = entry.get('data');
-
             const rawCover = data && data.get && data.get('cover');
             const coverUrl = normalizeUrl(rawCover);
 
-            // 同步一份到 thumbnail，讓 Grid 一定有圖
-            const next = data.set('cover', coverUrl).set('thumbnail', coverUrl);
+
             return { entry: entry.set('data', next) };
           }
 
@@ -101,7 +99,7 @@
             const e = props.entry;
             const title = e.getIn(['data','title_zh']) || e.getIn(['data','title_en']) || 'Untitled';
             const cover = normalizeUrl(e.getIn(['data','cover'])) || normalizeUrl(e.getIn(['data','thumbnail']));
-            return h('div', { class: 'cms-preveiw-content', style: { maxWidth: '900px', margin: '0 auto', padding: '12px' } },
+            return h('div', { class: 'cms-preview-content', style: { maxWidth: '900px', margin: '0 auto', padding: '12px' } },
               cover ? h('img', { src: cover, alt: title, style:{maxWidth:'100%',display:'block',marginBottom:'12px',objectFit:'cover'} }) : null,
               h('h1', { style:{fontSize:'20px',margin:'8px 0'} }, title),
               h('div', null, props.widgetFor && (props.widgetFor('body_zh') || props.widgetFor('body_en')) || '')
