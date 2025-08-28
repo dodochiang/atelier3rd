@@ -111,7 +111,7 @@ collections:
 
       - label: "縮圖"
         name: "cover"
-        widget: "image"
+        widget: "singleimage"
         choose_url: false
         required: false
         allow_multiple: false
