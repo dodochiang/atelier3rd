@@ -4,8 +4,12 @@
     <meta charset="utf-8" />
     <title>Content Manager</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Netlify Identity（可留可拿掉） -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+
+    <!-- 後台整體樣式（你現有的縮小 UI） -->
     <link rel="stylesheet" href="/admin/admin.css">
+    <!-- 讓預覽看起來接近前台 -->
     <link rel="stylesheet" href="/admin/preview.css">
   </head>
   <body>
@@ -15,138 +19,74 @@
     <script src="https://unpkg.com/decap-cms-media-library-cloudinary@^3.0.0/dist/decap-cms-media-library-cloudinary.js"></script>
 
     <script>
-      // --- 只貼這段：覆蓋 ProjectPreview（用 preact h） ---
       (function () {
-        function hCompat() {
-          return (window.h) || (window.preact && window.preact.h) || (CMS && CMS.lib && CMS.lib.h);
+        function ready(fn){
+          if (document.readyState !== 'loading') fn();
+          else document.addEventListener('DOMContentLoaded', fn);
         }
 
-        function text(el, str) { return el ? str : ''; }
-
-        // 取你前面已經定義的 normalizeUrl，如果沒有就定義個最小版：
-        var normalizeUrl = window.normalizeUrl || function (v) {
+        // 把任何型態 → 乾淨 URL 字串；若是多值（Array / 多行 / Cloudinary 物件）→ 取「最後一張」
+        function normalizeUrl(v) {
           try {
+            // Array / Immutable.List
             if (Array.isArray(v)) v = v.length ? v[v.length - 1] : '';
-            if (v && typeof v.get === 'function' && typeof v.size === 'number') v = v.size ? v.get(v.size - 1) : '';
-            if (v && typeof v.get === 'function' && typeof v.size !== 'number') v = v.get('secure_url') || v.get('url') || v.get('path') || v.get('src') || '';
-            if (v && typeof v === 'object') v = v.secure_url || v.url || v.path || v.src || '';
-            if (typeof v === 'string') {
-              let s = v.trim().replace(/^[\[\s"]+/, '').replace(/[\s"\]]+$/, '').replace(/%22/g,'');
-              const urls = s.match(/https?:\/\/[^\s"'\]]+/g);
-              if (urls && urls.length) s = urls[urls.length - 1];
-              if (/\bList\b|\[|\]/.test(s)) return '';
-              return s;
+            if (v && typeof v.get === 'function' && typeof v.size === 'number') {
+              v = v.size > 0 ? v.get(v.size - 1) : '';
             }
-            return '';
+
+            // Immutable.Map / 一般物件（Cloudinary 可能回傳 secure_url/url/path/src）
+            if (v && typeof v.get === 'function' && typeof v.size !== 'number') {
+              v = v.get('secure_url') || v.get('url') || v.get('path') || v.get('src') || '';
+            } else if (v && typeof v === 'object') {
+              v = v.secure_url || v.url || v.path || v.src || '';
+            }
+
+            // String：清雜訊 + 從內容中「擷取所有 http(s) URL」，只取最後一個
+            if (typeof v === 'string') {
+              let s = v.trim().replace(/^[\[\s"]+/, '').replace(/[\s"\]]+$/, '');
+              const urls = s.match(/https?:\/\/[^\s"'\\\]]+/g);
+              if (urls && urls.length) s = urls[urls.length - 1];
+
+              // 去除殘餘編碼（例如 %22）
+              s = s.replace(/%22/g, '').replace(/\]$/, '');
+              if (/\bList\b|\[|\]/.test(s)) return '';
+              v = s;
+            }
+            return (typeof v === 'string') ? v : '';
           } catch { return ''; }
-        };
-
-        function ProjectPreview(props) {
-          var h = hCompat();
-          if (!h) return null;
-
-          const e = props.entry;
-          const get = (k) => e.getIn(['data', k]);
-          const titleEn = get('title_en') || '';
-          const titleZh = get('title_zh') || '';
-          const type     = get('type') || '';
-          const locEn    = get('location_en') || '';
-          const locZh    = get('location_zh') || '';
-          const year     = get('year') || '';
-          const units    = get('units');
-          const fa       = get('floor_area');
-          const creditsEn= get('credits_en') || '';
-          const creditsZh= get('credits_zh') || '';
-          const video    = get('video') || '';
-          const cover    = normalizeUrl(get('cover')) || normalizeUrl(get('thumbnail'));
-
-          // body_zh / body_en 對應 Markdown widget
-          const bodyEn = props.widgetFor && props.widgetFor('body_en');
-          const bodyZh = props.widgetFor && props.widgetFor('body_zh');
-
-          // gallery（只取第一張展示即可，避免預覽太複雜）
-          let gallery = get('gallery');
-          let galleryImages = get('gallery_images');
-          let galleryFirst = '';
-          if (gallery && typeof gallery.toJS === 'function') {
-            const arr = gallery.toJS();
-            const raw = (arr[0] && (arr[0].image || arr[0])) || '';
-            galleryFirst = normalizeUrl(raw);
-          } else if (galleryImages && typeof galleryImages.toJS === 'function') {
-            const arr = galleryImages.toJS();
-            galleryFirst = normalizeUrl(arr[0] || '');
-          }
-
-          // 小工具：單位/面積字樣
-          const unitsEn = (typeof units === 'number' || (units||'').toString().trim()) ? `${units} units` : '';
-          const unitsZh = (typeof units === 'number' || (units||'').toString().trim()) ? `${units}戶` : '';
-          let faEn = '', faZh = '';
-          if (fa !== undefined && fa !== null && (fa+'').trim() !== '') {
-            const s = (fa+'');
-            if (/㎡|m²|sqm/i.test(s)) { faEn = s; faZh = s; }
-            else { faEn = s + ' sqm'; faZh = s + '㎡'; }
-          }
-
-          return h('div', { class: 'cms-preview-content' },
-            // Hero
-            cover ? h('div', { class: 'project-hero' },
-              h('img', { src: cover, alt: (titleEn || titleZh || 'Cover'), loading: 'lazy', decoding: 'async' })
-            ) : null,
-
-            // Title
-            h('h1', { class: 'project-title' },
-              h('span', { class: 'lang-en' }, titleEn || ''),
-              ' ',
-              h('span', { class: 'lang-zh' }, titleZh || '')
-            ),
-
-            // Meta line 1：類型｜地點
-            h('p', { class: 'project-meta-line' },
-              h('span', { class: 'lang-en' }, [type || '', (locEn ? ' ｜ ' + locEn : '')]),
-              h('span', { class: 'lang-zh' }, [type || '', (locZh ? ' ｜ ' + locZh : '')])
-            ),
-
-            // Meta line 2：戶數｜面積｜年份
-            h('p', { class: 'project-meta-line' },
-              h('span', { class: 'lang-en' }, [unitsEn, (faEn ? ' ｜ ' + faEn : ''), (year ? ' ｜ ' + year : '')]),
-              h('span', { class: 'lang-zh' }, [unitsZh, (faZh ? ' ｜ ' + faZh : ''), (year ? ' ｜ ' + year : '')])
-            ),
-
-            // 內文
-            h('div', { class: 'project-content' },
-              h('div', { class: 'lang-en' }, bodyEn || ''),
-              h('div', { class: 'lang-zh' }, bodyZh || '')
-            ),
-
-            // Credits
-            (creditsEn || creditsZh) ? h('div', { class: 'project-credits' },
-              h('div', { class: 'lang-en' }, props.widgetFor && props.widgetFor('credits_en')),
-              h('div', { class: 'lang-zh' }, props.widgetFor && props.widgetFor('credits_zh'))
-            ) : null,
-
-            // Gallery（預覽只顯示第一張）
-            galleryFirst ? h('div', { class: 'project-slider' },
-              h('div', { class: 'slide-image-wrapper' },
-                h('img', { src: galleryFirst, alt: 'gallery image' })
-              )
-            ) : null,
-
-            // YouTube（embed URL）
-            (typeof video === 'string' && /^https:\/\/www\.youtube\.com\/embed\//.test(video))
-              ? h('div', { class: 'project-video', style: { textAlign: 'center', marginTop: '20px' } },
-                  h('div', { class: 'video-container' },
-                    h('iframe', { src: video, title: 'YouTube video', frameBorder: '0', allowFullScreen: true })
-                  )
-                )
-              : null
-          );
         }
 
-        // 重新註冊
-        try { CMS.registerPreviewTemplate('projects', ProjectPreview); } catch (e) {}
+        function install() {
+          if (!window.CMS) return;
+
+          try { CMS.setLocale && CMS.setLocale('en'); } catch {}
+          try { CMS.registerMediaLibrary(cloudinary); } catch {}
+          try { CMS.registerPreviewStyle('/admin/preview.css'); } catch {}
+
+          // 存檔/發佈前：把 cover → 單值，並同步到 thumbnail（供 CMS Grid/List 用）
+          function normalizeOnEvent({ entry, collection }) {
+            if (!collection || collection.get('name') !== 'projects') return;
+
+            const data = entry.get('data');
+            const rawCover = data && data.get && data.get('cover');
+            const coverUrl = normalizeUrl(rawCover);
+
+            const next = data
+              .set('cover', coverUrl)      // 修正掉 YAML list（有 dash）的問題
+              .set('thumbnail', coverUrl); // 給 collections.thumbnail 使用
+
+            return { entry: entry.set('data', next) };
+          }
+
+          CMS.registerEventListener({ name: 'preSave',    handler: normalizeOnEvent });
+          CMS.registerEventListener({ name: 'prePublish', handler: normalizeOnEvent });
+        }
+
+        ready(install);
       })();
     </script>
 
+    <!-- 你的 CMS 初始化（預覽元件放在 cms.js） -->
     <script src="/admin/cms.js"></script>
   </body>
 </html>
