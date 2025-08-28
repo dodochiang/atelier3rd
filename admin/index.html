@@ -84,7 +84,6 @@
             return { entry: entry.set('data', next) };
           }
 
-          CMS.registerEventListener({ name: 'entryChange', handler: normalizeOnEvent });
           CMS.registerEventListener({ name: 'preSave',     handler: normalizeOnEvent });
           CMS.registerEventListener({ name: 'prePublish',  handler: normalizeOnEvent });
 
