@@ -33,6 +33,7 @@ collections:
     identifier_field: "title_zh"
     summary: "{{title_zh}} / {{title_en}} — {{year}} · {{type}}"
     sortable_fields: ["year", "title_zh", "title_en", "commit_date"]
+    thumbnail: "cover"
     preview_path: "projects/{{slug}}/"
     fields:
       - label: "Layout"

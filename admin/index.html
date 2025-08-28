@@ -24,24 +24,13 @@
           else document.addEventListener('DOMContentLoaded', fn);
         }
 
-        // 把任意型態（Array / Immutable.List / Immutable.Map / Object / String）
-        // 統一轉成乾淨的 URL 字串
+        // 把任意型態統一→乾淨的 URL 字串
         function normalizeUrl(v) {
           try {
-            if (Array.isArray(v)) v = v.length ? v[0] : '';
-            // Immutable List
-            if (v && typeof v.get === 'function' && typeof v.size === 'number') {
-              v = v.size > 0 ? v.get(0) : '';
-            }
-            // Immutable Map
-            if (v && typeof v.get === 'function' && typeof v.size !== 'number') {
-              v = v.get('secure_url') || v.get('url') || v.get('path') || v.get('src') || '';
-            }
-            // 一般物件（Cloudinary 物件）
-            if (v && typeof v === 'object') {
-              v = v.secure_url || v.url || v.path || v.src || '';
-            }
-            // 字串清理 ["..."] / 收尾雜字元與 List[...] 汙染
+            if (Array.isArray(v)) v = v[0] || '';
+            if (v && typeof v.get === 'function' && typeof v.size === 'number') v = v.size > 0 ? v.get(0) : '';
+            if (v && typeof v.get === 'function' && typeof v.size !== 'number') v = v.get('secure_url') || v.get('url') || v.get('path') || v.get('src') || '';
+            if (v && typeof v === 'object') v = v.secure_url || v.url || v.path || v.src || '';
             if (typeof v === 'string') {
               v = v.replace(/^[\[\s"]+/, '').replace(/[\s"\]]+$/, '');
               if (/\bList\b|\[|\]/.test(v)) return '';
@@ -50,30 +39,41 @@
           } catch { return ''; }
         }
 
-        function installGuards() {
+        function install() {
           if (!window.CMS) return;
 
-          try { CMS.setLocale && CMS.setLocale('en'); } catch (e) {}
-          try { CMS.registerMediaLibrary(cloudinary); } catch (e) {}
-          try { CMS.registerPreviewStyle('/admin/preview.css'); } catch (e) {}
+          try { CMS.setLocale && CMS.setLocale('en'); } catch {}
+          try { CMS.registerMediaLibrary(cloudinary); } catch {}
+          try { CMS.registerPreviewStyle('/admin/preview.css'); } catch {}
 
-          // 在各事件點把 projects.cover 正規化為單一字串 URL
+          // 任何變更 / 存檔 / 發佈 前，把 cover → 單一字串
           function normalizeOnEvent({ entry, collection }) {
             if (!collection || collection.get('name') !== 'projects') return;
-
             const data = entry.get('data');
             const raw  = data && data.get && data.get('cover');
             const norm = normalizeUrl(raw);
-
             return { entry: entry.set('data', data.set('cover', norm)) };
           }
-
           CMS.registerEventListener({ name: 'entryChange', handler: normalizeOnEvent });
           CMS.registerEventListener({ name: 'preSave',     handler: normalizeOnEvent });
           CMS.registerEventListener({ name: 'prePublish',  handler: normalizeOnEvent });
+
+          // 右側 Preview：再保險一次，把 cover 清成字串後顯示
+          const h = window.h; // preact
+          const ProjectPreview = (props) => {
+            const e = props.entry;
+            const title = e.getIn(['data','title_zh']) || e.getIn(['data','title_en']) || 'Untitled';
+            const cover = normalizeUrl(e.getIn(['data','cover']));
+            return h('div', { class: 'project-preview' },
+              cover ? h('img', { src: cover, alt: title, style:{maxWidth:'100%',display:'block',marginBottom:12} }) : null,
+              h('h1', null, title),
+              h('div', null, props.widgetFor('body_zh') || props.widgetFor('body_en') || '')
+            );
+          };
+          try { CMS.registerPreviewTemplate('projects', ProjectPreview); } catch {}
         }
 
-        ready(installGuards);
+        ready(install);
       })();
     </script>
 
