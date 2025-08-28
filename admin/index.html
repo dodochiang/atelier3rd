@@ -25,7 +25,7 @@
           else document.addEventListener('DOMContentLoaded', fn);
         }
 
-        // 把任何型態 → 乾淨 URL 字串；多值（Array / Immutable.List / 夾雜的多個 URL 字串）→ 取最後一個
+        // 把任何型態 → 乾淨 URL 字串；多值（Array / Immutable.List / 夾雜多個 URL 字串）→ 取最後一個
         function normalizeUrl(v) {
           try {
             // Array / Immutable.List
@@ -59,6 +59,7 @@
           try { CMS.registerMediaLibrary(cloudinary); } catch {}
           try { CMS.registerPreviewStyle('/admin/preview.css'); } catch {}
 
+          // 存檔／發佈前：把 cover 壓成單一字串
           function normalizeOnEvent({ entry, collection }) {
             if (!collection || collection.get('name') !== 'projects') return;
             const data = entry.get('data');

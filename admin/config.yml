@@ -112,7 +112,7 @@ collections:
       - label: "縮圖"
         name: "cover"
         widget: "image"
-        choose_url: true
+        choose_url: false
         required: false
         allow_multiple: false
         hint: "建議 1200×900（4:3）JPG"
