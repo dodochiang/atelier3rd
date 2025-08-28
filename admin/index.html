@@ -25,7 +25,7 @@
           else document.addEventListener('DOMContentLoaded', fn);
         }
 
-        // 把任何型態 → 乾淨 URL 字串；若是多值（Array / 多行 / Cloudinary 物件）→ 取「最後一張」
+        // 把任何型態 → 乾淨 URL 字串；多值（Array / Immutable.List / 夾雜的多個 URL 字串）→ 取最後一個
         function normalizeUrl(v) {
           try {
             // Array / Immutable.List
@@ -33,21 +33,17 @@
             if (v && typeof v.get === 'function' && typeof v.size === 'number') {
               v = v.size > 0 ? v.get(v.size - 1) : '';
             }
-
-            // Immutable.Map / 一般物件（Cloudinary 可能回傳 secure_url/url/path/src）
+            // Immutable.Map / Plain object (Cloudinary)
             if (v && typeof v.get === 'function' && typeof v.size !== 'number') {
               v = v.get('secure_url') || v.get('url') || v.get('path') || v.get('src') || '';
             } else if (v && typeof v === 'object') {
               v = v.secure_url || v.url || v.path || v.src || '';
             }
-
-            // String：清雜訊 + 從內容中「擷取所有 http(s) URL」，只取最後一個
+            // String：擷取最後一個 URL，並清雜訊
             if (typeof v === 'string') {
               let s = v.trim().replace(/^[\[\s"]+/, '').replace(/[\s"\]]+$/, '');
-              const urls = s.match(/https?:\/\/[^\s"'\\\]]+/g);
+              const urls = s.match(/https?:\/\/[^\s"'\]]+/g);
               if (urls && urls.length) s = urls[urls.length - 1];
-
-              // 去除殘餘編碼（例如 %22）
               s = s.replace(/%22/g, '').replace(/\]$/, '');
               if (/\bList\b|\[|\]/.test(s)) return '';
               v = s;
@@ -63,19 +59,12 @@
           try { CMS.registerMediaLibrary(cloudinary); } catch {}
           try { CMS.registerPreviewStyle('/admin/preview.css'); } catch {}
 
-          // 存檔/發佈前：把 cover → 單值，並同步到 thumbnail（供 CMS Grid/List 用）
           function normalizeOnEvent({ entry, collection }) {
             if (!collection || collection.get('name') !== 'projects') return;
-
             const data = entry.get('data');
-            const rawCover = data && data.get && data.get('cover');
-            const coverUrl = normalizeUrl(rawCover);
-
-            const next = data
-              .set('cover', coverUrl)      // 修正掉 YAML list（有 dash）的問題
-              .set('thumbnail', coverUrl); // 給 collections.thumbnail 使用
-
-            return { entry: entry.set('data', next) };
+            const raw  = data && data.get && data.get('cover');
+            const url  = normalizeUrl(raw);
+            return { entry: entry.set('data', data.set('cover', url)) };
           }
 
           CMS.registerEventListener({ name: 'preSave',    handler: normalizeOnEvent });
