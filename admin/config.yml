@@ -33,7 +33,7 @@ collections:
     identifier_field: "title_zh"
     summary: "{{title_zh}} / {{title_en}} — {{year}} · {{type}}"
     sortable_fields: ["year", "title_zh", "title_en", "commit_date"]
-    thumbnail: "thumbnail"
+    thumbnail: "cover"
     preview_path: "projects/{{slug}}/"
     fields:
       - label: "Layout"
@@ -104,14 +104,9 @@ collections:
         required: false
         hint: "平方公尺；可小數，例如 3820.5"
 
-      - label: "Card Thumbnail (auto)"
-        name: "thumbnail"
-        widget: "hidden"
-        default: ""
-
       - label: "縮圖"
         name: "cover"
-        widget: "singleimage"
+        widget: "image"
         choose_url: false
         required: false
         allow_multiple: false

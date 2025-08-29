@@ -4,22 +4,85 @@
     <meta charset="utf-8" />
     <title>Content Manager</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <!-- 可留可移除：Netlify Identity -->
-    <script>window.CMS_MANUAL_INIT = true;</script>
+    <!-- Netlify Identity（可留可拿掉） -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
-    <!-- 後台樣式 + 預覽樣式 -->
+    <!-- 後台整體樣式（你的縮小 UI） -->
     <link rel="stylesheet" href="/admin/admin.css">
+    <!-- 讓預覽看起來接近前台 -->
     <link rel="stylesheet" href="/admin/preview.css">
   </head>
   <body>
-    <!-- Decap CMS 核心 -->
+    <!-- Decap CMS v3 -->
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
     <!-- Cloudinary media library plugin -->
     <script src="https://unpkg.com/decap-cms-media-library-cloudinary@^3.0.0/dist/decap-cms-media-library-cloudinary.js"></script>
 
-    <!-- 你的 CMS 初始化（自訂 widget / 預覽模板 / 事件註冊與 CMS.init 都在這裡） -->
+    <script>
+    (function () {
+      function ready(fn){
+        if (document.readyState !== 'loading') fn();
+        else document.addEventListener('DOMContentLoaded', fn);
+      }
+
+      // 把任何型態 → 乾淨 URL（若有多個 http(s) URL 只取最後一個）
+      function normalizeUrl(v) {
+        try {
+          // Array
+          if (Array.isArray(v)) v = v.length ? v[v.length - 1] : '';
+
+          // Immutable.List
+          if (v && typeof v.get === 'function' && typeof v.size === 'number') {
+            v = v.size > 0 ? v.get(v.size - 1) : '';
+          }
+
+          // Immutable.Map
+          if (v && typeof v.get === 'function' && typeof v.size !== 'number') {
+            v = v.get('secure_url') || v.get('url') || v.get('path') || v.get('src') || '';
+          }
+          // Plain object（Cloudinary）
+          else if (v && typeof v === 'object') {
+            v = v.secure_url || v.url || v.path || v.src || '';
+          }
+
+          // String：去雜訊並只抓最後一個 http(s) URL
+          if (typeof v === 'string') {
+            let s = v.trim().replace(/^[\[\s"]+/, '').replace(/[\s"\]]+$/, '');
+            const urls = s.match(/https?:\/\/[^\s"'\\\]]+/g);
+            if (urls && urls.length) s = urls[urls.length - 1];
+            s = s.replace(/%22/g, '').replace(/\]$/, '');
+            if (/\bList\b|\[|\]/.test(s)) return '';
+            v = s;
+          }
+          return (typeof v === 'string') ? v : '';
+        } catch { return ''; }
+      }
+
+      function install() {
+        if (!window.CMS) return;
+
+        try { CMS.setLocale && CMS.setLocale('en'); } catch {}
+        try { CMS.registerMediaLibrary(cloudinary); } catch {}
+        try { CMS.registerPreviewStyle('/admin/preview.css'); } catch {}
+
+        // 存檔/發布前：把 cover 變單一字串
+        function normalizeOnEvent({ entry, collection }) {
+          if (!collection || collection.get('name') !== 'projects') return;
+          const path = ['data', 'cover'];
+          const raw  = entry.getIn(path);
+          const url  = normalizeUrl(raw);
+          return { entry: entry.setIn(path, url) };
+        }
+
+        CMS.registerEventListener({ name: 'preSave',    handler: normalizeOnEvent });
+        CMS.registerEventListener({ name: 'prePublish', handler: normalizeOnEvent });
+      }
+
+      ready(install);
+    })();
+    </script>
+
+    <!-- 自訂預覽（完整樣板在 cms.js） -->
     <script src="/admin/cms.js"></script>
   </body>
 </html>
