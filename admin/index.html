@@ -71,7 +71,7 @@
           const path = ['data', 'cover'];
           const raw  = entry.getIn(path);
           const url  = normalizeUrl(raw);
-          return { entry: entry.setIn(path, url) };
+          return { entry: entry.set('data', data.set('cover', url).set('thumbnail', url)) };
         }
 
         CMS.registerEventListener({ name: 'preSave',    handler: normalizeOnEvent });
