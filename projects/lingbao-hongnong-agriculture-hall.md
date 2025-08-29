@@ -6,7 +6,7 @@ type: 公共
 location_en: Henan, China
 location_zh: 河南，中國
 year: "2016"
-units: 3
+units: 2
 floor_area: 129
 cover: https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1756455968/v1piz2dr2osj5y2euj1n.jpg
 gallery_images:
