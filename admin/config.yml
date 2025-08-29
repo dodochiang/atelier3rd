@@ -32,7 +32,7 @@ collections:
     slug: "{{title_en}}"
     identifier_field: "title_zh"
     summary: "{{title_zh}} / {{title_en}} — {{fields.year}} · {{type}}"
-    summary_fields: ["title_zh","title_en","year","type"]
+    summary_fields: ["title_zh","title_en","year"]
     sortable_fields: ["year", "title_zh", "title_en", "commit_date"]
     thumbnail: "cover"
     preview_path: "projects/{{slug}}/"
