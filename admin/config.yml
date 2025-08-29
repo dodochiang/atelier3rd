@@ -31,7 +31,7 @@ collections:
     create: true
     slug: "{{title_en}}"
     identifier_field: "title_zh"
-    summary: "{{title_zh}} / {{title_en}} — {{year}} · {{type}}"
+    summary: "{{title_zh}} / {{title_en}} — {{year}}"
     sortable_fields: ["year", "title_zh", "title_en", "commit_date"]
     thumbnail: "cover"
     preview_path: "projects/{{slug}}/"
@@ -82,11 +82,11 @@ collections:
 
       - label: "年份"
         name: "year"
-        widget: "number"
-        value_type: "int"
-        min: 1900
-        max: 2100
+        widget: "string"         # ← 由 number 改成 string
         required: true
+        pattern:                 # ← 強制四位數
+          - '^\d{4}$'
+          - "請輸入四位數年份（例如 2024）"
         hint: "四位數；例如 2024"
 
       - label: "戶數"
@@ -143,9 +143,13 @@ collections:
       - { label: "內容（EN）", name: "body_en", widget: "markdown", required: false, hint: "英文敘述；支援 Markdown" }
       - { label: "內容（中文）", name: "body_zh", widget: "markdown", required: false, hint: "中文敘述；支援 Markdown" }
 
- # 新增：Credits / 致謝（小字顯示）
+      # 新增：Credits / 致謝（小字顯示）
       - { label: "Credits (EN)", name: "credits_en", widget: "markdown", required: false, hint: "可用換行或無序清單" }
       - { label: "致謝（中文）", name: "credits_zh", widget: "markdown", required: false, hint: "可用換行或無序清單" }
+
+      # ========== Materials / 材料細節 ==========
+      - { label: "Materials (EN)", name: "materials_en", widget: "markdown", required: false, hint: "材料、構造、設備等（英文）；支援 Markdown" }
+      - { label: "材料細節（中文）", name: "materials_zh", widget: "markdown", required: false, hint: "材料、構造、設備等（中文）；支援 Markdown" }
 
       - label: "影片連結（YouTube Embed URL）"
         name: "video"
@@ -155,6 +159,8 @@ collections:
         pattern:
           - '^$|^https:\/\/www\.youtube\.com\/embed\/[A-Za-z0-9_-]+'
           - "格式錯誤，請使用 https://www.youtube.com/embed/XXXXXX"
+
+
 
   # ========== Pages (Home / About / Contact) ==========
   - name: "pages"

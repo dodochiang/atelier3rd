@@ -40,12 +40,14 @@
     const locZh   = e.getIn(['data', 'location_zh']) || '';
     const cover   = pickUrl(e.getIn(['data', 'cover'])) || pickUrl(e.getIn(['data','thumbnail']));
 
-    // credits / body / video
-    const creditsEn = props.widgetFor && props.widgetFor('credits_en');
-    const creditsZh = props.widgetFor && props.widgetFor('credits_zh');
-    const bodyEn    = props.widgetFor && props.widgetFor('body_en');
-    const bodyZh    = props.widgetFor && props.widgetFor('body_zh');
-    const videoUrl  = e.getIn(['data','video']) || '';
+    // credits / materials / body / video
+    const creditsEn   = props.widgetFor && props.widgetFor('credits_en');
+    const creditsZh   = props.widgetFor && props.widgetFor('credits_zh');
+    const materialsEn = props.widgetFor && props.widgetFor('materials_en');
+    const materialsZh = props.widgetFor && props.widgetFor('materials_zh');
+    const bodyEn      = props.widgetFor && props.widgetFor('body_en');
+    const bodyZh      = props.widgetFor && props.widgetFor('body_zh');
+    const videoUrl    = e.getIn(['data','video']) || '';
 
     // gallery（先用進階 gallery，否則用 gallery_images）
     const gallery  = e.getIn(['data','gallery']) || [];
@@ -95,7 +97,16 @@
         bodyZh ? h('div', { class: 'lang-zh' }, bodyZh) : null
       ),
 
+      (materialsEn || materialsZh) ? h('div', { class: 'project-credits' },
+        h('h3', { class: 'lang-en' }, 'Materials'),
+        h('h3', { class: 'lang-zh' }, '材料細節'),
+        materialsEn ? h('div', { class: 'lang-en' }, materialsEn) : null,
+        materialsZh ? h('div', { class: 'lang-zh' }, materialsZh) : null
+      ) : null,
+
       (creditsEn || creditsZh) ? h('div', { class: 'project-credits' },
+        h('h3', { class: 'lang-en' }, 'Credits'),
+        h('h3', { class: 'lang-zh' }, '致謝'),
         creditsEn ? h('div', { class: 'lang-en' }, creditsEn) : null,
         creditsZh ? h('div', { class: 'lang-zh' }, creditsZh) : null
       ) : null,
