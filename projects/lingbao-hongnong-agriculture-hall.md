@@ -120,20 +120,30 @@ body_zh: >-
 credits_en: >-
   Lead Architect: Hsieh Ying Chun
 
+
   Team: Atelier-3 & Design for People Co., Ltd.
+
 
   Collaborators: Professor Hui-li He, Hongnong Academy
 
+
   Clients:Hongnong Academy
 
+
   Photographer:Ying-qun Qi
+
 
   Manufacturers: Reinforced Light-Gauge Steel Frame – Design for people Co., Ltd.
 credits_zh: |-
   總建築師：謝英俊
+
   團隊：謝英俊第三建築工作室＆常民鋼構
+
   合作夥伴：何慧麗教授，弘農書院
+
   客戶：弘農書院
+
   攝影師：戚盈群
-  使用材料和供應商：強化輕鋼結構系統—常民鋼構
+
+  材料和供應商：強化輕鋼結構系統—常民鋼構
 ---
