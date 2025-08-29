@@ -4,79 +4,22 @@
     <meta charset="utf-8" />
     <title>Content Manager</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- Netlify Identity（可留可拿掉） -->
+
+    <!-- 可留可移除：Netlify Identity -->
+    <script>window.CMS_MANUAL_INIT = true;</script>
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
-    <!-- 後台整體樣式（你現有的縮小 UI） -->
+    <!-- 後台樣式 + 預覽樣式 -->
     <link rel="stylesheet" href="/admin/admin.css">
-    <!-- 讓預覽看起來接近前台 -->
     <link rel="stylesheet" href="/admin/preview.css">
   </head>
   <body>
-    <!-- Decap CMS v3 -->
+    <!-- Decap CMS 核心 -->
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
     <!-- Cloudinary media library plugin -->
     <script src="https://unpkg.com/decap-cms-media-library-cloudinary@^3.0.0/dist/decap-cms-media-library-cloudinary.js"></script>
 
-    <script>
-      (function () {
-        function ready(fn){
-          if (document.readyState !== 'loading') fn();
-          else document.addEventListener('DOMContentLoaded', fn);
-        }
-
-        // 把任何型態 → 乾淨 URL 字串；多值（Array / Immutable.List / 夾雜多個 URL 字串）→ 取最後一個
-        function normalizeUrl(v) {
-          try {
-            // Array / Immutable.List
-            if (Array.isArray(v)) v = v.length ? v[v.length - 1] : '';
-            if (v && typeof v.get === 'function' && typeof v.size === 'number') {
-              v = v.size > 0 ? v.get(v.size - 1) : '';
-            }
-            // Immutable.Map / Plain object (Cloudinary)
-            if (v && typeof v.get === 'function' && typeof v.size !== 'number') {
-              v = v.get('secure_url') || v.get('url') || v.get('path') || v.get('src') || '';
-            } else if (v && typeof v === 'object') {
-              v = v.secure_url || v.url || v.path || v.src || '';
-            }
-            // String：擷取最後一個 URL，並清雜訊
-            if (typeof v === 'string') {
-              let s = v.trim().replace(/^[\[\s"]+/, '').replace(/[\s"\]]+$/, '');
-              const urls = s.match(/https?:\/\/[^\s"'\]]+/g);
-              if (urls && urls.length) s = urls[urls.length - 1];
-              s = s.replace(/%22/g, '').replace(/\]$/, '');
-              if (/\bList\b|\[|\]/.test(s)) return '';
-              v = s;
-            }
-            return (typeof v === 'string') ? v : '';
-          } catch { return ''; }
-        }
-
-        function install() {
-          if (!window.CMS) return;
-
-          try { CMS.setLocale && CMS.setLocale('en'); } catch {}
-          try { CMS.registerMediaLibrary(cloudinary); } catch {}
-          try { CMS.registerPreviewStyle('/admin/preview.css'); } catch {}
-
-          // 存檔／發佈前：把 cover 壓成單一字串
-          function normalizeOnEvent({ entry, collection }) {
-            if (!collection || collection.get('name') !== 'projects') return;
-            const data = entry.get('data');
-            const raw  = data && data.get && data.get('cover');
-            const url  = normalizeUrl(raw);
-            return { entry: entry.set('data', data.set('cover', url)) };
-          }
-
-          CMS.registerEventListener({ name: 'preSave',    handler: normalizeOnEvent });
-          CMS.registerEventListener({ name: 'prePublish', handler: normalizeOnEvent });
-        }
-
-        ready(install);
-      })();
-    </script>
-
-    <!-- 你的 CMS 初始化（預覽元件放在 cms.js） -->
+    <!-- 你的 CMS 初始化（自訂 widget / 預覽模板 / 事件註冊與 CMS.init 都在這裡） -->
     <script src="/admin/cms.js"></script>
   </body>
 </html>

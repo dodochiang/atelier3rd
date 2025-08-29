@@ -33,7 +33,7 @@ collections:
     identifier_field: "title_zh"
     summary: "{{title_zh}} / {{title_en}} — {{year}} · {{type}}"
     sortable_fields: ["year", "title_zh", "title_en", "commit_date"]
-    thumbnail: "cover"
+    thumbnail: "thumbnail"
     preview_path: "projects/{{slug}}/"
     fields:
       - label: "Layout"
@@ -111,7 +111,7 @@ collections:
 
       - label: "縮圖"
         name: "cover"
-        widget: "image"
+        widget: "singleimage"
         choose_url: false
         required: false
         allow_multiple: false
