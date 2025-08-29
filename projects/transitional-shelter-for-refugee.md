@@ -8,8 +8,25 @@ location_zh: 赫爾辛基，芬蘭
 year: 2014
 units: 1
 floor_area: 19
-cover: ""
-gallery_images: ""
+cover: https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1756452969/ojrjg4sctmovuwninazd.jpg
+gallery_images:
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1756452970/jlllrua6jtoedyun6rjg.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1756452973/bcvqjd2ed8vht2pbc9fu.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1756452977/lewnt567melobdbabxoz.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1756452979/p9vvxyg6vafoufg2i6oq.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1756452972/rybyoit5wey83g6uxcuh.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1756452970/g3ths32gh7xm6mromdif.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1756452978/a4rkayvxowio4icsw1ka.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1756452973/otth0ynrnuzuwponeujk.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1756452977/dhibmgjp8qs3vdhxdbrd.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1756452975/e0rt6owdjzdwuxyrh4q1.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1756452974/g3jbwpgwemopz12z7zka.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1756452976/tn2z3cuh2vfgteopezxs.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1756452975/kjfok2gaw1yiz0sr7do3.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1756452971/chte3rulthpoqhtq0qe0.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1756452969/r7xmpdqaanstzb3g4gbb.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1756452968/ffqpzsjc4as0oljompea.jpg
+  - https://res.cloudinary.com/dw6nekwxn/image/upload/f_auto,q_auto/v1756452969/r5nhlnov442gvyvekj5x.jpg
 gallery: []
 body_en: >-
   #### Transitional Shelter, Built by Users
