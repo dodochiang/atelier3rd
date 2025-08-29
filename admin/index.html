@@ -19,72 +19,80 @@
     <script src="https://unpkg.com/decap-cms-media-library-cloudinary@^3.0.0/dist/decap-cms-media-library-cloudinary.js"></script>
 
     <script>
-      (function () {
-        function ready(fn){
-          if (document.readyState !== 'loading') fn();
-          else document.addEventListener('DOMContentLoaded', fn);
-        }
+    (function () {
+      function ready(fn){
+        if (document.readyState !== 'loading') fn();
+        else document.addEventListener('DOMContentLoaded', fn);
+      }
 
-        // 把任何型態 → 單一乾淨 URL 字串（最後一個 URL）
-        function normalizeUrl(v) {
-          try {
-            if (Array.isArray(v)) v = v.length ? v[v.length - 1] : '';
-            if (v && typeof v.get === 'function' && typeof v.size === 'number') {
-              v = v.size > 0 ? v.get(v.size - 1) : '';         // Immutable.List 取最後
-            }
-            if (v && typeof v.get === 'function' && typeof v.size !== 'number') {
-              v = v.get('secure_url') || v.get('url') || v.get('path') || v.get('src') || ''; // Immutable.Map
-            } else if (v && typeof v === 'object') {
-              v = v.secure_url || v.url || v.path || v.src || ''; // 一般物件
-            }
-            if (typeof v === 'string') {
-              let s = v.trim().replace(/^[\[\s"]+/, '').replace(/[\s"\]]+$/, '');
-              const urls = s.match(/https?:\/\/[^\s"'\]]+/g);
-              if (urls && urls.length) s = urls[urls.length - 1];
-              s = s.replace(/%22/g, '').replace(/\]$/, '');
-              if (/\bList\b|\[|\]/.test(s)) return '';
-              return s;
-            }
-            return (typeof v === 'string') ? v : '';
-          } catch { return ''; }
-        }
-
-        // ✅ 重點：只處理 URL 的 pathname，一律「decode 再 encode」
-        function reencodePath(urlStr) {
-          try {
-            const u = new URL(urlStr);
-            // 防止雙重編碼：先 decode 一次，再 encodeURI 回去
-            u.pathname = encodeURI(decodeURI(u.pathname));
-            return u.toString();
-          } catch {
-            return urlStr;
+      // 把任何型態 → 單一乾淨 URL 字串（最後一個 URL）
+      function normalizeUrl(v) {
+        try {
+          if (Array.isArray(v)) v = v.length ? v[v.length - 1] : '';
+          if (v && typeof v.get === 'function' && typeof v.size === 'number') {
+            v = v.size > 0 ? v.get(v.size - 1) : '';               // Immutable.List
           }
-        }
-
-        function install() {
-          if (!window.CMS) return;
-
-          try { CMS.setLocale && CMS.setLocale('en'); } catch {}
-          try { CMS.registerMediaLibrary(cloudinary); } catch {}
-          try { CMS.registerPreviewStyle('/admin/preview.css'); } catch {}
-
-          // 存稿 / 發布前：cover → 單值字串、並 re-encode 路徑、同步到 thumbnail（供 Grid 用）
-          function normalizeOnEvent({ entry, collection }) {
-            if (!collection || collection.get('name') !== 'projects') return;
-            const data = entry.get('data');
-            const raw  = data && data.get && data.get('cover');
-            let url    = normalizeUrl(raw);
-            if (url) url = reencodePath(url);  // ⬅️ 修正中文/特殊字元路徑
-            const next = data.set('cover', url).set('thumbnail', url);
-            return { entry: entry.set('data', next) };
+          if (v && typeof v.get === 'function' && typeof v.size !== 'number') {
+            v = v.get('secure_url') || v.get('url') || v.get('path') || v.get('src') || ''; // Immutable.Map
+          } else if (v && typeof v === 'object') {
+            v = v.secure_url || v.url || v.path || v.src || '';    // 一般物件
           }
+          if (typeof v === 'string') {
+            let s = v.trim()
+              .replace(/^[\[\s"]+/, '')
+              .replace(/[\s"\]]+$/, '')
+              .replace(/%22/g, '')
+              .replace(/\]$/, '');
+            const urls = s.match(/https?:\/\/[^\s"'\]]+/g);
+            if (urls && urls.length) s = urls[urls.length - 1];
+            if (/\bList\b|\[|\]/.test(s)) return '';
+            return s;
+          }
+          return (typeof v === 'string') ? v : '';
+        } catch { return ''; }
+      }
 
-          CMS.registerEventListener({ name: 'preSave',    handler: normalizeOnEvent });
-          CMS.registerEventListener({ name: 'prePublish', handler: normalizeOnEvent });
+      // 只針對 pathname 做「decode → encode」，其餘 query/host 不動
+      function reencodePath(urlStr) {
+        try {
+          const u = new URL(urlStr);
+          u.pathname = encodeURI(decodeURI(u.pathname)); // 修中文/特殊字元
+          let safe = u.toString();
+
+          // Cloudinary 轉換參數中的逗號要保留，不要被編碼成 %2C
+          safe = safe.replace(/%2C/gi, ',');
+          // 也避免有人把 'https://' 變成 'https:%2F%2F'
+          safe = safe.replace(/https:%2F%2F/gi, 'https://').replace(/http:%2F%2F/gi, 'http://');
+
+          return safe;
+        } catch {
+          return urlStr;
+        }
+      }
+
+      function install() {
+        if (!window.CMS) return;
+        try { CMS.setLocale && CMS.setLocale('en'); } catch {}
+        try { CMS.registerMediaLibrary(cloudinary); } catch {}
+        try { CMS.registerPreviewStyle('/admin/preview.css'); } catch {}
+
+        // 存稿/發布前：cover → 單值；修正路徑編碼；同步到 thumbnail（供 Grid 用）
+        function normalizeOnEvent({ entry, collection }) {
+          if (!collection || collection.get('name') !== 'projects') return;
+          const data = entry.get('data');
+          const raw  = data && data.get && data.get('cover');
+          let url    = normalizeUrl(raw);
+          if (url) url = reencodePath(url);
+          const next = data.set('cover', url).set('thumbnail', url);
+          return { entry: entry.set('data', next) };
         }
 
-        ready(install);
-      })();
+        CMS.registerEventListener({ name: 'preSave',    handler: normalizeOnEvent });
+        CMS.registerEventListener({ name: 'prePublish', handler: normalizeOnEvent });
+      }
+
+      ready(install);
+    })();
     </script>
 
     <!-- 自訂預覽（完整樣板在 cms.js） -->
