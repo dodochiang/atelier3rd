@@ -1,0 +1,102 @@
+/* ===============================
+ * 單一作品頁 project.njk 專用樣式
+ * =============================== */
+.project-hero {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 500px;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 2.5em;
+}
+.project-hero img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center;
+  display: block;
+}
+
+.project-title {
+  text-align: center;
+  font-size: 18pt;
+  font-weight: bold;
+  margin: 1em 0;
+}
+
+.project-section-title {
+  text-align: center;
+  font-size: 1.2em;
+  font-weight: bold;
+  margin: 2em 0 1em;
+  color: #444;
+}
+
+.project-meta-line {
+  text-align: center;
+  font-size: .9em;
+  color: gray;
+}
+.project-meta-line + .project-meta-line { margin-top: .25em; }
+
+.project-meta-line a.meta-link {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.project-meta-line a.meta-link:hover {
+  border-bottom-color: #999;
+}
+
+.project-content {
+  max-width: 800px;
+  margin: 0 auto 2em;
+  line-height: 1.6;
+}
+
+.project-credits {
+  max-width: 800px;
+  margin: 0 auto 1.5em;
+  font-size: .85em;
+  color: #777;
+  line-height: 1.5;
+}
+.project-credits h3 { margin: 0 0 .4em; font-size: 1em; font-weight: 700; color: #666; text-align: left; }
+.project-credits p  { margin: .2em 0; }
+.project-credits ul { margin: .3em 0 .6em 1.2em; }
+
+.project-slider { max-width: 100%; margin: 2em auto; position: relative; }
+.slider-window  { position: relative; }
+.slide          { display: none; width: 100%; }
+.slide.active   { display: block; }
+
+.slide-image-wrapper { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; }
+.slide-image-wrapper img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; cursor: zoom-in; }
+
+.gallery-caption { margin-top: .5em; padding: .5em 1em; text-align: center; font-size: .85em; color: gray; }
+
+.slider-btn {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  background: rgba(255,255,255,.7); border: none; cursor: pointer; z-index: 2;
+  line-height: 1; padding: .2em .5em; border-radius: .4em; font-size: 1.5em;
+}
+.slider-btn.prev { left: 1em; }
+.slider-btn.next { right: 1em; }
+
+.lightbox {
+  display: none; position: fixed; z-index: 999; inset: 0; background: rgba(0,0,0,.9);
+  align-items: center; justify-content: center; flex-direction: column;
+}
+.lightbox img      { max-width: 90vw; max-height: 80vh; width: auto; height: auto; object-fit: contain; }
+.lightbox-caption  { color: #fff; margin-top: 1em; font-size: .9em; text-align: center; padding: 0 .75em; }
+.lightbox-controls { position: absolute; width: 100%; top: 50%; display: flex; justify-content: space-between; padding: 0 2em; }
+.lightbox-btn      { color: #fff; font-size: 2em; background: transparent; border: none; cursor: pointer; }
+.lightbox-close    { position: absolute; top: 1em; right: 2em; color: #fff; font-size: 2em; cursor: pointer; }
+
+.section-divider { border: none; border-top: 1px solid #ccc; margin: 5em auto; width: 60%; }
+
+.video-container { position: relative; width: 100%; aspect-ratio: 4 / 3; overflow: hidden; max-height: 500px; }
+.video-container iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+@media (max-width: 600px) {
+  .project-hero, .video-container { max-height: 300px; }
+}

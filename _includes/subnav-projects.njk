@@ -1,0 +1,62 @@
+<!-- HTML 結構 -->
+<nav class="subnav">
+  <div class="subnav-inner">
+    <!-- ① Type（桌機+手機抽屜） -->
+    <div class="type-group">
+      <div class="type-inline">
+        <span class="chip-title"><span class="lang-en">Type:</span><span class="lang-zh">類型：</span></span>
+        <div class="chip-bar">
+          <button class="chip type-chip" data-type="ALL"><span class="lang-en">All</span><span class="lang-zh">全部</span></button>
+          <button class="chip type-chip" data-type="Residential"><span class="lang-en">Residential</span><span class="lang-zh">住宅</span></button>
+          <button class="chip type-chip" data-type="Commercial"><span class="lang-en">Commercial</span><span class="lang-zh">商業</span></button>
+          <button class="chip type-chip" data-type="Cultural"><span class="lang-en">Cultural</span><span class="lang-zh">文化</span></button>
+          <button class="chip type-chip" data-type="Public"><span class="lang-en">Public</span><span class="lang-zh">公共</span></button>
+          <button class="chip type-chip" data-type="Installation"><span class="lang-en">Installation</span><span class="lang-zh">裝置</span></button>
+          <button class="chip type-chip" data-type="Workshop"><span class="lang-en">Workshop</span><span class="lang-zh">工作營</span></button>
+          <button class="chip type-chip" data-type="Exhibition"><span class="lang-en">Exhibition</span><span class="lang-zh">展覽</span></button>
+        </div>
+      </div>
+
+      <div class="type-mobile">
+        <span class="chip-title"><span class="lang-en">Type:</span><span class="lang-zh">類型：</span></span>
+        <button id="typeToggleMobile" class="type-toggle-mobile" aria-expanded="false" aria-controls="typeDrawer">▾</button>
+      </div>
+    </div>
+
+    <!-- ② Region -->
+    <div class="region-group">
+      <span class="chip-title"><span class="lang-en">Region:</span><span class="lang-zh">地區：</span></span>
+      <div class="chip-bar region-bar">
+        <button class="chip region-chip" data-region="all"><span class="lang-en">All</span><span class="lang-zh">全部</span></button>
+        <button class="chip region-chip" data-region="taiwan"><span class="lang-en">Taiwan</span><span class="lang-zh">台灣</span></button>
+        <button class="chip region-chip" data-region="china"><span class="lang-en">China</span><span class="lang-zh">中國</span></button>
+        <button class="chip region-chip" data-region="overseas"><span class="lang-en">Others</span><span class="lang-zh">其他</span></button>
+      </div>
+    </div>
+
+    <!-- ③ Sort -->
+    <div class="sort-group">
+      <span class="chip-title"><span class="lang-en">Sort by Year:</span><span class="lang-zh">按年排序：</span></span>
+      <button id="sortToggle" class="sort-toggle" data-order="desc"><span id="sortArrow">↓</span></button>
+    </div>
+  </div>
+</nav>
+
+<!-- TYPE 抽屜 -->
+<aside id="typeDrawer" class="type-drawer" aria-hidden="true">
+  <div class="drawer-header">
+    <button id="typeDrawerClose" class="drawer-close" aria-label="Close">×</button>
+  </div>
+  <div class="drawer-list">
+    <div class="chip-title"><span class="lang-en">Choose types</span><span class="lang-zh">選擇類型</span></div>
+    <button class="chip type-chip" data-type="ALL"><span class="lang-en">All</span><span class="lang-zh">全部</span></button>
+    <button class="chip type-chip" data-type="Residential"><span class="lang-en">Residential</span><span class="lang-zh">住宅</span></button>
+    <button class="chip type-chip" data-type="Commercial"><span class="lang-en">Commercial</span><span class="lang-zh">商業</span></button>
+    <button class="chip type-chip" data-type="Cultural"><span class="lang-en">Cultural</span><span class="lang-zh">文化</span></button>
+    <button class="chip type-chip" data-type="Public"><span class="lang-en">Public</span><span class="lang-zh">公共</span></button>
+    <button class="chip type-chip" data-type="Installation"><span class="lang-en">Installation</span><span class="lang-zh">裝置</span></button>
+    <button class="chip type-chip" data-type="Workshop"><span class="lang-en">Workshop</span><span class="lang-zh">工作營</span></button>
+    <button class="chip type-chip" data-type="Exhibition"><span class="lang-en">Exhibition</span><span class="lang-zh">展覽</span></button>
+  </div>
+</aside>
+<div id="typeBackdrop" class="drawer-backdrop" aria-hidden="true"></div>

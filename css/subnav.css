@@ -1,0 +1,144 @@
+.subnav {
+  position: sticky;
+  top: var(--nav-h);
+  z-index: 15;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+  height: var(--subnav-h);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.subnav-inner {
+  max-width: var(--container-w);
+  margin: 0 auto;
+  padding: 0.6em 1em;
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 0.5fr) minmax(0, 0.4fr);
+  column-gap: 1.25em;
+  align-items: start;
+}
+
+.subnav-inner > * {
+  min-width: 0;
+}
+
+.chip-title {
+  display: block;
+  font-size: 0.8em;
+  color: #666;
+  line-height: 1.2;
+}
+
+.chip-bar {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.5em;
+}
+
+.chip {
+  padding: 0;
+  background: none;
+  border: none;
+  color: #555;
+  cursor: pointer;
+  font: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+  font-size: 0.9em;
+}
+
+.chip:hover     { color: #000; }
+.chip.active    { color: #000; border-bottom-color: #000; }
+
+.region-bar {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.5em;
+  align-items: center;
+  overflow: hidden;
+}
+
+.sort-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  color: #333;
+  border-bottom: 1px solid transparent;
+  padding: 0;
+  line-height: 1;
+  font-size: 0.9em;
+}
+
+.sort-toggle:hover {
+  border-bottom-color: #333;
+}
+
+#sortArrow {
+  display: inline-block;
+}
+
+/* >900px 桌機 */
+@media (min-width: 901px) {
+  .type-inline,
+  .region-group,
+  .sort-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25em;
+  }
+
+  .region-bar,
+  .sort-toggle {
+    margin-top: 0 !important;
+  }
+}
+
+/* <900px 手機 */
+@media (max-width: 900px) {
+  .subnav-inner {
+    grid-template-columns: auto 1fr auto;
+    align-items: start;
+  }
+
+  .type-inline { display: none; }
+
+  .type-mobile,
+  .region-group,
+  .sort-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25em;
+  }
+
+  .type-toggle-mobile,
+  .region-bar,
+  .sort-toggle {
+    margin-top: 0 !important;
+  }
+
+  .type-mobile .chip-title,
+  .region-group .chip-title {
+    font-size: 0.8em;
+    line-height: 1.2;
+  }
+
+  .type-toggle-mobile {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    background: none;
+    border: 0;
+    padding: 0;
+    color: #333;
+    font: inherit;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+}

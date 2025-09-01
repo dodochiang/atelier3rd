@@ -6,12 +6,10 @@
   <span class="lang lang-zh">{{ title_zh }}</span>
 </h1>
 
-<div class="project-content">
-  <div class="lang lang-en">
-    {{ body_en | markdown | safe }}
-  </div>
-  <div class="lang lang-zh">
-    {{ body_zh | markdown | safe }}
-  </div>
+<div class="lang lang-en">
+  {{ body_en | safe }}
+</div>
+<div class="lang lang-zh">
+  {{ body_zh | safe }}
 </div>
 {% endblock %}

@@ -1,345 +1,13 @@
+{% set currentUrl = page.url or '/' %}
 <!DOCTYPE html>
 <html data-lang="zh">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ title_en or title_zh or 'Untitled Page' }}</title>
-
-  <!-- Favicon -->
   <link rel="icon" type="image/png" href="/uploads/favicon.png">
-  <link rel="shortcut icon" type="image/png" href="/uploads/favicon.png">
-  <link rel="icon" type="image/png" href="/uploads/favicon.png?v=2">
-
-  <style>
-    :root {
-      --nav-h: 64px;
-      --subnav-h: 64px;
-      --container-w: 1000px;
-      --drawer-w: 24vw;
-      --drawer-w-max: 320px;
-    }
-
-    html[data-lang='en'] .lang-zh { display: none !important; }
-    html[data-lang='zh'] .lang-en { display: none !important; }
-
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      padding: 0;
-      color: #111;
-      background: #fff;
-    }
-
-    .container {
-      max-width: var(--container-w);
-      margin: 2em auto;
-      padding: 1em;
-    }
-
-    /* Navbar */
-    .navbar {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: var(--nav-h);
-      padding: 0 2em;
-      background: #fff;
-      border-bottom: 1px solid #ddd;
-    }
-
-    .navbar-right a {
-      margin-left: 1em;
-      color: #000;
-      font-size: 1.1em;
-      font-weight: bold;
-      text-decoration: none;
-      transition: color 0.2s ease;
-    }
-
-    .navbar-right a:hover { color: #333; }
-
-    .lang-toggle {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.9rem;
-    }
-
-    .lang-btn {
-      padding: 2px 4px;
-      background: none;
-      border: none;
-      color: gray;
-      font-weight: normal;
-      cursor: pointer;
-      transition: color 0.2s ease;
-      font-size: inherit;
-    }
-
-    .lang-btn.active { color: #000; font-weight: bold; }
-    .lang-btn:hover  { color: #333; }
-
-    /* Subnav */
-    .subnav {
-      position: sticky;
-      top: var(--nav-h);
-      z-index: 15;
-      background: #fff;
-      border-bottom: 1px solid #eee;
-      height: var(--subnav-h);
-      display: flex;
-      align-items: center;
-      overflow: hidden;
-    }
-
-    .subnav-inner {
-      max-width: var(--container-w);
-      margin: 0 auto;
-      padding: 0.6em 1em;
-      width: 100%;
-      display: grid;
-      grid-template-columns: minmax(0, 1.6fr) minmax(0, 0.5fr) minmax(0, 0.4fr);
-      column-gap: 1.25em;
-      align-items: start;
-    }
-
-    .subnav-inner > * { min-width: 0; }
-
-    .chip-title {
-      display: block;
-      font-size: 0.8em;
-      color: #666;
-      line-height: 1.2;
-    }
-
-    .chip-bar {
-      display: flex;
-      flex-wrap: nowrap;
-      gap: 0.5em;
-    }
-
-    .chip {
-      padding: 0;
-      background: none;
-      border: none;
-      color: #555;
-      cursor: pointer;
-      font: inherit;
-      text-decoration: none;
-      border-bottom: 1px solid transparent;
-      transition: color 0.2s, border-color 0.2s;
-      font-size: 0.9em;
-    }
-
-    .chip:hover     { color: #000; }
-    .chip.active    { color: #000; border-bottom-color: #000; }
-
-    /* Group base layout for >900px */
-    @media (min-width: 901px) {
-      .type-inline,
-      .region-group,
-      .sort-group {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.25em;
-      }
-
-      .region-bar,
-      .sort-toggle {
-        margin-top: 0 !important;
-      }
-    }
-
-    /* Region chips */
-    .region-bar {
-      display: flex;
-      flex-wrap: nowrap;
-      gap: 0.5em;
-      align-items: center;
-      overflow: hidden;
-    }
-
-    /* Sort chips */
-    .sort-toggle {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font: inherit;
-      color: #333;
-      border-bottom: 1px solid transparent;
-      padding: 0;
-      line-height: 1;
-      font-size: 0.9em;
-    }
-
-    .sort-toggle:hover { border-bottom-color: #333; }
-    #sortArrow { display: inline-block; }
-
-    /* Mobile version */
-    @media (max-width: 900px) {
-      .subnav-inner {
-        grid-template-columns: auto 1fr auto;
-        align-items: start;
-      }
-
-      .type-inline { display: none; }
-
-      .type-mobile,
-      .region-group,
-      .sort-group {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.25em;
-      }
-
-      .type-toggle-mobile,
-      .region-bar,
-      .sort-toggle {
-        margin-top: 0 !important;
-      }
-
-      .type-mobile .chip-title,
-      .region-group .chip-title {
-        font-size: 0.8em;
-        line-height: 1.2;
-      }
-
-      .type-toggle-mobile {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4em;
-        background: none;
-        border: 0;
-        padding: 0;
-        color: #333;
-        font: inherit;
-        white-space: nowrap;
-        cursor: pointer;
-      }
-    }
-
-    /* Drawer for mobile */
-    .drawer-backdrop {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.15);
-      z-index: 40;
-    }
-
-    .drawer-backdrop.is-open { display: block; }
-
-    .type-drawer {
-      position: fixed;
-      top: var(--nav-h);
-      bottom: 0;
-      left: 0;
-      width: min(var(--drawer-w), var(--drawer-w-max));
-      background: rgba(255, 255, 255, 0.72);
-      backdrop-filter: blur(4px);
-      z-index: 41;
-      transform: translateX(-100%);
-      transition: transform 0.25s ease;
-      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-      padding: 1rem 1rem 1.25rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .type-drawer.is-open { transform: translateX(0); }
-
-    .drawer-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-bottom: 0.25rem;
-      border-bottom: 1px solid #eee;
-    }
-
-    .drawer-close {
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      line-height: 1;
-      cursor: pointer;
-    }
-
-    .drawer-list {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.2em;
-    }
-
-    .drawer-list .chip-title {
-      margin: 0 0 0.5em 0;
-    }
-
-    .drawer-list .chip {
-      display: inline-block;
-      width: auto;
-      text-align: left;
-      padding: 0.35em 0;
-      border-bottom: 1px solid transparent;
-      white-space: nowrap;
-    }
-
-    .drawer-list .chip.active {
-      color: #000;
-      border-bottom-color: #000;
-    }
-
-    .drawer-list .chip + .chip {
-      margin-top: 0.1em;
-    }
-
-    @media (min-width: 901px) {
-      .type-inline {
-        display: flex !important;
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .type-toggle-mobile,
-      .type-mobile {
-        display: none !important;
-      }
-    }
-
-    @media (max-width: 900px) {
-      .type-inline {
-        display: none !important;
-      }
-
-      .type-mobile {
-        display: flex !important;
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .type-toggle-mobile {
-        display: inline-flex !important;
-        align-items: center;
-        gap: 0.4em;
-        background: none;
-        border: 0;
-        padding: 0;
-        color: #333;
-        font: inherit;
-        white-space: nowrap;
-        cursor: pointer;
-        margin-top: 0.25em;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
-
 <body>
   <!-- ========= 第一層導覽 ========= -->
   <nav class="navbar">
@@ -348,85 +16,21 @@
       <button class="lang-btn" data-lang-toggle="en">EN</button>
     </div>
     <div class="navbar-right">
+      <a class="lang-en" href="/core/">Core</a>
       <a class="lang-en" href="/projects/">Projects</a>
       <a class="lang-en" href="/about/">About</a>
+      <a class="lang-zh" href="/core/">核心</a>
       <a class="lang-zh" href="/projects/">項目</a>
       <a class="lang-zh" href="/about/">關於</a>
     </div>
   </nav>
 
   <!-- ========= 第二層導覽 ========= -->
-  <nav id="projectsSubnav" class="subnav">
-    <div class="subnav-inner">
-      <!-- ① TYPE（桌機：inline；手機：按鈕開抽屜） -->
-      <div class="type-group" id="typeGroup">
-        <!-- 桌機 inline chips（單行、溢出隱藏） -->
-        <div class="type-inline" style="flex-direction: column; align-items: flex-start;">
-          <span class="chip-title">
-            <span class="lang-en">Type:</span>
-            <span class="lang-zh">類型：</span>
-          </span>
-          <div class="chip-bar">
-            <button class="chip type-chip" data-type="ALL"><span class="lang-en">All</span><span class="lang-zh">全部</span></button>
-            <button class="chip type-chip" data-type="Residential"><span class="lang-en">Residential</span><span class="lang-zh">住宅</span></button>
-            <button class="chip type-chip" data-type="Commercial"><span class="lang-en">Commercial</span><span class="lang-zh">商業</span></button>
-            <button class="chip type-chip" data-type="Cultural"><span class="lang-en">Cultural</span><span class="lang-zh">文化</span></button>
-            <button class="chip type-chip" data-type="Public"><span class="lang-en">Public</span><span class="lang-zh">公共</span></button>
-            <button class="chip type-chip" data-type="Installation"><span class="lang-en">Installation</span><span class="lang-zh">裝置</span></button>
-            <button class="chip type-chip" data-type="Workshop"><span class="lang-en">Workshop</span><span class="lang-zh">工作營</span></button>
-            <button class="chip type-chip" data-type="Exhibition"><span class="lang-en">Exhibition</span><span class="lang-zh">展覽</span></button>
-          </div>
-        </div>
-
-        <!-- 手機：小標籤 + 按鈕 -->
-        <div class="type-mobile">
-          <span class="chip-title">
-            <span class="lang-en">Type:</span>
-            <span class="lang-zh">類型：</span>
-          </span>
-          <button id="typeToggleMobile" class="type-toggle-mobile" aria-expanded="false" aria-controls="typeDrawer">
-             ▾
-          </button>
-        </div>
-      </div> <!-- ←← 修正：關閉 type-group 容器 -->
-
-      <!-- ② REGION（一直 inline；手機給較寬中欄） -->
-      <div class="region-group">
-        <span class="chip-title"><span class="lang-en">Region:</span><span class="lang-zh">地區：</span></span>
-        <div class="chip-bar region-bar">
-          <button class="chip region-chip active" data-region="all"><span class="lang-en">All</span><span class="lang-zh">全部</span></button>
-          <button class="chip region-chip" data-region="taiwan"><span class="lang-en">Taiwan</span><span class="lang-zh">台灣</span></button>
-          <button class="chip region-chip" data-region="china"><span class="lang-en">China</span><span class="lang-zh">中國</span></button>
-          <button class="chip region-chip" data-region="overseas"><span class="lang-en">Others</span><span class="lang-zh">其他</span></button>
-        </div>
-      </div>
-
-      <!-- ③ SORT -->
-      <div class="sort-group">
-        <span class="chip-title"><span class="lang-en">Sort by Year:</span><span class="lang-zh">按年排序：</span></span>
-        <button id="sortToggle" class="sort-toggle" data-order="desc"><span id="sortArrow">↓</span></button>
-      </div>
-    </div>
-  </nav>
-
-  <!-- TYPE：手機左側窄抽屜（垂直清單，一行一個） -->
-  <aside id="typeDrawer" class="type-drawer" aria-hidden="true">
-    <div class="drawer-header">
-      <button id="typeDrawerClose" class="drawer-close" aria-label="Close">×</button>
-    </div>
-    <div class="drawer-list">
-      <div class="chip-title"><span class="lang-en">Choose types</span><span class="lang-zh">選擇類型</span></div>
-      <button class="chip type-chip" data-type="ALL"><span class="lang-en">All</span><span class="lang-zh">全部</span></button>
-      <button class="chip type-chip" data-type="Residential"><span class="lang-en">Residential</span><span class="lang-zh">住宅</span></button>
-      <button class="chip type-chip" data-type="Commercial"><span class="lang-en">Commercial</span><span class="lang-zh">商業</span></button>
-      <button class="chip type-chip" data-type="Cultural"><span class="lang-en">Cultural</span><span class="lang-zh">文化</span></button>
-      <button class="chip type-chip" data-type="Public"><span class="lang-en">Public</span><span class="lang-zh">公共</span></button>
-      <button class="chip type-chip" data-type="Installation"><span class="lang-en">Installation</span><span class="lang-zh">裝置</span></button>
-      <button class="chip type-chip" data-type="Workshop"><span class="lang-en">Workshop</span><span class="lang-zh">工作營</span></button>
-      <button class="chip type-chip" data-type="Exhibition"><span class="lang-en">Exhibition</span><span class="lang-zh">展覽</span></button>
-    </div>
-  </aside>
-  <div id="typeBackdrop" class="drawer-backdrop" aria-hidden="true"></div>
+  {% if currentUrl == "/projects/" %}
+    {% include "subnav-projects.njk" %}
+  {% elif currentUrl == "/core/" or currentUrl == "/about/" %}
+    {% include "subnav-keywords.njk" %}
+  {% endif %}
 
   <!-- ========= 版身 ========= -->
   <div class="container">
@@ -435,7 +39,7 @@
 
   <!-- ========= Scripts ========= -->
   <script>
-    /* 語系切換 */
+    // ✅ 語言切換
     function setLang(lang) {
       localStorage.setItem('lang', lang);
       document.documentElement.setAttribute('data-lang', lang);
@@ -443,197 +47,154 @@
         btn.classList.toggle('active', btn.getAttribute('data-lang-toggle') === lang);
       });
     }
+
     document.addEventListener("DOMContentLoaded", function () {
       const savedLang = localStorage.getItem('lang') || 'zh';
       setLang(savedLang);
       document.querySelectorAll('[data-lang-toggle]').forEach(btn => {
         btn.addEventListener('click', () => setLang(btn.getAttribute('data-lang-toggle') || 'zh'));
       });
+
+      // ✅ mobile drawer 開關
+      const drawer = document.getElementById("typeDrawer");
+      const backdrop = document.getElementById("typeBackdrop");
+      const openBtn = document.getElementById("typeToggleMobile");
+      const closeBtn = document.getElementById("typeDrawerClose");
+
+      if (openBtn && drawer && backdrop) {
+        openBtn.addEventListener("click", () => {
+          drawer.classList.add("is-open");
+          backdrop.classList.add("is-open");
+        });
+        closeBtn.addEventListener("click", () => {
+          drawer.classList.remove("is-open");
+          backdrop.classList.remove("is-open");
+        });
+        backdrop.addEventListener("click", () => {
+          drawer.classList.remove("is-open");
+          backdrop.classList.remove("is-open");
+        });
+      }
+
+      // ✅ sort toggle（遞增 / 遞減）
+      const sortBtn = document.getElementById("sortToggle");
+      if (sortBtn) {
+        sortBtn.addEventListener("click", () => {
+          const current = sortBtn.dataset.order || "desc";
+          const next = current === "desc" ? "asc" : "desc";
+
+          const url = new URL(window.location.href);
+          url.searchParams.set("sort", next);
+          window.location.href = url.toString();
+        });
+      }
+    });
+  </script>
+  <script>
+// ======== 篩選功能（僅限 /projects/ 頁面）========
+document.addEventListener("DOMContentLoaded", function () {
+  if (!location.pathname.startsWith("/projects")) return;
+
+  const projects = Array.from(document.querySelectorAll(".project"));
+  const chips = document.querySelectorAll(".chip");
+  const typeChips = document.querySelectorAll(".type-chip");
+  const regionChips = document.querySelectorAll(".region-chip");
+  const sortBtn = document.getElementById("sortToggle");
+  let selectedTypes = new Set();
+  let selectedRegions = new Set();
+  let sortDesc = true;
+
+  function updateProjects() {
+    projects.forEach(p => {
+      const type = p.getAttribute("data-type");
+      const region = p.getAttribute("data-region");
+
+      const typeMatch = selectedTypes.size === 0 || selectedTypes.has(type);
+      const regionMatch = selectedRegions.size === 0 || selectedRegions.has(region);
+
+      p.style.display = (typeMatch && regionMatch) ? "" : "none";
     });
 
-    /* 第二層 navbar 行為 */
-    (function(){
-      const subnav = document.getElementById('projectsSubnav');
-      if (!subnav) return;
+    // 排序
+    const list = document.querySelector(".projects-grid");
+    const sorted = projects.sort((a, b) => {
+      const ya = parseInt(a.getAttribute("data-year")) || 0;
+      const yb = parseInt(b.getAttribute("data-year")) || 0;
+      return sortDesc ? yb - ya : ya - yb;
+    });
+    sorted.forEach(p => list.appendChild(p));
+  }
 
-      const onProjectsPage = !!location.pathname.match(/^\/projects\/?$/);
-      const $  = (s, r=document)=>r.querySelector(s);
-      const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
-
-      // TYPE drawer (mobile)
-      (function(){
-        const btn      = document.getElementById('typeToggleMobile');
-        const drawer   = document.getElementById('typeDrawer');
-        const closeBtn = document.getElementById('typeDrawerClose');
-        const backdrop = document.getElementById('typeBackdrop');
-
-        if (!btn || !drawer || !closeBtn || !backdrop) return;
-
-        function openDrawer(){
-          drawer.classList.add('is-open');
-          backdrop.classList.add('is-open');
-          btn.setAttribute('aria-expanded', 'true');
-          document.body.style.overflow = 'hidden';
+  // 類型篩選
+  typeChips.forEach(chip => {
+    chip.addEventListener("click", () => {
+      const type = chip.getAttribute("data-type");
+      if (type === "ALL") {
+        selectedTypes.clear();
+      } else {
+        if (selectedTypes.has(type)) {
+          selectedTypes.delete(type);
+        } else {
+          selectedTypes.add(type);
         }
-        function closeDrawer(){
-          drawer.classList.remove('is-open');
-          backdrop.classList.remove('is-open');
-          btn.setAttribute('aria-expanded', 'false');
-          document.body.style.overflow = '';
+      }
+
+      // Active 樣式更新
+      typeChips.forEach(c => c.classList.remove("active"));
+      if (selectedTypes.size === 0) {
+        document.querySelectorAll(".type-chip[data-type='ALL']").forEach(c => c.classList.add("active"));
+      } else {
+        typeChips.forEach(c => {
+          const t = c.getAttribute("data-type");
+          if (selectedTypes.has(t)) c.classList.add("active");
+        });
+      }
+
+      updateProjects();
+    });
+  });
+
+  // 地區篩選
+  regionChips.forEach(chip => {
+    chip.addEventListener("click", () => {
+      const region = chip.getAttribute("data-region");
+      if (region === "all") {
+        selectedRegions.clear();
+      } else {
+        if (selectedRegions.has(region)) {
+          selectedRegions.delete(region);
+        } else {
+          selectedRegions.add(region);
         }
-
-        btn.addEventListener('click', (e)=>{ e.preventDefault(); openDrawer(); });
-        closeBtn.addEventListener('click', closeDrawer);
-        backdrop.addEventListener('click', closeDrawer);
-        document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeDrawer(); });
-      })();
-
-      // 單一 project 頁：點控制→導向 /projects/ 並帶參數
-      // 單一 project 頁：點控制→導向 /projects/ 並帶參數
-      if (!onProjectsPage) {
-        // 綁「所有地方」的 type chips（含手機抽屜與桌機列）
-        Array.from(document.querySelectorAll('.type-chip')).forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const t = btn.dataset.type;
-            const url = (t === 'ALL') ? '/projects/' : `/projects/?types=${encodeURIComponent(t)}`;
-            window.location.assign(url);
-          });
-        });
-
-        // Region（為了一致，這裡也抓整頁，不只 subnav）
-        Array.from(document.querySelectorAll('.region-chip')).forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const r = btn.dataset.region;
-            const url = (r && r !== 'all') ? `/projects/?region=${encodeURIComponent(r)}` : '/projects/';
-            window.location.assign(url);
-          });
-        });
-
-        // Sort（保持原本邏輯）
-        const sortToggle = document.getElementById('sortToggle');
-        if (sortToggle) {
-          sortToggle.addEventListener('click', (e) => {
-            e.preventDefault();
-            const current = (sortToggle.dataset.order === 'asc') ? 'asc' : 'desc';
-            const next = current === 'asc' ? 'desc' : 'asc';
-            window.location.assign(`/projects/?order=${next}`);
-          });
-        }
-
-        // 非 /projects/ 頁就到此為止
-        return;
       }
 
-      // /projects/ 頁：即時篩選＋同步 URL
-      const params     = new URLSearchParams(location.search);
-      const initTypes  = (params.get('types')||'').split(',').filter(Boolean);
-      const initRegion = params.get('region') || 'all';
-      const initOrder  = params.get('order')  || 'desc';
-
-      // === 類型（多選）— 同步桌機/抽屜的 active 狀態 ===
-      const typeChips = Array.from(document.querySelectorAll('.type-chip')); // both desktop + drawer
-      const selectedTypes = new Set(initTypes);
-
-      function refreshAllChipActives(){
-        const hasAny = selectedTypes.size > 0;
-        typeChips.forEach(btn=>{
-          const t = btn.dataset.type;
-          if (t === 'ALL') {
-            btn.classList.toggle('active', !hasAny);
-          } else {
-            btn.classList.toggle('active', selectedTypes.has(t));
-          }
-        });
-      }
-      refreshAllChipActives();
-
-      typeChips.forEach(btn=>{
-        btn.addEventListener('click', (e)=>{
-          e.preventDefault();
-          const t = btn.dataset.type;
-
-          if (t === 'ALL') {
-            selectedTypes.clear();
-            refreshAllChipActives();
-            applyFilters(); syncURL();
-            return;
-          }
-          if (selectedTypes.has(t)) selectedTypes.delete(t);
-          else selectedTypes.add(t);
-
-          refreshAllChipActives();
-          applyFilters(); syncURL();
-        });
-      });
-
-      // === 地區（單選） ===
-      const regionChips = Array.from(document.querySelectorAll('.region-chip'));
-      let currentRegion = initRegion;
-      regionChips.forEach(btn=>{
-        if (btn.dataset.region === initRegion) btn.classList.add('active');
-        btn.addEventListener('click', (e)=>{
-          e.preventDefault();
-          regionChips.forEach(b=>b.classList.remove('active'));
-          btn.classList.add('active');
-          currentRegion = btn.dataset.region;
-          applyFilters(); syncURL();
-        });
-      });
-
-      // === 排序（年分） ===
-      const sortToggle = document.getElementById('sortToggle');
-      const sortArrow  = document.getElementById('sortArrow');
-      let currentOrder = (initOrder === 'asc') ? 'asc' : 'desc';
-      if (sortArrow) sortArrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
-      if (sortToggle) {
-        sortToggle.dataset.order = currentOrder;
-        sortToggle.addEventListener('click', (e)=>{
-          e.preventDefault();
-          currentOrder = (currentOrder === 'asc') ? 'desc' : 'asc';
-          sortToggle.dataset.order = currentOrder;
-          if (sortArrow) sortArrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
-          applyFilters(); syncURL();
+      regionChips.forEach(c => c.classList.remove("active"));
+      if (selectedRegions.size === 0) {
+        document.querySelectorAll(".region-chip[data-region='all']").forEach(c => c.classList.add("active"));
+      } else {
+        regionChips.forEach(c => {
+          const r = c.getAttribute("data-region");
+          if (selectedRegions.has(r)) c.classList.add("active");
         });
       }
 
-      // === 篩選核心 ===
-      const list     = document.querySelector('.project-grid');
-      const itemsAll = Array.from(document.querySelectorAll('.project-grid > .project'));
+      updateProjects();
+    });
+  });
 
-      function applyFilters(){
-        const typeActive = [...selectedTypes];
-        const showAllTypes = typeActive.length === 0;
+  // 排序按鈕
+  if (sortBtn) {
+    sortBtn.addEventListener("click", () => {
+      sortDesc = !sortDesc;
+      sortBtn.dataset.order = sortDesc ? "desc" : "asc";
+      document.getElementById("sortArrow").textContent = sortDesc ? "↓" : "↑";
+      updateProjects();
+    });
+  }
 
-        const filtered = itemsAll.filter(li=>{
-          const t  = li.dataset.typeEn;
-          const rg = li.dataset.region || 'overseas';
-          const okType   = showAllTypes ? true : typeActive.includes(t);
-          const okRegion = (currentRegion === 'all') ? true : (rg === currentRegion);
-          return okType && okRegion;
-        });
-
-        filtered.sort((a,b)=>{
-          const ay = parseInt(a.dataset.year || '0', 10);
-          const by = parseInt(b.dataset.year || '0', 10);
-          return currentOrder === 'asc' ? (ay - by) : (by - ay);
-        });
-
-        if (list) { list.innerHTML = ''; filtered.forEach(el => list.appendChild(el)); }
-      }
-
-      function syncURL(){
-        const qp = new URLSearchParams();
-        if (selectedTypes.size) qp.set('types', [...selectedTypes].join(','));
-        if (currentRegion && currentRegion !== 'all') qp.set('region', currentRegion);
-        if (currentOrder !== 'desc') qp.set('order', currentOrder);
-        const qs = qp.toString();
-        history.replaceState(null, '', qs ? ('?'+qs) : location.pathname);
-      }
-
-      applyFilters();
-    })();
-  </script>
+  // 預設啟用
+  updateProjects();
+});
+</script>
 </body>
 </html>

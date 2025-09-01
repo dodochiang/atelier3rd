@@ -1,0 +1,28 @@
+/* ===============================
+ * 第一層導覽列樣式：navbar.css
+ * =============================== */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--nav-h);
+  padding: 0 2em;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+}
+
+.navbar-right a {
+  margin-left: 1em;
+  color: #000;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.navbar-right a:hover {
+  color: #333;
+}
