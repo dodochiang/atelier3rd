@@ -2,7 +2,7 @@
 layout: project.njk
 title_en: Transitional Shelter for Refugee
 title_zh: 難民中繼屋
-type: 工作營
+type: 裝置
 location_en: Helsinki, Finland
 location_zh: 赫爾辛基，芬蘭
 year: 2014
