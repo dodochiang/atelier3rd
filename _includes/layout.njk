@@ -11,21 +11,18 @@
   <link rel="icon" type="image/png" href="/uploads/favicon.png?v=2">
 
   <style>
-    /* =========================
-     * 全域基礎（不碰 .project*）
-     * =======================*/
-    :root{
-      --nav-h: 64px;                  /* 第一層 navbar 高度 */
-      --subnav-h: 64px;               /* 第二層 subnav 高度（桌機/手機都鎖定） */
-      --container-w: 1000px;          /* 版身寬度上限 */
-      --drawer-w: 24vw;               /* 手機抽屜寬度（相對視窗） */
-      --drawer-w-max: 320px;          /* 手機抽屜最大寬度 */
+    :root {
+      --nav-h: 64px;
+      --subnav-h: 64px;
+      --container-w: 1000px;
+      --drawer-w: 24vw;
+      --drawer-w-max: 320px;
     }
 
     html[data-lang='en'] .lang-zh { display: none !important; }
     html[data-lang='zh'] .lang-en { display: none !important; }
 
-    body{
+    body {
       font-family: sans-serif;
       margin: 0;
       padding: 0;
@@ -33,236 +30,312 @@
       background: #fff;
     }
 
-    .container{
+    .container {
       max-width: var(--container-w);
       margin: 2em auto;
       padding: 1em;
     }
 
-    /* =========================
-     * 第一層 Navbar（僅控制導覽列）
-     * =======================*/
-    .navbar{
-      position: sticky; top: 0; z-index: 20;
-      display: flex; align-items: center; justify-content: space-between;
+    /* Navbar */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       height: var(--nav-h);
       padding: 0 2em;
-      background: #fff; border-bottom: 1px solid #ddd;
+      background: #fff;
+      border-bottom: 1px solid #ddd;
     }
-    .navbar-right a{
-      margin-left: 1em; color: #000; font-size: 1.1em; font-weight: bold;
-      text-decoration: none; transition: color .2s ease;
+
+    .navbar-right a {
+      margin-left: 1em;
+      color: #000;
+      font-size: 1.1em;
+      font-weight: bold;
+      text-decoration: none;
+      transition: color 0.2s ease;
     }
-    .navbar-right a:hover{ color: #333; }
 
-    .lang-toggle{ display: flex; align-items: center; gap: 6px; font-size: 0.9rem; }
-    .lang-btn{
-      padding: 2px 4px; background: none; border: none; color: gray; font-weight: normal;
-      cursor: pointer; transition: color .2s ease; font-size: inherit;
+    .navbar-right a:hover { color: #333; }
+
+    .lang-toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.9rem;
     }
-    .lang-btn.active{ color: #000; font-weight: bold; }
-    .lang-btn:hover{ color: #333; }
 
-    /* =========================
-     * 第二層 Subnav（Type / Region / Sort）
-     * =======================*/
-    .subnav{
-      position: sticky; top: var(--nav-h); z-index: 15;
-      background: #fff; border-bottom: 1px solid #eee;
-      height: var(--subnav-h);             /* 固定高度 */
-      min-height: var(--subnav-h);
-      display: flex; align-items: center;  /* 內容垂直置中 */
-      overflow: hidden;                    /* 禁止內容撐高 */
+    .lang-btn {
+      padding: 2px 4px;
+      background: none;
+      border: none;
+      color: gray;
+      font-weight: normal;
+      cursor: pointer;
+      transition: color 0.2s ease;
+      font-size: inherit;
     }
-    .subnav-inner{
-      max-width: var(--container-w);
-      margin: 0 auto;
-      padding: .6em 1em;
-      width: 100%;
-      display: grid;
 
-      /* 桌機：加大 Type 欄位，避免換行擠壓右側 */
-      grid-template-columns:
-        minmax(0, 1.6fr)   /* Type */
-        minmax(0, 0.5fr)   /* Region */
-        minmax(0, 0.4fr);  /* Sort */
-      column-gap: 1.25em;
+    .lang-btn.active { color: #000; font-weight: bold; }
+    .lang-btn:hover  { color: #333; }
 
-      align-items: center;     /* 垂直置中在 64px 內 */
-      justify-items: start;    /* 內容靠左 */
-      justify-content: start;  /* 整個 grid 靠左 */
-    }
-    .subnav-inner > *{ min-width: 0; } /* 允許欄位縮，避免把後兩欄擠走 */
-
-    .chip-title{
-      display: block; font-size: .8em; color: #666; line-height: 1.2;
-      margin-bottom: .2em;
-    }
-    .chip-bar{ display: flex; flex-wrap: wrap; gap: .5em; align-items: center; }
-    .chip{
-      padding: 0; background: none; border: none; color: #555; cursor: pointer;
-      font: inherit; text-decoration: none; border-bottom: 1px solid transparent;
-      transition: color .2s, border-color .2s; font-size: .9em;
-    }
-    .chip:hover{ color: #000; }
-    .chip.active{ color: #000; border-bottom-color: #000; }
-
-    /* -------- Type：桌機單列，不換行（溢出隱藏，避免增加高度） -------- */
-    .type-group{ position: relative; }
-    .type-inline{
-      display: flex; flex-wrap: nowrap; gap: .5em; align-items: center;
-      overflow: hidden;       /* 多的隱藏，不會撐到右邊去 */
-      min-width: 0;
-    }
-    /* 「Type: / 類型：」置前，chips 接在後面（同一行） */
-    .type-inline .chip-title{ margin: 0 .4em 0 0; }
-
-    .type-toggle-mobile{ display: none; } /* 僅手機顯示 */
-    .type-mobile{ display: none; }        /* 僅手機顯示 */
-
-    /* -------- Region：桌機單列，不換行（同樣溢出隱藏） -------- */
-    .region-group{ justify-self: start; }
-    .region-bar{
-      display: flex; flex-wrap: nowrap; gap: .5em; align-items: center;
+    /* Subnav */
+    .subnav {
+      position: sticky;
+      top: var(--nav-h);
+      z-index: 15;
+      background: #fff;
+      border-bottom: 1px solid #eee;
+      height: var(--subnav-h);
+      display: flex;
+      align-items: center;
       overflow: hidden;
     }
 
-    /* -------- Sort -------- */
-    .sort-group{
-      display: flex; flex-direction: column; align-items: flex-start; justify-self: start;
+    .subnav-inner {
+      max-width: var(--container-w);
+      margin: 0 auto;
+      padding: 0.6em 1em;
+      width: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 0.5fr) minmax(0, 0.4fr);
+      column-gap: 1.25em;
+      align-items: start;
     }
-    .sort-toggle{
-      margin-top: .1em; background: none; border: none; cursor: pointer; font: inherit; color: #333;
-      border-bottom: 1px solid transparent; padding: 0; line-height: 1; font-size: .9em;
+
+    .subnav-inner > * { min-width: 0; }
+
+    .chip-title {
+      display: block;
+      font-size: 0.8em;
+      color: #666;
+      line-height: 1.2;
     }
-    .sort-toggle:hover{ border-bottom-color:#333; }
-    #sortArrow{ display: inline-block; }
 
-    /* =========================
-     * 手機（≤900px）
-     * - Subnav 仍固定 64px 高
-     * - Type 變成小按鈕 → 左側窄抽屜
-     * - Region 放中間給更多寬度
-     * =======================*/
-     @media (max-width: 900px){
-       /* 1) 三欄一律頂端對齊，不要置中 */
-       .subnav-inner{
-         grid-template-columns: auto 1fr auto;  /* [Type 按鈕][Region][Sort] */
-         align-items: start;                     /* ← 改這個 */
-       }
+    .chip-bar {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 0.5em;
+    }
 
-       /* 2) 顯示手機版 Type，隱藏桌機 chips */
-       .type-inline{ display: none; }
-       .type-mobile{
-         display: flex;
-         flex-direction: column;
-         align-items: flex-start;
-         /* 同 Region 的垂直間距由下面兩行控制 */
-       }
-       .type-mobile .chip-title{
-         margin: 0;               /* 跟 Region 一樣，標題本身不加底 margin */
-         line-height: 1.2;
-         font-size: .8em;
-       }
-       .type-toggle-mobile{
-         display: inline-flex;
-         align-items: center;
-         gap: .4em;
-         background: none;
-         border: 0;               /* 不要透明底線，避免多出 1px 高度 */
-         padding: 0;
-         color: #333;
-         font: inherit;
-         white-space: nowrap;
-         cursor: pointer;
-         margin-top: .25em;       /* ← 與 Region 的 .region-bar 上緣距一致 */
-       }
+    .chip {
+      padding: 0;
+      background: none;
+      border: none;
+      color: #555;
+      cursor: pointer;
+      font: inherit;
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+      font-size: 0.9em;
+    }
 
-       /* 3) 讓 Region 跟 Type 的結構一致：標題無 margin，內容用上邊距撐開 */
-       .region-group{
-         display: flex;           /* 跟 .type-mobile 一樣，用 column */
-         flex-direction: column;
-         align-items: flex-start;
-       }
-       .region-group .chip-title{
-         margin: 0;               /* 標題不加底 margin，改由內容加上邊距 */
-         line-height: 1.2;
-         font-size: .8em;
-       }
-       .region-bar{
-         flex-wrap: nowrap;
-         gap: .6em;
-         margin-top: .25em;       /* ← 與 .type-toggle-mobile 的 margin-top 對齊 */
-       }
-     }
+    .chip:hover     { color: #000; }
+    .chip.active    { color: #000; border-bottom-color: #000; }
 
-    /* =========================
-     * 手機抽屜（Type）— 從左側滑出，窄寬，保留下方內容可見
-     * =======================*/
-    .drawer-backdrop{
+    /* Group base layout for >900px */
+    @media (min-width: 901px) {
+      .type-inline,
+      .region-group,
+      .sort-group {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25em;
+      }
+
+      .region-bar,
+      .sort-toggle {
+        margin-top: 0 !important;
+      }
+    }
+
+    /* Region chips */
+    .region-bar {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 0.5em;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    /* Sort chips */
+    .sort-toggle {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font: inherit;
+      color: #333;
+      border-bottom: 1px solid transparent;
+      padding: 0;
+      line-height: 1;
+      font-size: 0.9em;
+    }
+
+    .sort-toggle:hover { border-bottom-color: #333; }
+    #sortArrow { display: inline-block; }
+
+    /* Mobile version */
+    @media (max-width: 900px) {
+      .subnav-inner {
+        grid-template-columns: auto 1fr auto;
+        align-items: start;
+      }
+
+      .type-inline { display: none; }
+
+      .type-mobile,
+      .region-group,
+      .sort-group {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25em;
+      }
+
+      .type-toggle-mobile,
+      .region-bar,
+      .sort-toggle {
+        margin-top: 0 !important;
+      }
+
+      .type-mobile .chip-title,
+      .region-group .chip-title {
+        font-size: 0.8em;
+        line-height: 1.2;
+      }
+
+      .type-toggle-mobile {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4em;
+        background: none;
+        border: 0;
+        padding: 0;
+        color: #333;
+        font: inherit;
+        white-space: nowrap;
+        cursor: pointer;
+      }
+    }
+
+    /* Drawer for mobile */
+    .drawer-backdrop {
       display: none;
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,.15);       /* 淡淡的，仍看得到底下內容 */
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.15);
       z-index: 40;
     }
-    .drawer-backdrop.is-open{ display: block; }
 
-    .type-drawer{
-      position:fixed;
+    .drawer-backdrop.is-open { display: block; }
+
+    .type-drawer {
+      position: fixed;
       top: var(--nav-h);
       bottom: 0;
       left: 0;
-      width: min(var(--drawer-w), var(--drawer-w-max));  /* 用變數控寬 */
-      background: rgba(255,255,255,0.72);                /* 半透明白底 */
-      backdrop-filter: blur(4px);                        /* 讓底下內容微糊 */
+      width: min(var(--drawer-w), var(--drawer-w-max));
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(4px);
       z-index: 41;
-      transform: translateX(-100%);                      /* 預設隱藏在左邊 */
-      transition: transform .25s ease;
-      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+      transform: translateX(-100%);
+      transition: transform 0.25s ease;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
       padding: 1rem 1rem 1.25rem;
-      display:flex;
-      flex-direction:column;
-      gap:1rem;
-    }
-    .type-drawer.is-open{ transform: translateX(0); }
-
-    .drawer-header{
-      display: flex; align-items: center; justify-content: space-between;
-      padding-bottom: .25rem; border-bottom: 1px solid #eee;
-    }
-    .drawer-close{
-      background: none; border: none; font-size: 1.5rem; line-height: 1; cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
     }
 
-    /* drawer 選單：一列一個 */
-    .drawer-list{
-      display:flex;
-      flex-direction:column;
-      align-items:flex-start;
-      gap:.2em;
-    }
-    .drawer-list .chip-title{ margin: 0 0 .5em 0; }
+    .type-drawer.is-open { transform: translateX(0); }
 
-    /* chips：用 inline-block，底線只到文字 */
-    .drawer-list .chip{
-      display:inline-block;
-      width:auto;
-      text-align:left;
-      padding:.35em 0;
-      border-bottom:1px solid transparent;
-      white-space:nowrap;
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 0.25rem;
+      border-bottom: 1px solid #eee;
     }
-    /* active：底線顯示（與桌機一致） */
-    .drawer-list .chip.active{
-      color:#000;
-      border-bottom-color:#000;
-    }
-    .drawer-list .chip + .chip{ margin-top: .1em; }
 
-    /* 抽屜只在手機有意義；桌機時確保不顯示 */
-    @media (min-width: 901px){
-      .type-drawer{ display: none; }
-      .drawer-backdrop{ display: none !important; }
+    .drawer-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .drawer-list {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.2em;
+    }
+
+    .drawer-list .chip-title {
+      margin: 0 0 0.5em 0;
+    }
+
+    .drawer-list .chip {
+      display: inline-block;
+      width: auto;
+      text-align: left;
+      padding: 0.35em 0;
+      border-bottom: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .drawer-list .chip.active {
+      color: #000;
+      border-bottom-color: #000;
+    }
+
+    .drawer-list .chip + .chip {
+      margin-top: 0.1em;
+    }
+
+    @media (min-width: 901px) {
+      .type-inline {
+        display: flex !important;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .type-toggle-mobile,
+      .type-mobile {
+        display: none !important;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .type-inline {
+        display: none !important;
+      }
+
+      .type-mobile {
+        display: flex !important;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .type-toggle-mobile {
+        display: inline-flex !important;
+        align-items: center;
+        gap: 0.4em;
+        background: none;
+        border: 0;
+        padding: 0;
+        color: #333;
+        font: inherit;
+        white-space: nowrap;
+        cursor: pointer;
+        margin-top: 0.25em;
+      }
     }
   </style>
 </head>
@@ -288,19 +361,21 @@
       <!-- ① TYPE（桌機：inline；手機：按鈕開抽屜） -->
       <div class="type-group" id="typeGroup">
         <!-- 桌機 inline chips（單行、溢出隱藏） -->
-        <div class="type-group" id="typeGroup">
+        <div class="type-inline" style="flex-direction: column; align-items: flex-start;">
           <span class="chip-title">
             <span class="lang-en">Type:</span>
             <span class="lang-zh">類型：</span>
           </span>
-          <button class="chip type-chip" data-type="ALL"><span class="lang-en">All</span><span class="lang-zh">全部</span></button>
-          <button class="chip type-chip" data-type="Residential"><span class="lang-en">Residential</span><span class="lang-zh">住宅</span></button>
-          <button class="chip type-chip" data-type="Commercial"><span class="lang-en">Commercial</span><span class="lang-zh">商業</span></button>
-          <button class="chip type-chip" data-type="Cultural"><span class="lang-en">Cultural</span><span class="lang-zh">文化</span></button>
-          <button class="chip type-chip" data-type="Public"><span class="lang-en">Public</span><span class="lang-zh">公共</span></button>
-          <button class="chip type-chip" data-type="Installation"><span class="lang-en">Installation</span><span class="lang-zh">裝置</span></button>
-          <button class="chip type-chip" data-type="Workshop"><span class="lang-en">Workshop</span><span class="lang-zh">工作營</span></button>
-          <button class="chip type-chip" data-type="Exhibition"><span class="lang-en">Exhibition</span><span class="lang-zh">展覽</span></button>
+          <div class="chip-bar">
+            <button class="chip type-chip" data-type="ALL"><span class="lang-en">All</span><span class="lang-zh">全部</span></button>
+            <button class="chip type-chip" data-type="Residential"><span class="lang-en">Residential</span><span class="lang-zh">住宅</span></button>
+            <button class="chip type-chip" data-type="Commercial"><span class="lang-en">Commercial</span><span class="lang-zh">商業</span></button>
+            <button class="chip type-chip" data-type="Cultural"><span class="lang-en">Cultural</span><span class="lang-zh">文化</span></button>
+            <button class="chip type-chip" data-type="Public"><span class="lang-en">Public</span><span class="lang-zh">公共</span></button>
+            <button class="chip type-chip" data-type="Installation"><span class="lang-en">Installation</span><span class="lang-zh">裝置</span></button>
+            <button class="chip type-chip" data-type="Workshop"><span class="lang-en">Workshop</span><span class="lang-zh">工作營</span></button>
+            <button class="chip type-chip" data-type="Exhibition"><span class="lang-en">Exhibition</span><span class="lang-zh">展覽</span></button>
+          </div>
         </div>
 
         <!-- 手機：小標籤 + 按鈕 -->
