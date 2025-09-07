@@ -1,0 +1,117 @@
+{% extends "layout.njk" %}
+
+{% block content %}
+{% set TYPE_ZH = {
+  "Residential": "住宅",
+  "Commercial": "商業",
+  "Cultural": "文化",
+  "Public": "公共",
+  "Installation": "裝置",
+  "Workshop": "工作營",
+  "Exhibition": "展覽"
+} %}
+{% set TYPE_EN = {
+  "住宅": "Residential",
+  "商業": "Commercial",
+  "文化": "Cultural",
+  "公共": "Public",
+  "裝置": "Installation",
+  "工作營": "Workshop",
+  "展覽": "Exhibition"
+} %}
+
+<section class="projects-page">
+  <ul class="projects-grid core-grid">
+    {% set corePages = collections.corepages | sort(attribute="data.order") %}
+    {% set projectPages = collections.projects %}
+    {% set allPages = corePages | concat(projectPages) %}
+
+    {% for item in allPages %}
+      {% set d = item.data %}
+      {% set isCore = item.inputPath and item.inputPath.includes('core-pages/') %}
+      {% set title_en = d.title_en or d.title or '' %}
+      {% set title_zh = d.title_zh or d.title or '' %}
+      {% set keywords = d.keywords or [] %}
+      {% set rawImg = d.cover
+                      or d.thumbnail
+                      or (d.gallery and d.gallery[0] and (d.gallery[0].image or d.gallery[0]))
+                      or (d.gallery_images and d.gallery_images[0]) %}
+      {% set thumbSrc = rawImg | imageUrlSafe %}
+
+      {# 補充 projects 專用欄位 #}
+      {% set rawType = d.type or '' %}
+      {% set type_en = TYPE_EN[rawType] or rawType %}
+      {% set type_zh = TYPE_ZH[type_en] or (TYPE_ZH[rawType] or rawType) %}
+      {% set loc_en  = d.location_en or d.location or '' %}
+      {% set loc_zh  = d.location_zh or d.location or '' %}
+      {% set _fa = d.floor_area %}
+      {% set _un = d.units %}
+      {% if _fa is not none %}
+        {% set fa_str = (_fa ~ '') %}
+        {% if ('㎡' in fa_str) or ('m²' in fa_str) or ('sqm' in (fa_str|lower)) %}
+          {% set fa_en = fa_str %}{% set fa_zh = fa_str %}
+        {% else %}
+          {% set fa_en = fa_str ~ ' sqm' %}
+          {% set fa_zh = fa_str ~ '㎡' %}
+        {% endif %}
+      {% endif %}
+      {% if _un is not none %}
+        {% set un_str = (_un ~ '') %}
+        {% if ('戶' in un_str) or ('units' in (un_str|lower)) %}
+          {% set units_en = un_str %}{% set units_zh = un_str %}
+        {% else %}
+          {% set units_en = un_str ~ ' units' %}
+          {% set units_zh = un_str ~ '戶' %}
+        {% endif %}
+      {% endif %}
+
+      <li class="project{% if isCore %} corepage{% endif %}"
+          data-keywords="{{ keywords | join(',') | lower }}"
+          data-year="{{ d.year or '' }}"
+          data-type="{{ type_en or '' }}"
+          data-region="{{ d.region or '' }}"
+          data-order="{{ d.order or 0 }}">
+        <a href="{{ item.url }}" class="project-card">
+
+          {% if thumbSrc %}
+            <div class="core-thumb-wrapper">
+              <img class="thumb-round"
+                   src="{{ thumbSrc | safe }}"
+                   alt="{{ title_en or title_zh }} — thumbnail"
+                   loading="lazy" decoding="async"
+                   referrerpolicy="no-referrer-when-downgrade">
+            </div>
+          {% endif %}
+
+          <div class="project-title lock-lang">
+            <span class="lang-en">{{ title_en }}</span>
+            <span class="lang-zh">{{ title_zh }}</span>
+          </div>
+
+          {% if not isCore %}
+            <div class="project-meta lock-lang">
+              <div class="project-meta-line">
+                <span class="lang-en">
+                  {% if type_en %}{{ type_en }}{% endif %}{% if loc_en %} ｜ {{ loc_en }}{% endif %}
+                </span>
+                <span class="lang-zh">
+                  {% if type_zh %}{{ type_zh }}{% endif %}{% if loc_zh %} ｜ {{ loc_zh }}{% endif %}
+                </span>
+              </div>
+              <div class="project-meta-line">
+                <span class="lang-en">
+                  {% if units_en %}{{ units_en }}{% endif %}{% if fa_en %} ｜ {{ fa_en }}{% endif %}{% if d.year %} ｜ {{ d.year }}{% endif %}
+                </span>
+                <span class="lang-zh">
+                  {% if units_zh %}{{ units_zh }}{% endif %}{% if fa_zh %} ｜ {{ fa_zh }}{% endif %}{% if d.year %} ｜ {{ d.year }}{% endif %}
+                </span>
+              </div>
+            </div>
+          {% endif %}
+
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}

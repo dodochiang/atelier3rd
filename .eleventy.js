@@ -1,17 +1,37 @@
 const markdownIt = require("markdown-it")({ html: true });
 
 module.exports = function (eleventyConfig) {
-  // ✅ 靜態檔案複製
   eleventyConfig.addPassthroughCopy({ "static/uploads": "uploads" });
   eleventyConfig.addPassthroughCopy("admin");
-  eleventyConfig.addPassthroughCopy("css"); // 加上 css 資料夾
+  eleventyConfig.addPassthroughCopy("css");
 
-  // ✅ markdown-it filter
   eleventyConfig.addFilter("markdown", (content) =>
     markdownIt.render(content || "")
   );
 
-  // ✅ 圖片 URL 容錯處理 filter
+  eleventyConfig.addFilter("concat", (arr1, arr2) => (arr1 || []).concat(arr2 || []));
+
+  eleventyConfig.addFilter("keys", obj => {
+    if (obj && typeof obj === "object" && !Array.isArray(obj)) {
+      return Object.keys(obj);
+    }
+    return [];
+  });
+
+  eleventyConfig.addFilter("pickFirst", (...args) => {
+    for (const a of args) {
+      if (
+        a !== undefined &&
+        a !== null &&
+        a !== "" &&
+        !(Array.isArray(a) && a.length === 0)
+      ) {
+        return a;
+      }
+    }
+    return "";
+  });
+
   eleventyConfig.addFilter("imageUrlSafe", (v) => {
     try {
       if (Array.isArray(v)) v = v.length ? v[v.length - 1] : "";
@@ -47,31 +67,30 @@ module.exports = function (eleventyConfig) {
     }
   });
 
-  // ✅ 小輔助：取第一個有效值
-  eleventyConfig.addFilter("pickFirst", (...args) => {
-    for (const a of args) {
-      if (
-        a !== undefined &&
-        a !== null &&
-        a !== "" &&
-        !(Array.isArray(a) && a.length === 0)
-      ) {
-        return a;
-      }
-    }
-    return "";
-  });
 
-  // ✅ 自定義 collection: projects
-  eleventyConfig.addCollection("projects", function (collectionApi) {
+  // ✅ projects: 照 year 新到舊
+  eleventyConfig.addCollection("projects", (collectionApi) => {
     return collectionApi.getFilteredByGlob("projects/*.md").sort((a, b) => {
-      const ya = Number(b.data.year || 0);
-      const yb = Number(a.data.year || 0);
-      return ya - yb;
+      return (Number(b.data.year || 0)) - (Number(a.data.year || 0));
     });
   });
 
-  // ✅ Eleventy 專案目錄設定
+  // ✅ 合併 corepages + projects，core 在前，依 order 排序
+  eleventyConfig.addCollection("allContent", (collectionApi) => {
+    const core = collectionApi.getFilteredByGlob("core-pages/*.md").sort((a, b) => {
+      return (a.data.order || 0) - (b.data.order || 0);
+    }).map(item => {
+      item.data.isCore = true;
+      return item;
+    });
+
+    const projects = collectionApi.getFilteredByGlob("projects/*.md").sort((a, b) => {
+      return (Number(b.data.year || 0)) - (Number(a.data.year || 0));
+    });
+
+    return core.concat(projects);
+  });
+
   return {
     dir: {
       input: ".",

@@ -1,0 +1,25 @@
+/* 可以放在 /css/corepage.css，再 import 進 style.css */
+.core-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.core-content {
+  max-width: 700px;
+  margin: 0 auto;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.core-content figure {
+  margin: 2em 0;
+}
+
+.core-content figcaption {
+  font-size: 0.9em;
+  color: #666;
+  margin-top: 0.5em;
+  text-align: left;
+}

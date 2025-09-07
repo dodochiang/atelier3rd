@@ -1,10 +1,14 @@
+/* =========================
+ * 第二層 subnav 樣式
+ * =======================*/
+
 .subnav {
   position: sticky;
   top: var(--nav-h);
   z-index: 15;
   background: #fff;
   border-bottom: 1px solid #eee;
-  height: var(--subnav-h);
+  height: auto;
   display: flex;
   align-items: center;
   overflow: hidden;
@@ -16,28 +20,53 @@
   padding: 0.6em 1em;
   width: 100%;
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(0, 0.5fr) minmax(0, 0.4fr);
+  grid-template-columns: 1fr max-content max-content;
   column-gap: 1.25em;
   align-items: start;
 }
 
-.subnav-inner > * {
+/* ====== 共用欄位群組樣式 ====== */
+.type-group,
+.keyword-group,
+.region-group,
+.sort-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
   min-width: 0;
 }
 
+.type-group,
+.keyword-group {
+  flex: 1.6;
+}
+.region-group {
+  flex: 0.5;
+}
+.sort-group {
+  flex: 0.4;
+  white-space: nowrap;
+}
+
+/* ====== chip-title 樣式：垂直空間一致 ====== */
 .chip-title {
-  display: block;
-  font-size: 0.8em;
+  font-size: 0.8rem;
   color: #666;
   line-height: 1.2;
+  margin-bottom: 0.2em; /* ✅ 控制 chip 與標題距離一致 */
 }
 
-.chip-bar {
+/* ====== chip-bar 群組 ====== */
+.chip-bar,
+.region-bar {
   display: flex;
-  flex-wrap: nowrap;
-  gap: 0.5em;
+  flex-wrap: wrap;
+  gap: 0.75em;
+  align-items: center;
+
 }
 
+/* ====== chip 樣式：文字底線 ====== */
 .chip {
   padding: 0;
   background: none;
@@ -49,19 +78,13 @@
   border-bottom: 1px solid transparent;
   transition: color 0.2s, border-color 0.2s;
   font-size: 0.9em;
+  line-height: 1.5;
 }
 
 .chip:hover     { color: #000; }
 .chip.active    { color: #000; border-bottom-color: #000; }
 
-.region-bar {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 0.5em;
-  align-items: center;
-  overflow: hidden;
-}
-
+/* ====== 排序按鈕樣式（箭頭下方） ====== */
 .sort-toggle {
   background: none;
   border: none;
@@ -72,73 +95,72 @@
   padding: 0;
   line-height: 1;
   font-size: 0.9em;
+  align-self: flex-start;
 }
 
 .sort-toggle:hover {
   border-bottom-color: #333;
 }
 
-#sortArrow {
-  display: inline-block;
+/* ====== drawer 切換按鈕 ====== */
+.type-toggle-mobile {
+  font-size: 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #333;
+  font: inherit;
+  white-space: nowrap;
+  line-height: 1;
+  vertical-align: middle;
+  padding-top: 2px;
 }
 
-/* >900px 桌機 */
-@media (min-width: 901px) {
-  .type-inline,
-  .region-group,
-  .sort-group {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.25em;
-  }
-
-  .region-bar,
-  .sort-toggle {
-    margin-top: 0 !important;
-  }
+.keyword-mobile,
+.type-mobile {
+  display: none;
+  margin-top: 0.25rem;
 }
 
-/* <900px 手機 */
+/* =========================
+ * 手機模式
+ * =======================*/
 @media (max-width: 900px) {
   .subnav-inner {
-    grid-template-columns: auto 1fr auto;
-    align-items: start;
-  }
-
-  .type-inline { display: none; }
-
-  .type-mobile,
-  .region-group,
-  .sort-group {
-    display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.25em;
+    padding: 0.75rem;
+    gap: 0.75rem;
+    height: auto;
   }
 
-  .type-toggle-mobile,
-  .region-bar,
-  .sort-toggle {
-    margin-top: 0 !important;
+  .type-group,
+  .keyword-group,
+  .region-group,
+  .sort-group {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
   }
 
-  .type-mobile .chip-title,
-  .region-group .chip-title {
-    font-size: 0.8em;
-    line-height: 1.2;
+  .type-inline,
+  .keyword-inline {
+    display: none;
   }
 
-  .type-toggle-mobile {
-    display: inline-flex;
+  .type-mobile,
+  .keyword-mobile {
+    display: flex;
     align-items: center;
-    gap: 0.4em;
-    background: none;
-    border: 0;
-    padding: 0;
-    color: #333;
-    font: inherit;
-    white-space: nowrap;
-    cursor: pointer;
+    gap: 0.5em;
+    padding-left: 0.25rem;
+  }
+
+  .sort-group {
+    align-items: flex-start;
+  }
+  .region-group,
+  .sort-group {
+  padding-top: 0.25rem; /* ✅ 增加與上方的間距，使高度與 type-group 一致 */
   }
 }

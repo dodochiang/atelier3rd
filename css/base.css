@@ -2,7 +2,7 @@
   --nav-h: 64px;
   --subnav-h: 64px;
   --container-w: 1000px;
-  --drawer-w: 24vw;
+  --drawer-w: 32vw;
   --drawer-w-max: 320px;
 }
 
@@ -37,8 +37,18 @@ body {
   color: gray;
   font-weight: normal;
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition: all 0.2s ease;
   font-size: inherit;
+  border-bottom: 1px solid transparent;
 }
-.lang-btn.active { color: #000; font-weight: bold; }
-.lang-btn:hover  { color: #333; }
+
+.lang-btn.active {
+  color: #000;
+  font-weight: bold;
+  border-bottom: 1px solid #000;
+}
+
+.lang-btn:hover {
+  color: #333;
+  border-bottom-color: #333;
+}

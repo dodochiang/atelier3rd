@@ -1,0 +1,23 @@
+/* 圓形縮圖包裝容器：置中 */
+.core-thumb-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1em;
+}
+
+/* 圓形縮圖樣式（桌機為主） */
+.thumb-round {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  aspect-ratio: 1 / 1;
+  box-shadow: none;
+}
+@media (max-width: 900px) {
+  .thumb-round {
+    width: 280px;
+    height: 280px;
+  }
+}

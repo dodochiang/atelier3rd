@@ -26,9 +26,10 @@
   </nav>
 
   <!-- ========= 第二層導覽 ========= -->
-  {% if currentUrl == "/projects/" %}
+  {% set currentPath = page.url | url or '' %}
+  {% if currentPath.indexOf("/projects/") === 0 or currentPath == "/about/" %}
     {% include "subnav-projects.njk" %}
-  {% elif currentUrl == "/core/" or currentUrl == "/about/" %}
+  {% elif currentPath == "/core/" %}
     {% include "subnav-keywords.njk" %}
   {% endif %}
 
@@ -36,10 +37,8 @@
   <div class="container">
     {% block content %}{{ content | safe }}{% endblock %}
   </div>
-
   <!-- ========= Scripts ========= -->
   <script>
-    // ✅ 語言切換
     function setLang(lang) {
       localStorage.setItem('lang', lang);
       document.documentElement.setAttribute('data-lang', lang);
@@ -55,146 +54,250 @@
         btn.addEventListener('click', () => setLang(btn.getAttribute('data-lang-toggle') || 'zh'));
       });
 
-      // ✅ mobile drawer 開關
-      const drawer = document.getElementById("typeDrawer");
-      const backdrop = document.getElementById("typeBackdrop");
-      const openBtn = document.getElementById("typeToggleMobile");
-      const closeBtn = document.getElementById("typeDrawerClose");
+      // ✅ drawer 開關（通用 keyword 用）
+      const drawer = document.getElementById("keywordDrawer");
+      const backdrop = document.getElementById("keywordBackdrop");
+      const openBtn = document.getElementById("keywordToggleMobile");
+      const closeBtn = document.getElementById("keywordDrawerClose");
 
       if (openBtn && drawer && backdrop) {
         openBtn.addEventListener("click", () => {
           drawer.classList.add("is-open");
           backdrop.classList.add("is-open");
         });
-        closeBtn.addEventListener("click", () => {
+        closeBtn?.addEventListener("click", () => {
           drawer.classList.remove("is-open");
           backdrop.classList.remove("is-open");
         });
-        backdrop.addEventListener("click", () => {
+        backdrop?.addEventListener("click", () => {
           drawer.classList.remove("is-open");
           backdrop.classList.remove("is-open");
         });
       }
 
-      // ✅ sort toggle（遞增 / 遞減）
-      const sortBtn = document.getElementById("sortToggle");
-      if (sortBtn) {
-        sortBtn.addEventListener("click", () => {
-          const current = sortBtn.dataset.order || "desc";
-          const next = current === "desc" ? "asc" : "desc";
+      // ✅ keywords 篩選與排序（core 頁用）
+      if (location.pathname.startsWith("/core")) {
+        const items = document.querySelectorAll(".corepage");
+        const keywordChips = document.querySelectorAll(".keyword-chip");
+        const sortToggle = document.getElementById("sortToggle");
+        const sortArrow = document.getElementById("sortArrow");
 
-          const url = new URL(window.location.href);
-          url.searchParams.set("sort", next);
-          window.location.href = url.toString();
+        let selectedKeywords = new Set();
+        let sortDescending = true;
+
+        function filterAndSort() {
+          const container = document.querySelector(".projects-grid");
+          const visibleItems = [];
+
+          items.forEach(item => {
+            const keywords = (item.dataset.keywords || "").split(",").map(s => s.trim());
+            const match = selectedKeywords.size === 0 || [...selectedKeywords].every(k => keywords.includes(k));
+            item.style.display = match ? "" : "none";
+            if (match) visibleItems.push(item);
+          });
+
+          visibleItems.sort((a, b) => {
+            const ya = parseInt(a.dataset.year) || 0;
+            const yb = parseInt(b.dataset.year) || 0;
+            return sortDescending ? yb - ya : ya - yb;
+          });
+
+          visibleItems.forEach(item => container.appendChild(item));
+        }
+
+        keywordChips.forEach(chip => {
+          chip.addEventListener("click", () => {
+            const keyword = chip.dataset.keyword;
+
+            if (keyword === "ALL") {
+              selectedKeywords.clear();
+            } else {
+              selectedKeywords.delete("ALL");
+              if (selectedKeywords.has(keyword)) {
+                selectedKeywords.delete(keyword);
+              } else {
+                selectedKeywords.add(keyword);
+              }
+            }
+
+            keywordChips.forEach(c => {
+              const k = c.dataset.keyword;
+              if (selectedKeywords.size === 0) {
+                c.classList.toggle("active", k === "ALL");
+              } else {
+                c.classList.toggle("active", selectedKeywords.has(k));
+              }
+            });
+
+            filterAndSort();
+          });
         });
+
+        sortToggle?.addEventListener("click", () => {
+          sortDescending = !sortDescending;
+          sortArrow.textContent = sortDescending ? "↓" : "↑";
+          sortToggle.dataset.order = sortDescending ? "desc" : "asc";
+          filterAndSort();
+        });
+
+        filterAndSort();
+      }
+
+      // ✅ projects 或 about 頁面（type/region chips 可導向 projects 篩選）
+      if (location.pathname.startsWith("/projects") || location.pathname.startsWith("/about")) {
+        const onProjectsPage = location.pathname.startsWith("/projects");
+        const projects = document.querySelectorAll(".project");
+        const typeChips = document.querySelectorAll(".type-chip");
+        const regionChips = document.querySelectorAll(".region-chip");
+        const sortToggle = document.getElementById("sortToggle");
+        const sortArrow = document.getElementById("sortArrow");
+
+        let selectedTypes = new Set(["ALL"]);
+        let selectedRegions = new Set(["all"]);
+        let sortDescending = true;
+
+        function filterProjects() {
+          if (!onProjectsPage) return;
+          projects.forEach(p => {
+            const type = p.dataset.type;
+            const region = p.dataset.region;
+            const typeMatch = selectedTypes.has("ALL") || selectedTypes.has(type);
+            const regionMatch = selectedRegions.has("all") || selectedRegions.has(region);
+            p.style.display = (typeMatch && regionMatch) ? "" : "none";
+          });
+        }
+
+        function sortProjects() {
+          if (!onProjectsPage) return;
+          const container = document.querySelector(".projects-grid");
+          const items = Array.from(projects).filter(p => p.style.display !== "none");
+
+          items.sort((a, b) => {
+            const ya = parseInt(a.dataset.year) || 0;
+            const yb = parseInt(b.dataset.year) || 0;
+            return sortDescending ? yb - ya : ya - yb;
+          });
+
+          items.forEach(item => container.appendChild(item));
+        }
+
+        // ✅ 點選 chip 如果在 about 頁面 → 轉址
+        function redirectToProjectsWith(type, region) {
+          const url = new URL(window.location.origin + "/projects/");
+          if (type) url.searchParams.set("type", type);
+          if (region) url.searchParams.set("region", region);
+          window.location.href = url.toString();
+        }
+
+        typeChips.forEach(chip => {
+          chip.addEventListener("click", () => {
+            const value = chip.dataset.type;
+
+            // ✅ 若非 /projects 頁面，導回並附上篩選參數
+              if (!location.pathname.startsWith("/projects")) {
+                const url = new URL("/projects/", location.origin);
+                url.searchParams.set("type", value);
+                location.href = url.href;
+                return;
+              }
+
+            if (!onProjectsPage) return redirectToProjectsWith(value, [...selectedRegions][0]);
+
+            if (value === "ALL") {
+              selectedTypes = new Set(["ALL"]);
+            } else {
+              if (selectedTypes.has("ALL")) selectedTypes.delete("ALL");
+              if (selectedTypes.has(value)) selectedTypes.delete(value);
+              else selectedTypes.add(value);
+              if (selectedTypes.size === 0) selectedTypes.add("ALL");
+            }
+
+            typeChips.forEach(c => {
+              const v = c.dataset.type;
+              c.classList.toggle("active", selectedTypes.has(v));
+            });
+
+            filterProjects();
+            sortProjects();
+          });
+        });
+
+        // ✅ region 單選
+        regionChips.forEach(chip => {
+          chip.addEventListener("click", () => {
+            const value = chip.dataset.region;
+
+            // ✅ 若非 /projects 頁面，導回並附上篩選參數
+            if (!location.pathname.startsWith("/projects")) {
+              const url = new URL("/projects/", location.origin);
+              url.searchParams.set("region", value);
+              location.href = url.href;
+              return;
+            }
+
+
+            if (!onProjectsPage) return redirectToProjectsWith([...selectedTypes][0], value);
+
+            selectedRegions = new Set([value]);
+            regionChips.forEach(c => {
+              const v = c.dataset.region;
+              c.classList.toggle("active", v === value);
+            });
+
+            filterProjects();
+            sortProjects();
+          });
+        });
+
+        sortToggle?.addEventListener("click", () => {
+          sortDescending = !sortDescending;
+          sortArrow.textContent = sortDescending ? "↓" : "↑";
+          sortToggle.dataset.order = sortDescending ? "desc" : "asc";
+          sortProjects();
+        });
+
+        // ✅ drawer 開關（type 用）
+        const typeDrawer = document.getElementById("typeDrawer");
+        const typeBackdrop = document.getElementById("typeBackdrop");
+        const typeToggleBtn = document.getElementById("typeToggleMobile");
+        const typeCloseBtn = document.getElementById("typeDrawerClose");
+
+        if (typeDrawer && typeBackdrop && typeToggleBtn && typeCloseBtn) {
+          typeToggleBtn.addEventListener("click", () => {
+            typeDrawer.classList.add("is-open");
+            typeBackdrop.classList.add("is-open");
+          });
+          typeCloseBtn.addEventListener("click", () => {
+            typeDrawer.classList.remove("is-open");
+            typeBackdrop.classList.remove("is-open");
+          });
+          typeBackdrop.addEventListener("click", () => {
+            typeDrawer.classList.remove("is-open");
+            typeBackdrop.classList.remove("is-open");
+          });
+        }
+
+        // 初始化（projects 頁才需要）
+        if (onProjectsPage) {
+          // ✅ 根據 URL 查詢參數初始化
+          const urlParams = new URLSearchParams(location.search);
+          const initType = urlParams.get("type");
+          const initRegion = urlParams.get("region");
+          if (initType) selectedTypes = new Set([initType]);
+          if (initRegion) selectedRegions = new Set([initRegion]);
+
+          typeChips.forEach(c => {
+            if (selectedTypes.has(c.dataset.type)) c.classList.add("active");
+          });
+          regionChips.forEach(c => {
+            if (selectedRegions.has(c.dataset.region)) c.classList.add("active");
+          });
+
+          filterProjects();
+          sortProjects();
+        }
       }
     });
   </script>
-  <script>
-// ======== 篩選功能（僅限 /projects/ 頁面）========
-document.addEventListener("DOMContentLoaded", function () {
-  if (!location.pathname.startsWith("/projects")) return;
-
-  const projects = Array.from(document.querySelectorAll(".project"));
-  const chips = document.querySelectorAll(".chip");
-  const typeChips = document.querySelectorAll(".type-chip");
-  const regionChips = document.querySelectorAll(".region-chip");
-  const sortBtn = document.getElementById("sortToggle");
-  let selectedTypes = new Set();
-  let selectedRegions = new Set();
-  let sortDesc = true;
-
-  function updateProjects() {
-    projects.forEach(p => {
-      const type = p.getAttribute("data-type");
-      const region = p.getAttribute("data-region");
-
-      const typeMatch = selectedTypes.size === 0 || selectedTypes.has(type);
-      const regionMatch = selectedRegions.size === 0 || selectedRegions.has(region);
-
-      p.style.display = (typeMatch && regionMatch) ? "" : "none";
-    });
-
-    // 排序
-    const list = document.querySelector(".projects-grid");
-    const sorted = projects.sort((a, b) => {
-      const ya = parseInt(a.getAttribute("data-year")) || 0;
-      const yb = parseInt(b.getAttribute("data-year")) || 0;
-      return sortDesc ? yb - ya : ya - yb;
-    });
-    sorted.forEach(p => list.appendChild(p));
-  }
-
-  // 類型篩選
-  typeChips.forEach(chip => {
-    chip.addEventListener("click", () => {
-      const type = chip.getAttribute("data-type");
-      if (type === "ALL") {
-        selectedTypes.clear();
-      } else {
-        if (selectedTypes.has(type)) {
-          selectedTypes.delete(type);
-        } else {
-          selectedTypes.add(type);
-        }
-      }
-
-      // Active 樣式更新
-      typeChips.forEach(c => c.classList.remove("active"));
-      if (selectedTypes.size === 0) {
-        document.querySelectorAll(".type-chip[data-type='ALL']").forEach(c => c.classList.add("active"));
-      } else {
-        typeChips.forEach(c => {
-          const t = c.getAttribute("data-type");
-          if (selectedTypes.has(t)) c.classList.add("active");
-        });
-      }
-
-      updateProjects();
-    });
-  });
-
-  // 地區篩選
-  regionChips.forEach(chip => {
-    chip.addEventListener("click", () => {
-      const region = chip.getAttribute("data-region");
-      if (region === "all") {
-        selectedRegions.clear();
-      } else {
-        if (selectedRegions.has(region)) {
-          selectedRegions.delete(region);
-        } else {
-          selectedRegions.add(region);
-        }
-      }
-
-      regionChips.forEach(c => c.classList.remove("active"));
-      if (selectedRegions.size === 0) {
-        document.querySelectorAll(".region-chip[data-region='all']").forEach(c => c.classList.add("active"));
-      } else {
-        regionChips.forEach(c => {
-          const r = c.getAttribute("data-region");
-          if (selectedRegions.has(r)) c.classList.add("active");
-        });
-      }
-
-      updateProjects();
-    });
-  });
-
-  // 排序按鈕
-  if (sortBtn) {
-    sortBtn.addEventListener("click", () => {
-      sortDesc = !sortDesc;
-      sortBtn.dataset.order = sortDesc ? "desc" : "asc";
-      document.getElementById("sortArrow").textContent = sortDesc ? "↓" : "↑";
-      updateProjects();
-    });
-  }
-
-  // 預設啟用
-  updateProjects();
-});
-</script>
 </body>
 </html>

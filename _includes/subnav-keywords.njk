@@ -1,0 +1,71 @@
+<!-- subnav-keywords.njk -->
+<nav class="subnav">
+  <div class="subnav-inner">
+    <!-- 左側：關鍵字 chips -->
+    <div class="keyword-group">
+      <div class="keyword-inline">
+        <span class="chip-title">
+          <span class="lang-en">Keywords:</span>
+          <span class="lang-zh">關鍵字：</span>
+        </span>
+        <div class="chip-bar" id="keywordBar">
+        <button class="chip keyword-chip" data-keyword="ALL">
+          <span class="lang-zh">#全部</span>
+          <span class="lang-en">#All</span>
+        </button>
+          {% for kw in collections.uniqueKeywords %}
+            <button class="chip keyword-chip" data-keyword="{{ kw }}">
+              <span class="lang-zh">#{{ kw }}</span>
+              <span class="lang-en">#{{ keywordMap[kw] or kw }}</span>
+            </button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- ✅ 手機 drawer 開關 -->
+      <div class="keyword-mobile">
+        <span class="chip-title">
+          <span class="lang-en">Keywords:</span>
+          <span class="lang-zh">關鍵字：</span>
+        </span>
+        <button id="keywordToggleMobile" class="type-toggle-mobile" aria-expanded="false" aria-controls="keywordDrawer">▾</button>
+      </div>
+    </div>
+
+    <!-- 中間：預留空欄 -->
+    <div></div>
+
+    <!-- 右側：按年排序 -->
+    <div class="sort-group">
+      <span class="chip-title">
+        <span class="lang-en">Sort by Year:</span>
+        <span class="lang-zh">按年排序：</span>
+      </span>
+      <button id="sortToggle" class="sort-toggle" data-order="desc"><span id="sortArrow">↓</span></button>
+    </div>
+  </div>
+</nav>
+
+<!-- ✅ keyword drawer (mobile) -->
+<aside id="keywordDrawer" class="type-drawer" aria-hidden="true">
+  <div class="drawer-header">
+    <button id="keywordDrawerClose" class="drawer-close" aria-label="Close">×</button>
+  </div>
+  <div class="drawer-list" id="keywordDrawerList">
+    <div class="chip-title">
+      <span class="lang-en">Choose keywords</span>
+      <span class="lang-zh">選擇關鍵字</span>
+    </div>
+    <button class="chip keyword-chip" data-keyword="ALL">
+      <span class="lang-zh">#全部</span>
+      <span class="lang-en">#All</span>
+    </button>
+    {% for kw in collections.uniqueKeywords %}
+      <button class="chip keyword-chip" data-keyword="{{ kw }}">
+        <span class="lang-zh">#{{ kw }}</span>
+        <span class="lang-en">#{{ keywordMap[kw] or kw }}</span>
+      </button>
+    {% endfor %}
+  </div>
+</aside>
+<div id="keywordBackdrop" class="drawer-backdrop" aria-hidden="true"></div>

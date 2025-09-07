@@ -1,0 +1,14 @@
+{% extends "layout.njk" %}
+
+{% block content %}
+<article class="corepage">
+  <h1 class="core-title lock-lang">
+    <span class="lang lang-zh">{{ title_zh }}</span>
+    <span class="lang lang-en">{{ title_en }}</span>
+  </h1>
+
+  <div class="core-content">
+    {{ content | safe }}
+  </div>
+</article>
+{% endblock %}
